@@ -18,7 +18,8 @@ if str(_PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(_PROJECT_ROOT))
 
 import json  # noqa: E402
-from datetime import date  # noqa: E402
+import uuid  # noqa: E402
+from datetime import date, datetime  # noqa: E402
 
 import streamlit as st  # noqa: E402
 from dotenv import load_dotenv  # noqa: E402
@@ -180,9 +181,19 @@ def main() -> None:
         st.divider()
         st.caption(f"**Triage model:** `{TRIAGE_MODEL}`")
         st.caption("**Judge model:** `claude-opus-4-7`")
-        st.caption("**Vector store:** Qdrant · bge-small-en-v1.5")
+        st.caption("**Vector store:** Qdrant · multilingual-e5-large")
+        st.caption("**STT:** faster-whisper · large-v3-turbo")
+        st.caption("**TTS:** Edge-TTS · Microsoft Neural")
 
-    # ---- Main form ----
+    # ---- Tabs: form vs voice ----
+    tab_form, tab_voice = st.tabs(["📝  Form input", "🎙  Voice input (Thai / EN)"])
+    with tab_form:
+        _render_form_tab()
+    with tab_voice:
+        _render_voice_tab()
+
+
+def _render_form_tab() -> None:
     left, right = st.columns([1, 1.2])
     with left:
         st.subheader("Claim case")
@@ -256,6 +267,101 @@ def main() -> None:
                 "Load a sample from the sidebar or fill in the form on the left, "
                 "then click **Run triage**."
             )
+
+
+def _render_voice_tab() -> None:
+    """Mic → STT → Agent → TTS end-to-end voice loop."""
+    st.markdown(
+        "🎙 **Record a claim description** in Thai or English. The system will "
+        "transcribe your audio, run the triage agent, and read the summary back "
+        "to you in the same language."
+    )
+
+    audio_blob = st.audio_input(
+        "Press the microphone to start recording, press again to stop.",
+        key="voice_audio",
+    )
+    if audio_blob is None:
+        st.info("Waiting for recording…")
+        return
+
+    lang_hint = st.radio(
+        "Language hint (optional)",
+        options=["auto", "th", "en"],
+        horizontal=True,
+        index=0,
+        key="voice_lang_hint",
+    )
+
+    run_voice = st.button(
+        "🚀  Transcribe and run triage",
+        type="primary",
+        use_container_width=True,
+        key="voice_run_btn",
+    )
+    if not run_voice:
+        return
+
+    # --- STT ---
+    from app.voice.stt import transcribe
+
+    audio_bytes = audio_blob.getvalue()
+    with st.spinner("Transcribing with Whisper (first run downloads ~1.5 GB)…"):
+        try:
+            transcript = transcribe(
+                audio_bytes, language=None if lang_hint == "auto" else lang_hint
+            )
+        except Exception as e:  # noqa: BLE001
+            st.error(f"Transcription failed: {e}")
+            return
+
+    st.success(
+        f"Detected language: **{transcript.detected_language}** "
+        f"(p={transcript.language_probability:.2f}) · "
+        f"audio {transcript.duration_seconds:.1f}s"
+    )
+    st.markdown("**Transcript:**")
+    st.info(transcript.text or "(empty — try recording again)")
+
+    if not transcript.text:
+        return
+
+    # --- Build minimal ClaimInput from voice ---
+    now = datetime.now()
+    claim = ClaimInput(
+        claim_id=f"CLM-VOICE-{now.strftime('%Y%m%d-%H%M%S')}-{uuid.uuid4().hex[:4]}",
+        customer="Voice caller (anonymous)",
+        vehicle="(unspecified — see description)",
+        incident_date=now.date(),
+        claim_submitted_date=now.date(),
+        claim_description=transcript.text,
+        documents_submitted=[],
+        customer_claim_history="(unknown — asked via follow-up)",
+    )
+
+    # --- Agent ---
+    with st.spinner("Retrieving policy and calling Claude Sonnet…"):
+        agent = TriageAgent()
+        result = agent.run(claim)
+    _render_result(result)
+
+    # --- TTS of claim_summary ---
+    from app.voice.tts import synthesize
+
+    st.markdown("### 🔊 Spoken summary")
+    with st.spinner("Synthesizing speech with Edge-TTS…"):
+        try:
+            mp3 = synthesize(result.output.claim_summary)
+        except Exception as e:  # noqa: BLE001
+            st.warning(f"TTS failed (text output above still valid): {e}")
+            return
+    st.audio(mp3, format="audio/mp3", autoplay=True)
+    st.download_button(
+        "Download spoken summary (MP3)",
+        data=mp3,
+        file_name=f"{claim.claim_id}_summary.mp3",
+        mime="audio/mp3",
+    )
 
 
 if __name__ == "__main__":

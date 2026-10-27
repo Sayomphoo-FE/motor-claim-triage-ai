@@ -11,7 +11,7 @@ or had to work around, is listed.
 
 | Area | Why it's out of scope | How we'd approach it next |
 |---|---|---|
-| Voice ingestion via Twilio | 3-day assignment, no rubric points for voice, Thailand phone numbers require regulatory approval on Twilio | Phase 2 per solution-design §12.2: Twilio Media Streams → Whisper streaming → agent → ElevenLabs streaming |
+| Voice **via Twilio telephony** | Thailand phone numbers require regulatory approval; costs real money per demo call | Phase 2 per solution-design §12.2: Twilio Media Streams → Whisper streaming → agent → ElevenLabs streaming. Note: the prototype **does** ship an end-to-end browser voice loop (Streamlit mic → faster-whisper → agent → Edge-TTS), so the pipeline is proven; only the telephony edge is deferred |
 | Multi-brand router / Supervisor agent | Single-intent prototype; the assignment only requires the triage path | Add a Supervisor LangGraph node once a second specialist (sales / inquiry) exists |
 | MCP SharePoint integration for live announcements | No live corpus to point at in a POC | Phase 2 — a local-folder MCP stub is already sketched in the design doc |
 | Vision / damage photo analysis | Would require Claude vision pricing budget and sample images beyond PDF scope | Phase 3 — Sonnet 4.6 vision call attached as a tool on the agent |
@@ -31,13 +31,16 @@ this prototype intentionally delivers the §12.1 MVP.
 
 - The solution design proposes `BAAI/bge-m3` (1024-dim, multilingual).
 - `fastembed` 0.4.x does not ship `bge-m3`; the prototype uses
-  `BAAI/bge-small-en-v1.5` (384-dim, ~33 MB) instead.
-- For the 13-clause English policy corpus this is more than adequate
-  (observed top-1 scores for clearly-matching queries are 0.7+), and
-  the 33 MB model keeps the Docker image small.
-- For Thai customer input, swap to `intfloat/multilingual-e5-large`
-  (1024-dim, ~2 GB) — the retriever interface already abstracts the
-  model name behind `EMBEDDING_MODEL`.
+  `intfloat/multilingual-e5-large` (1024-dim, ~2.24 GB) instead.
+  Verified Thai retrieval quality: "แข่งรถผิดกฎหมาย" → Clause 2.2
+  at 0.794; English regression check: "illegal street race" →
+  Clause 2.2 at 0.836 (actually stronger than the prior
+  `bge-small-en-v1.5` baseline).
+- e5 models expect `"query: "` and `"passage: "` prefixes on queries
+  and documents respectively; both ingest and retriever apply these
+  automatically when the model name contains "e5".
+- `EMBEDDING_MODEL` env var still allows swapping in a smaller model
+  for low-resource environments.
 
 ### 2.2 Anthropic SDK — no `temperature`
 
@@ -72,7 +75,40 @@ officer-facing UI shows the original claim description, so no
 information is lost. Tighten by requiring plate context ("plate",
 "ทะเบียน") or a more specific pattern once real data is available.
 
-### 2.5 Streamlit stateful behaviour
+### 2.5 Voice I/O (STT + TTS) caveats
+
+**STT — `faster-whisper large-v3-turbo`**
+
+- First recording in the UI triggers a ~1.5 GB model download, which
+  blocks the Streamlit event loop. Mitigation: pre-warm by running
+  `uv run python -m scripts.transcribe <any-wav>` once offline.
+- Thai Word Error Rate is ~8-12% on clean studio audio and higher on
+  noisy phone-call audio. For production, consider domain adaptation
+  (fine-tuning on insurance-vocabulary audio) or Typhoon-ASR for a
+  Thai-tuned Whisper variant.
+- Numeric license-plate pronunciations (e.g. "ทะเบียน กก1234")
+  transcribe inconsistently — downstream, this interacts with the
+  PLATE regex false-positive described in §2.4.
+
+**TTS — Edge-TTS**
+
+- Uses Microsoft's internal Edge browser endpoint, not a formal
+  public API. Microsoft could change or block it without notice.
+  Fallback: swap in `gTTS` (lower quality) or OpenAI TTS (paid).
+- Corporate proxies occasionally block the Edge-TTS endpoint —
+  `app/voice/tts.py` surfaces the error back to the UI rather than
+  crashing the triage result.
+- The `th-TH-PremwadeeNeural` voice is Thai-native but reads
+  loan-words with a strong Thai accent — unavoidable for Neural TTS.
+
+**Bilingual prompt behaviour**
+
+- The prompt detects Thai characters and switches free-text output
+  to Thai, keeping Clause IDs and enum values English. Edge case:
+  a mixed Thai/English description may produce code-switched output
+  which is still useful but inconsistent for downstream workflows.
+
+### 2.6 Streamlit stateful behaviour
 
 Streamlit reruns on every widget change. We store form state in
 `st.session_state` and re-render only when the user clicks

@@ -126,6 +126,7 @@ appear in policy_context.
 | Rule #5 (Low → Manual review) | Enforces the HITL rule from design doc §8.2 at the prompt layer; the output guardrail re-enforces it |
 | Two concrete examples | One for citation style, one for appropriate uncertainty. These are the two failure modes most likely to drift without examples |
 | `submit_triage` tool call forced | Guarantees Pydantic-valid output shape and enum conformance |
+| `<language>` block (bilingual rule) | Keeps enum values and `[Clause X.Y]` IDs in English (they're policy identifiers) while allowing free-text (`claim_summary`, `reasoning`, `missing_information`, `risk_flags`) in the customer's language. Avoids the common failure mode where a translation step gets inserted and loses citation anchors |
 
 ### 1.3 Anti-patterns we avoided
 

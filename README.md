@@ -52,7 +52,16 @@ Confidence Level                — High / Medium / Low
 | Python | 3.11+ | `brew install python@3.11` |
 | Docker Desktop | running | https://docker.com |
 | `uv` | 0.13+ | `curl -LsSf https://astral.sh/uv/install.sh \| sh` |
+| `ffmpeg` | any recent | `brew install ffmpeg` (needed by `faster-whisper`) |
 | Anthropic API key | — | https://console.anthropic.com → API Keys |
+
+### Disk space for first-run downloads
+
+| Model | Size | When |
+|---|---|---|
+| `intfloat/multilingual-e5-large` (embeddings) | ~2.2 GB | First `make ingest` |
+| `faster-whisper large-v3-turbo` (STT) | ~1.5 GB | First voice recording in the UI |
+| **Total one-time download** | **~3.7 GB** | Cached in `~/.cache/huggingface/` |
 
 Approximate end-to-end cost on the Anthropic API:
 
@@ -114,12 +123,19 @@ CASE options: `case1_parked_car`, `case2_illegal_racing`,
 ```bash
 make ui
 # → open http://localhost:8501
-# → use the sidebar to "Load a sample" → "Load into form"
-# → click "Run triage"
 ```
 
-The UI shows the structured output, retrieved policy clauses,
-guardrail triggers, and the full audit JSON for the session.
+The UI has two tabs:
+
+- **📝 Form input** — classic claim form. Use the sidebar to "Load a
+  sample" → "Load into form" → "Run triage". Shows the structured
+  output, retrieved policy clauses, guardrail triggers, and the full
+  audit JSON for the session.
+- **🎙 Voice input (Thai / EN)** — press the mic to record a claim in
+  Thai or English, press to stop, pick a language hint, then
+  "Transcribe and run triage". The pipeline is: `faster-whisper
+  large-v3-turbo` → Claude Sonnet 4.6 → Edge-TTS reads the summary
+  back in the detected language. The MP3 output is downloadable.
 
 ### Full evaluation
 
@@ -157,8 +173,10 @@ in [`docs/eval_report.md`](docs/eval_report.md) and
 | `app/guardrails/` | Input (PII, injection) + output (citation, safety) |
 | `app/observability/audit.py` | JSON audit log writer |
 | `app/schemas.py` | Pydantic input/output schemas |
-| `app/prompts/claim_triage.md` | Main agent prompt |
-| `app/ui/main.py` | Streamlit UI |
+| `app/prompts/claim_triage.md` | Main agent prompt (bilingual TH/EN) |
+| `app/voice/stt.py` | Speech-to-Text via faster-whisper |
+| `app/voice/tts.py` | Text-to-Speech via Edge-TTS |
+| `app/ui/main.py` | Streamlit UI (form + voice tabs) |
 | `app/eval/` | Deterministic metrics + LLM-Judge |
 | `scripts/` | Ingest / evaluate / smoke-test entry points |
 | `data/policies/` | Policy source (markdown, cite-able clauses) |
@@ -174,12 +192,14 @@ in [`docs/eval_report.md`](docs/eval_report.md) and
 
 | Task | Model / approach | Why |
 |---|---|---|
-| Triage reasoning | Claude Sonnet 4.6 | Strong structured reasoning + 100% tool-use adherence |
+| Triage reasoning | Claude Sonnet 4.6 | Strong structured reasoning + 100% tool-use adherence + strong Thai |
 | LLM-as-Judge | Claude Opus 4.7 | Different model family from Sonnet → reduces grader bias |
 | Smoke / intent | Claude Haiku 4.5 | Cheap and fast for diagnostics |
-| Embeddings | `BAAI/bge-small-en-v1.5` | 384-dim, 33 MB, more than enough for 13 clauses |
+| Embeddings | `intfloat/multilingual-e5-large` | 1024-dim, multilingual — Thai customer queries embed in the same space as the EN policy |
 | Vector store | Qdrant | Metadata filtering (`section_num`) + Docker-friendly |
 | Structured output | Anthropic tool-use + Pydantic | Model cannot return invalid shape |
+| STT (voice) | `faster-whisper large-v3-turbo` (int8, CPU) | Free, offline-capable, ~4× faster than vanilla large-v3, Thai WER ~8-12% |
+| TTS (voice) | Edge-TTS Neural (`th-TH-PremwadeeNeural`, `en-US-AriaNeural`) | Free, high-quality Thai Neural voice, no API key |
 
 ### Grounding and anti-hallucination
 
@@ -205,11 +225,14 @@ in [`docs/eval_report.md`](docs/eval_report.md) and
 Full detail in [`docs/limitations.md`](docs/limitations.md). The short
 list:
 
-- Voice-via-Twilio is **out of scope** for this prototype; the design
-  doc covers how it would be added (`§12.2 Phase 2`).
-- `BAAI/bge-m3` from the design doc is not shipped by FastEmbed → the
-  prototype uses `bge-small-en-v1.5`; swap to
-  `intfloat/multilingual-e5-large` for Thai customer input.
+- Voice-via-Twilio is **out of scope** for this prototype — a
+  browser-based voice loop (Streamlit mic → Whisper → agent → Edge-TTS)
+  stands in to demonstrate the end-to-end flow without the telephony
+  regulatory complexity.
+- `BAAI/bge-m3` from the design doc is not shipped by FastEmbed →
+  the prototype uses `intfloat/multilingual-e5-large` (1024-dim)
+  which supports both Thai customer input and English policy
+  retrieval in the same vector space.
 - The licence-plate regex can match short IDs like "P4" (parking
   spot). The input guard only masks the text sent to the LLM; the
   audit log keeps the mask trigger so an officer can inspect.
