@@ -49,14 +49,25 @@ def run_case(case_path: Path) -> TriageOutput:
     console.rule(f"Running triage on {claim.claim_id}")
     agent = TriageAgent()
     with console.status("[dim]Retrieving policy + calling Claude Sonnet...[/dim]"):
-        output, chunks = agent.run(claim)
+        result = agent.run(claim)
 
     console.print(
-        f"[dim]Retrieved {len(chunks)} policy chunks: "
-        f"{', '.join(c.clause_id for c in chunks)}[/dim]\n"
+        f"[dim]Retrieved {len(result.retrieved)} policy chunks: "
+        f"{', '.join(c.clause_id for c in result.retrieved)}[/dim]"
     )
-    _render_output(output)
-    return output
+    if result.input_guard.pii_triggers:
+        console.print(
+            f"[yellow]Input guard masked PII: "
+            f"{', '.join(set(t.split(':')[0] for t in result.input_guard.pii_triggers))}[/yellow]"
+        )
+    if result.output_guard_triggers:
+        console.print(
+            f"[yellow]Output guard triggered: {', '.join(result.output_guard_triggers)}[/yellow]"
+        )
+    console.print(f"[dim]Latency: {result.latency_ms} ms  "
+                  f"Audit: data/audit_logs/{result.audit.session_id}.json[/dim]\n")
+    _render_output(result.output)
+    return result.output
 
 
 def main() -> int:

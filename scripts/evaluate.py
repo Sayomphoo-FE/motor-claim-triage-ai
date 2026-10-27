@@ -54,7 +54,8 @@ def _run_one(agent: TriageAgent, case_path: Path, gt: dict) -> dict[str, Any]:
     console.print(f"[cyan]▶ {case_id}[/cyan]")
 
     claim = ClaimInput.model_validate_json(case_path.read_text(encoding="utf-8"))
-    output, chunks = agent.run(claim)
+    result = agent.run(claim)
+    output, chunks = result.output, result.retrieved
     det = score_case(case_id, output, chunks, gt[case_id])
     judgment = judge_output(output.reasoning, output, chunks, claim.claim_description)
 
@@ -65,6 +66,13 @@ def _run_one(agent: TriageAgent, case_path: Path, gt: dict) -> dict[str, Any]:
         "input": json.loads(claim.model_dump_json()),
         "output": json.loads(output.model_dump_json()),
         "retrieved_clauses": [c.clause_id for c in chunks],
+        "guardrail_triggers": {
+            "input": result.input_guard.pii_triggers
+            + [f"injection:{t}" for t in result.input_guard.injection_triggers],
+            "output": result.output_guard_triggers,
+        },
+        "latency_ms": result.latency_ms,
+        "audit_file": f"{result.audit.session_id}.json",
         "deterministic": _case_score_to_dict(det),
         "judge": judgment.model_dump() | {"mean": round(judgment.mean, 2)},
     }

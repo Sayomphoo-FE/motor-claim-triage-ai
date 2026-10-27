@@ -13,7 +13,7 @@
 | Risk-flags F1 (avg) | 0.67 |
 | Cited-clause coverage (avg) | 0.78 |
 | Citation validity (avg) | 1.00 |
-| LLM-Judge mean score (0-5) | 4.20 |
+| LLM-Judge mean score (0-5) | 3.92 |
 
 ## Per-case results
 
@@ -22,91 +22,10 @@
 - **Coverage:** Possibly covered  (✓ vs ground truth)
 - **Routing:** Manual review  (✓ vs ground truth)
 - **Confidence:** Medium  (✓)
-- **Cited clauses:** 1.1, 2.3, 2.4, 2.5, 3.1, 3.3, 4.1, 4.3
+- **Cited clauses:** 1.1, 2.3, 2.4, 2.5, 3.1, 3.3, 4.1
 - **Citation validity:** 1.00
 - **Missing-info F1:** 0.89 (matched: ['driving license', 'incident report', 'third-party contact', 'third-party evidence']; missed: —)
 - **Risk-flags F1:** 1.00 (matched: —; missed: —)
-
-**LLM-Judge:**
-
-| Dim | Score |
-|---|---|
-| Factuality | 4 |
-| Completeness | 5 |
-| Clarity | 4 |
-| Policy alignment | 5 |
-| Appropriate uncertainty | 4 |
-| **Mean** | **4.4** |
-
-_The reasoning cites Clause 3.3 which is in the retrieved list, but all other citations (1.1, 2.3, 2.4, 2.5, 3.1, 4.1, 4.3) are valid. However, Clause 3.2 was retrieved but not used — not a factuality issue. No hallucinated clauses detected, so factuality is strong (minor deduction for not leveraging 3.2 which likely covers additional required docs). Completeness is excellent: covers peril, exclusions ruled out, missing documents enumerated, and risk flag identified. Clarity is good but slightly dense at 5-6 long sentences with heavy inline citations. Policy alignment is consistent — manual review follows from incomplete docs plus risk flag. Uncertainty is appropriately Medium given weak third-party evidence, though "Possibly covered" with Medium confidence is well-calibrated._
-
-**Reasoning (verbatim):**
-
-> The incident description — a parked vehicle struck by another driver — aligns with a covered peril (accidental collision / third-party property damage) [Clause 1.1]. No Section 2 exclusions appear to apply on the current facts: submission was within 30 days [Clause 2.5], there is no indication of intentional damage [Clause 2.3] or out-of-area use [Clause 2.4]. However, the claim is missing the driving license, an incident report, third-party contact information, and third-party evidence, all of which are required [Clause 3.1, Clause 3.3]. Because required documents are incomplete and the only third-party evidence is an unverified note from a driver who has since left the scene, this also raises a flag for damage reported with weak supporting evidence [Clause 4.3]. Standard processing cannot be applied as not all required documents are present and a risk flag exists [Clause 4.1]; Manual review is the appropriate route pending receipt and verification of the missing items.
-
-### case2_illegal_racing
-
-- **Coverage:** Not covered  (✓ vs ground truth)
-- **Routing:** Rejection review  (✓ vs ground truth)
-- **Confidence:** High  (✓)
-- **Cited clauses:** 1.1, 2.2, 3.1, 4.3
-- **Citation validity:** 1.00
-- **Missing-info F1:** 1.00 (matched: —; missed: —)
-- **Risk-flags F1:** 0.40 (matched: ['exclusion']; missed: ['illegal racing'])
-
-**LLM-Judge:**
-
-| Dim | Score |
-|---|---|
-| Factuality | 5 |
-| Completeness | 4 |
-| Clarity | 3 |
-| Policy alignment | 5 |
-| Appropriate uncertainty | 5 |
-| **Mean** | **4.4** |
-
-_All cited clauses (1.1, 2.2, 3.1, 4.3) are in the retrieved list, so factuality is clean. The reasoning correctly identifies illegal racing as an exclusion overriding the covered-collision event, confirms documents, and routes to rejection review — well aligned with the clauses. High confidence is justified given the customer's own admission and police attendance. Main weakness is clarity/conciseness: the response runs to ~6 fairly dense sentences with some redundancy (e.g., restating the routing conclusion twice, extra commentary on fraud review not strictly needed). Completeness is solid but could more explicitly note that no further risk flags apply; the fraud-review aside is useful but slightly tangential._
-
-**Reasoning (verbatim):**
-
-> The customer's own statement — recorded by attending police — confirms participation in an illegal street race at the time of the collision, which directly and unambiguously triggers [Clause 2.2], excluding coverage for damage arising from illegal racing. Although the underlying event (collision) would ordinarily qualify as an accidental collision under [Clause 1.1], the Clause 2.2 exclusion overrides coverage when the collision occurs during illegal racing. All standard required documents per [Clause 3.1] are present (claim form, driving license, vehicle registration, photos of damage, incident report), and a police report was also submitted, leaving no documentation gaps. There are no conflicting facts — the admission is consistent across the customer's statement and police attendance — so fraud review is not additionally warranted, but the clear exclusion makes rejection review the appropriate path. Per [Clause 4.3], severe damage with strong supporting evidence (police report, photos) does not independently elevate this to fraud review; the exclusion is the primary driver. The recommended routing is therefore Rejection review based on the clear applicability of [Clause 2.2].
-
-### case3_theft_no_police
-
-- **Coverage:** Possibly covered  (✓ vs ground truth)
-- **Routing:** Manual review  (✓ vs ground truth)
-- **Confidence:** Medium  (✓)
-- **Cited clauses:** 1.1, 2.5, 3.1, 3.2, 4.1, 4.2, 4.3
-- **Citation validity:** 1.00
-- **Missing-info F1:** 1.00 (matched: ['police report', 'incident report', 'driving license', 'photos of damage']; missed: —)
-- **Risk-flags F1:** 1.00 (matched: —; missed: —)
-
-**LLM-Judge:**
-
-| Dim | Score |
-|---|---|
-| Factuality | 5 |
-| Completeness | 4 |
-| Clarity | 4 |
-| Policy alignment | 4 |
-| Appropriate uncertainty | 3 |
-| **Mean** | **4.0** |
-
-_All cited clauses (1.1, 2.5, 3.1, 3.2, 4.1, 4.2, 4.3) appear in the retrieved list, so factuality is solid. The reasoning covers the covered peril, missing documents, risk flags, and routing. However, it does not explicitly check other exclusions retrieved (2.3, 2.4) that might be relevant to theft, which is a minor completeness gap. Clarity is good though slightly dense at ~6 sentences. The leap from "no police report yet" to a fraud signal under 4.3 is somewhat aggressive — the customer only discovered the theft that morning, so delay is not unusual; labeling this as "weak supporting evidence triggering fraud" overstates the risk, which also undermines appropriate uncertainty. Medium confidence is reasonable, but the fraud framing is overconfident given the facts. Routing to manual review is appropriate and well-aligned with cited routing clauses._
-
-**Reasoning (verbatim):**
-
-> Vehicle theft is a covered peril under [Clause 1.1], and the claim was submitted within the 30-day limit (6 days), so [Clause 2.5] does not apply. However, several mandatory documents are absent: a police report is specifically required for theft claims [Clause 3.2], and a driving license copy, photos, and incident report are universally required [Clause 3.1]. The absence of a police report — particularly given that the customer has not yet filed one — constitutes severe damage reported with weak supporting evidence, triggering a potential fraud signal [Clause 4.3]. Because required documents are incomplete and there is at least one risk flag, standard processing conditions are not met [Clause 4.1]. The claim is routed to manual review pending document completion and officer judgment on whether the missing police report warrants escalation to fraud review [Clause 4.2].
-
-### case4_fraud_risk
-
-- **Coverage:** Possibly covered  (✓ vs ground truth)
-- **Routing:** Fraud review  (✓ vs ground truth)
-- **Confidence:** Medium  (✓)
-- **Cited clauses:** 1.1, 2.1, 2.3, 2.5, 3.1, 4.1, 4.2, 4.3
-- **Citation validity:** 1.00
-- **Missing-info F1:** 0.44 (matched: ['driving license', 'incident report']; missed: ['clear photo', 'police report'])
-- **Risk-flags F1:** 0.57 (matched: ['repeated claims', 'severe damage']; missed: ['weak evidence'])
 
 **LLM-Judge:**
 
@@ -119,21 +38,21 @@ _All cited clauses (1.1, 2.5, 3.1, 3.2, 4.1, 4.2, 4.3) appear in the retrieved l
 | Appropriate uncertainty | 3 |
 | **Mean** | **3.8** |
 
-_All cited clauses (1.1, 2.1, 2.3, 2.5, 3.1, 4.1, 4.2, 4.3) are within the retrieved set, so factuality is strong. Completeness is good: covers covered peril, missing docs, fraud flags, and acknowledges exclusions cannot be ruled out — though it doesn't explain why 4.1/4.2 were cited (they appear in the citation list but aren't discussed in the reasoning). Clarity suffers: the reasoning is 5 sentences but dense, and introduces facts not in the claim description (e.g., "4 claims in 12 months totalling a large sum" — this is not in the provided claim description and appears fabricated). Policy alignment to Fraud review is reasonable given the stated risk indicators, but partly rests on that unsupported claim-history assertion. Appropriate uncertainty is only "Medium" despite missing location, missing docs, blurry evidence, and unverified exclusions — "Low" would be more defensible; also asserting three fraud indicators with confidence while one (claims history) is unsupported by the input shows overconfidence._
+_All cited clauses (1.1, 2.3, 2.4, 2.5, 3.1, 3.3, 4.1) are within the retrieved set — no hallucinated citations. Completeness is good: covers covered peril, scans exclusions, flags missing documents (note contents, CCTV, third-party details), and routes to manual review. However, clarity suffers: the reasoning runs long (effectively 5-6 dense sentences with heavy bracketed citations) and could be more structured. Policy alignment is reasonable — manual review is appropriate given missing docs — though Clause 4.3/4.4 on manual-review triggers were available and not leveraged. Uncertainty is marked "Medium" which is defensible, but given that the hit-and-run element (driver left scene), unverified note, and absence of CCTV/police report introduce material unknowns about fault and third-party identification, "Low" confidence or an explicit "cannot determine liability" caveat would have been more appropriate. The assumption that the claim was filed within 2 days is also unsupported by the facts provided._
 
 **Reasoning (verbatim):**
 
-> The reported event (accidental collision) is a covered peril under [Clause 1.1], and the claim was submitted within 30 days so [Clause 2.5] does not apply. However, coverage is only "Possibly covered" because several required documents are missing — driving license, vehicle registration, incident report, and adequate damage photos — making the submission materially incomplete per [Clause 3.1]. Three distinct fraud indicators under [Clause 4.3] are present: severe front-end damage supported only by a single blurry photo (weak evidence), a pattern of repeated collision claims (4 claims in 12 months totalling a large sum), and an inconsistent/vague account with no exact location and no police attendance. No exclusion under Section 2 can be definitively confirmed without further investigation (e.g., [Clause 2.1] alcohol/drug use is not addressed, [Clause 2.3] intentional damage cannot be ruled out). Per [Clause 4.3], the presence of multiple suspicious patterns mandates routing to Fraud review rather than Manual review.
+> The incident is described as a third-party driver backing into the insured's parked vehicle, which falls under accidental collision and third-party property damage — both covered perils [Clause 1.1]. No Section 2 exclusions appear to apply on the current facts (no indication of intentional damage [Clause 2.3], geographic issue [Clause 2.4], or late submission [Clause 2.5], as the claim was filed within 2 days). However, several required documents are absent: a driving license copy and incident report are missing from the standard set [Clause 3.1], and third-party contact information and third-party evidence are missing as required for third-party damage claims [Clause 3.3]. Because required documents are incomplete, Standard Processing conditions are not fully met [Clause 4.1]. The claim is therefore routed to Manual Review pending receipt of the missing documents, particularly the contents of the note left by the at-fault driver and any available security or CCTV evidence.
 
-### case5_late_submission
+### case2_illegal_racing
 
-- **Coverage:** Possibly covered  (✗ vs ground truth)
-- **Routing:** Manual review  (✓ vs ground truth)
-- **Confidence:** Medium  (✓)
-- **Cited clauses:** 1.1, 2.5, 3.1, 4.1, 4.2, 4.3
+- **Coverage:** Not covered  (✓ vs ground truth)
+- **Routing:** Rejection review  (✓ vs ground truth)
+- **Confidence:** High  (✓)
+- **Cited clauses:** 1.1, 2.2, 3.1, 4.1
 - **Citation validity:** 1.00
-- **Missing-info F1:** 1.00 (matched: ['driving license', 'incident report', 'reason for late submission']; missed: —)
-- **Risk-flags F1:** 0.40 (matched: ['late submission']; missed: ['exclusion'])
+- **Missing-info F1:** 1.00 (matched: —; missed: —)
+- **Risk-flags F1:** 0.80 (matched: ['illegal racing', 'exclusion']; missed: —)
 
 **LLM-Judge:**
 
@@ -143,12 +62,93 @@ _All cited clauses (1.1, 2.1, 2.3, 2.5, 3.1, 4.1, 4.2, 4.3) are within the retri
 | Completeness | 4 |
 | Clarity | 4 |
 | Policy alignment | 5 |
-| Appropriate uncertainty | 4 |
-| **Mean** | **4.4** |
+| Appropriate uncertainty | 5 |
+| **Mean** | **4.6** |
 
-_All cited clauses (1.1, 2.5, 3.1, 4.1, 4.2, 4.3) are present in the retrieved list, so factuality is clean. The reasoning covers covered peril, late-submission exclusion, missing documents, and routing logic, and correctly notes absence of fraud indicators. Routing to manual review with Medium confidence is well-aligned with the cited rules. Minor issues: it is slightly long (6 sentences, borderline), and the claim description says "delayed submission" without specifying 45 days — the AI appears to have fabricated the exact "45 days" figure, which is a small factual overreach. Confidence level is reasonable though "Low" could also be defensible given missing docs._
+_All cited clauses (1.1, 2.2, 3.1, 4.1) are within the retrieved set — no hallucinations. The reasoning correctly identifies the covered peril, the applicable exclusion (illegal racing under 2.2), confirms document sufficiency, and routes to Rejection review consistent with the exclusion. High confidence is appropriate here because the customer's own statement plus police attendance provides strong corroboration — this is one of the rare cases where high confidence is warranted. Minor completeness gap: no explicit risk flags called out (e.g., 02:00 AM, potential criminal/legal exposure, possible intoxication to verify), and no mention of whether a toxicology/BAC report or formal police report document is on file vs. just a verbal statement. Clarity is good but slightly verbose at ~5 sentences with some redundancy ("directly and unambiguously", "definitive exclusion")._
 
 **Reasoning (verbatim):**
 
-> The reported flood damage is a covered peril under [Clause 1.1]; however, coverage cannot be confirmed as "likely" due to multiple outstanding issues. The claim was submitted 45 days after the incident, breaching the 30-day filing deadline [Clause 2.5]; as no valid reason has been provided, this alone requires manual review to determine whether an exception applies. Required documents are incomplete — the driving license copy and incident report are both absent [Clause 3.1] — meaning the conditions for standard processing under [Clause 4.1] are not met. The combination of missing documents and the unresolved late-submission issue constitutes conflicting/incomplete information, directing this claim to manual review [Clause 4.2]. No fraud indicators such as repeated claims or an inconsistent story are present, so fraud review is not warranted at this stage [Clause 4.3].
+> The incident is an accidental collision, which is a covered peril under [Clause 1.1]; however, the customer's own statement to attending police officers confirms participation in an illegal street race on Rama 9 road. [Clause 2.2] explicitly excludes coverage for damage arising from participation in illegal racing, and this exclusion directly and unambiguously applies here. All standard documents required by [Clause 3.1] have been submitted, including a police report that corroborates the illegal racing activity, leaving no factual ambiguity about the circumstances. Because a clear Section 2 exclusion applies, the claim does not satisfy the conditions for standard processing under [Clause 4.1]. The recommended routing is therefore Rejection review, consistent with the application of a definitive exclusion clause.
+
+### case3_theft_no_police
+
+- **Coverage:** Possibly covered  (✓ vs ground truth)
+- **Routing:** Manual review  (✓ vs ground truth)
+- **Confidence:** Medium  (✓)
+- **Cited clauses:** 1.1, 2.5, 3.1, 3.2, 4.2, 4.3
+- **Citation validity:** 1.00
+- **Missing-info F1:** 1.00 (matched: ['police report', 'incident report', 'driving license', 'photos of damage']; missed: —)
+- **Risk-flags F1:** 1.00 (matched: —; missed: —)
+
+**LLM-Judge:**
+
+| Dim | Score |
+|---|---|
+| Factuality | 5 |
+| Completeness | 4 |
+| Clarity | 4 |
+| Policy alignment | 4 |
+| Appropriate uncertainty | 4 |
+| **Mean** | **4.2** |
+
+_All cited clauses (1.1, 2.5, 3.1, 3.2, 4.2, 4.3) are within the retrieved set — no hallucinations. However, Clause 2.5 is labeled as "Exclusions" in the retrieved list, but the AI cites it as supporting the 30-day filing window, which is a possible mislabeling/misuse concern (minor factuality/alignment issue, though not clearly wrong without clause text). Completeness is solid: covered peril, missing documents, risk flags, and routing are all addressed; exclusions are briefly dismissed without explicitly walking through 2.3/2.4. Reasoning is reasonably concise (~5 sentences) and well-structured. Medium confidence is appropriate given missing police report and absent evidence — not overclaiming. Routing to manual review is well-justified by Clause 4.2 and the document gaps. Minor deduction for the ambiguous use of 2.5 as both an exclusion and a timing clause._
+
+**Reasoning (verbatim):**
+
+> The reported theft is a covered peril under [Clause 1.1], and the claim was submitted within 6 days, well within the 30-day limit [Clause 2.5]. However, coverage cannot be confirmed as "Likely covered" because several required documents are absent: the police report mandatory for theft claims [Clause 3.2], a copy of the driving license, photos/evidence of the theft, and an incident report [Clause 3.1]. The absence of a police report is particularly significant for a theft claim, as it is both a documentary requirement and a potential risk signal — a theft-category total loss with minimal supporting evidence aligns with a Clause 4.3 pattern of severe loss with weak evidence. No exclusions from Section 2 clearly apply at this stage, so outright rejection is not warranted. Per [Clause 4.2], the combination of incomplete required documents and the need to verify the theft report warrants routing to manual review.
+
+### case4_fraud_risk
+
+- **Coverage:** Possibly covered  (✓ vs ground truth)
+- **Routing:** Fraud review  (✓ vs ground truth)
+- **Confidence:** Medium  (✓)
+- **Cited clauses:** 1.1, 2.1, 2.3, 3.1, 4.1, 4.2, 4.3
+- **Citation validity:** 1.00
+- **Missing-info F1:** 0.44 (matched: ['driving license', 'incident report']; missed: ['clear photo', 'police report'])
+- **Risk-flags F1:** 0.57 (matched: ['repeated claims', 'weak evidence']; missed: ['severe damage'])
+
+**LLM-Judge:**
+
+| Dim | Score |
+|---|---|
+| Factuality | 3 |
+| Completeness | 4 |
+| Clarity | 3 |
+| Policy alignment | 4 |
+| Appropriate uncertainty | 2 |
+| **Mean** | **3.2** |
+
+_All cited clauses are within the retrieved list, which is good. However, factuality is weakened because the reasoning invents facts not present in the claim description — specifically, "a pattern of repeated claims from the same customer over a short period (4 claims in 12 months, 3 of which are collision claims)." Nothing in the claim description supports this; it appears fabricated and is used to justify a fraud trigger. Completeness is reasonably strong: covered peril, missing documents, fraud flags, and exclusions are all addressed. Clarity is borderline — the reasoning runs ~6 sentences but is somewhat dense and repeats "Clause 4.3" multiple times. Policy alignment between the cited clauses and the Fraud-review routing is reasonable given the weak evidence and unverifiable location. Appropriate uncertainty is weak: confidence is set to Medium despite a fabricated claims-history fact, and the model should have flagged uncertainty more explicitly or chosen Low confidence given the missing documentation and unverifiable circumstances._
+
+**Reasoning (verbatim):**
+
+> The reported event (accidental collision) is a covered peril under [Clause 1.1], making coverage theoretically possible. However, multiple required documents are missing — driving license, vehicle registration, and incident report — making the submission incomplete per [Clause 3.1]. The claim exhibits at least two distinct Clause 4.3 fraud indicators: severe damage supported only by a single blurry photo (weak evidence for claimed severity) and a pattern of repeated claims from the same customer over a short period (4 claims in 12 months, 3 of which are collision claims) [Clause 4.3]. Additionally, the customer's inability to provide the exact incident location introduces an inconsistent/incomplete story element, a third Clause 4.3 trigger [Clause 4.3]. No Section 2 exclusion can be definitively confirmed or ruled out at this stage (e.g., [Clause 2.1] alcohol/drug impairment, [Clause 2.3] intentional damage) given the unverifiable circumstances. Routing to Fraud review is therefore required per [Clause 4.3], with document collection per [Clause 3.1] to proceed in parallel.
+
+### case5_late_submission
+
+- **Coverage:** Possibly covered  (✗ vs ground truth)
+- **Routing:** Manual review  (✓ vs ground truth)
+- **Confidence:** Medium  (✓)
+- **Cited clauses:** 1.1, 2.5, 3.1, 4.1, 4.2, 4.3
+- **Citation validity:** 1.00
+- **Missing-info F1:** 1.00 (matched: ['driving license', 'incident report', 'reason for late submission']; missed: —)
+- **Risk-flags F1:** 0.00 (matched: —; missed: ['late submission', 'exclusion'])
+
+**LLM-Judge:**
+
+| Dim | Score |
+|---|---|
+| Factuality | 5 |
+| Completeness | 4 |
+| Clarity | 3 |
+| Policy alignment | 4 |
+| Appropriate uncertainty | 3 |
+| **Mean** | **3.8** |
+
+_All cited clauses (1.1, 2.5, 3.1, 4.1, 4.2, 4.3) are within the retrieved set — no hallucinations. Coverage of key points is solid: covered peril, late submission exclusion, missing documents, routing rationale, and fraud consideration. However, the reasoning runs ~6-7 sentences and is somewhat verbose with redundant framing (e.g., restating the late-submission issue multiple times), hurting conciseness. Policy alignment is reasonable — manual review is defensible given 2.5 allows reconsideration with a valid reason — though one could argue the lack of any stated reason should push toward denial/exclusion rather than "Possibly covered." Confidence is rated Medium, but with two significant gaps (no reason for delay, missing core documents) a Low confidence or more explicit "cannot determine coverage yet" framing would be more appropriate; "Possibly covered" slightly overstates certainty on the peril side given documents are missing to verify the event._
+
+**Reasoning (verbatim):**
+
+> The reported flood damage event matches a covered peril [Clause 1.1], so the claim is not excluded on the basis of the peril type. However, the claim was submitted 45 days after the incident, exceeding the 30-day limit, and no valid reason for the delay has been provided, which triggers the late submission exclusion [Clause 2.5] — though that clause allows manual review if a valid reason is subsequently provided. Required documents are incomplete: the driving license copy and incident report are both missing [Clause 3.1], making document submission insufficient for standard processing. The combination of missing documents and the unresolved late submission issue constitute conflicting and incomplete information [Clause 4.2], precluding standard processing [Clause 4.1]. No fraud patterns such as repeated claims or an inconsistent story are evident at this stage, so Fraud Review is not warranted [Clause 4.3]. Manual review is appropriate to allow the customer to provide a reason for late submission and the missing documents before a coverage determination can be finalised [Clause 4.2].
 
