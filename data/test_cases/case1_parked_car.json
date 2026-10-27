@@ -1,0 +1,14 @@
+{
+  "claim_id": "CLM-2026-00001",
+  "customer": "C-14201",
+  "vehicle": "Toyota Camry 2.5G 2022",
+  "incident_date": "2026-10-20",
+  "claim_submitted_date": "2026-10-22",
+  "claim_description": "The customer's vehicle was parked at the Central World shopping mall P4 parking lot when another driver backed into the front bumper. The customer was inside the mall at the time and only returned to find the damage. The other driver left a note but was no longer at the scene when mall security was contacted.",
+  "documents_submitted": [
+    "Claim form",
+    "Vehicle registration",
+    "Photos of damage"
+  ],
+  "customer_claim_history": "1 claim in the past 24 months (minor windshield replacement, 2025-04)"
+}
