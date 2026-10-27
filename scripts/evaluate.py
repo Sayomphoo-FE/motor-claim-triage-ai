@@ -42,6 +42,8 @@ CASE_FILES = [
     "case3_theft_no_police.json",
     "case4_fraud_risk.json",
     "case5_late_submission.json",
+    "case6_th_gear_cable.json",
+    "case7_th_skirt_crack.json",
 ]
 
 

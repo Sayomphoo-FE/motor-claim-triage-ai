@@ -1,0 +1,15 @@
+{
+  "claim_id": "CLM-2026-00007",
+  "customer": "C-70234",
+  "vehicle": "Toyota Yaris Ativ 2022",
+  "incident_date": "2026-10-22",
+  "claim_submitted_date": "2026-10-26",
+  "claim_description": "สเกิตหน้ารถของผมเจอหลุมบนถนนกรุงเทพกรีฑาแล้วบิ่นและแตก อยากเคลมเพื่อเปลี่ยนอะไหล่ ไม่มีคู่กรณี ไม่มีคนบาดเจ็บ รถยังขับได้ปกติ",
+  "documents_submitted": [
+    "Claim form",
+    "Vehicle registration",
+    "Photos of damage",
+    "Copy of driving license"
+  ],
+  "customer_claim_history": "มีเคลม 1 ครั้งในรอบ 24 เดือน (กระจกบังลมแตก เดือนเมษายน 2025)"
+}

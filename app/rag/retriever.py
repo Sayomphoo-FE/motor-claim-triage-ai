@@ -46,7 +46,10 @@ def retrieve(
             Routing Rules respectively.
         collection: Qdrant collection name.
     """
-    vector = next(iter(_embedder().embed([query]))).tolist()
+    # e5 models expect "query: " prefix (matches "passage: " at ingest).
+    use_e5_prefix = "e5" in DEFAULT_EMBEDDING_MODEL.lower()
+    embed_input = f"query: {query}" if use_e5_prefix else query
+    vector = next(iter(_embedder().embed([embed_input]))).tolist()
     qfilter: Filter | None = None
     if section_num:
         qfilter = Filter(

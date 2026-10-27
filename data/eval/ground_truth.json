@@ -58,6 +58,35 @@
     "expected_confidence": ["Medium", "Low"],
     "notes": "PDF Case 4. Clause 4.3 fraud pattern (repeated claims + weak evidence) must be identified."
   },
+  "case6_th_gear_cable": {
+    "description": "Automatic-transmission gear cable snapped while shifting. Thai customer, from design doc §1.1.",
+    "expected_coverage": ["Cannot determine", "Possibly covered"],
+    "expected_routing": ["Manual review"],
+    "expected_missing_any_of": [
+      "incident report",
+      "driving license",
+      "ใบรายงาน",
+      "ใบขับขี่",
+      "ใบตรวจ"
+    ],
+    "expected_risk_flags_any_of": [],
+    "expected_cited_clauses_any_of": ["1.1", "3.1", "4.2"],
+    "expected_confidence": ["Medium", "Low"],
+    "notes": "Mechanical breakdown without external collision is NOT clearly a covered peril (Clause 1.1 lists accidental collision, theft, fire, flood, third-party damage — not mechanical failure). Strong answers should flag the ambiguity rather than approve."
+  },
+  "case7_th_skirt_crack": {
+    "description": "Front skirt chipped from hitting a pothole; single-vehicle, no injury. Thai customer, from design doc §1.1.",
+    "expected_coverage": ["Possibly covered", "Likely covered", "Cannot determine"],
+    "expected_routing": ["Standard processing", "Manual review"],
+    "expected_missing_any_of": [
+      "incident report",
+      "ใบรายงาน"
+    ],
+    "expected_risk_flags_any_of": [],
+    "expected_cited_clauses_any_of": ["1.1", "3.1", "4.1", "4.2"],
+    "expected_confidence": ["Medium", "High"],
+    "notes": "Pothole impact can be read as accidental collision (Clause 1.1). Incident report is still required per Clause 3.1. Either Standard processing (if interpreted leniently) or Manual review (if the officer wants to verify the pothole claim) is defensible."
+  },
   "case5_late_submission": {
     "description": "Flood damage reported 45 days after the incident; no reason given.",
     "expected_coverage": ["Not covered", "Cannot determine"],

@@ -41,6 +41,19 @@ Analyse the claim case using ONLY the policy context above. Produce a
 structured triage recommendation.
 </task>
 
+<language>
+Detect the language of the customer's claim_description:
+- If it contains Thai characters → write ALL free-text fields
+  (claim_summary, missing_information items, risk_flags items, reasoning)
+  in Thai. The officer in Thailand will read these.
+- If English only → everything in English.
+- Clause IDs ([Clause X.Y]) are policy identifiers — ALWAYS keep them
+  in that exact English form regardless of response language.
+- enum fields (coverage_assessment, recommended_routing, confidence_level)
+  MUST remain the exact English literals from the enums — do not
+  translate them.
+</language>
+
 <rules>
 1. Every statement about coverage or exclusion MUST cite the clause it
    depends on, in the form [Clause X.Y]. Only cite clauses that appear in

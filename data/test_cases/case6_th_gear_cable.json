@@ -1,0 +1,14 @@
+{
+  "claim_id": "CLM-2026-00006",
+  "customer": "C-60111",
+  "vehicle": "Honda City 1.5 RS 2020 เกียร์ออโต้",
+  "incident_date": "2026-10-25",
+  "claim_submitted_date": "2026-10-26",
+  "claim_description": "วันนั้นผมกำลังถอยรถออกจากบ้านด้วยเกียร์ R พอถึงถนนแล้วเปลี่ยนเป็นเกียร์ D ทันใดนั้นสายเกียร์ขาด เกิดเสียงดัง รถยังเคลื่อนไปจอดข้างทางได้ หลังเข้าเกียร์ P แล้ว รถเข้าเกียร์อื่นไม่ได้อีกเลย ผมเรียกรถสไลด์มาลากไปอู่",
+  "documents_submitted": [
+    "Claim form",
+    "Vehicle registration",
+    "Photos of damage"
+  ],
+  "customer_claim_history": "ไม่มีประวัติเคลมในรอบ 24 เดือน"
+}

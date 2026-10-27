@@ -23,11 +23,12 @@ from qdrant_client.http.models import Distance, PointStruct, VectorParams
 
 load_dotenv()
 
-# BGE-M3 (design doc choice) is not shipped by FastEmbed. For this
-# prototype we use BGE-small-en-v1.5 (384-dim, ~33MB) which is more than
-# sufficient for the 14-clause English policy corpus. For a production
-# Thai-capable system, swap to intfloat/multilingual-e5-large (1024-dim).
-DEFAULT_EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL", "BAAI/bge-small-en-v1.5")
+# intfloat/multilingual-e5-large (1024-dim, ~2.24 GB) chosen so that
+# Thai customer queries embed in the same vector space as the English
+# policy. The prototype originally used BAAI/bge-small-en-v1.5
+# (384-dim, 33 MB) which only handles English — set EMBEDDING_MODEL
+# in .env to fall back if a smaller model is required.
+DEFAULT_EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL", "intfloat/multilingual-e5-large")
 DEFAULT_COLLECTION = os.getenv("QDRANT_COLLECTION", "motor_policy")
 DEFAULT_QDRANT_URL = os.getenv("QDRANT_URL", "http://localhost:6333")
 
@@ -122,7 +123,12 @@ def ingest(
         raise RuntimeError(f"No clauses parsed from {policy_path}")
 
     embedder = TextEmbedding(model_name=embedding_model)
-    vectors = list(embedder.embed([c.text for c in chunks]))
+    # e5 models expect "passage: " prefix on documents (and "query: " on
+    # queries, applied in the retriever). Applied unconditionally — other
+    # models tolerate the extra token with negligible impact.
+    use_e5_prefix = "e5" in embedding_model.lower()
+    texts = [f"passage: {c.text}" if use_e5_prefix else c.text for c in chunks]
+    vectors = list(embedder.embed(texts))
 
     client = QdrantClient(url=qdrant_url, timeout=30)
     _ensure_collection(client, collection, dim=len(vectors[0]))
