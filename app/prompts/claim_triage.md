@@ -42,16 +42,22 @@ structured triage recommendation.
 </task>
 
 <language>
-Detect the language of the customer's claim_description:
-- If it contains Thai characters → write ALL free-text fields
-  (claim_summary, missing_information items, risk_flags items, reasoning)
-  in Thai. The officer in Thailand will read these.
-- If English only → everything in English.
+Response language policy:
+- If `response_language_override` below is "th" → write all free-text
+  fields in Thai, regardless of claim_description language.
+- If `response_language_override` is "en" → write all free-text fields
+  in English, regardless of claim_description language.
+- If `response_language_override` is "auto" → detect from
+  claim_description: Thai characters → Thai; otherwise English.
+- Free-text fields affected: claim_summary, items in missing_information,
+  items in risk_flags, reasoning.
 - Clause IDs ([Clause X.Y]) are policy identifiers — ALWAYS keep them
   in that exact English form regardless of response language.
 - enum fields (coverage_assessment, recommended_routing, confidence_level)
   MUST remain the exact English literals from the enums — do not
   translate them.
+
+response_language_override: {response_language}
 </language>
 
 <rules>

@@ -1,0 +1,14 @@
+{
+  "claim_id": "CLM-2026-00006-EN",
+  "customer": "C-60111",
+  "vehicle": "Honda City 1.5 RS 2020 (automatic transmission)",
+  "incident_date": "2026-10-25",
+  "claim_submitted_date": "2026-10-26",
+  "claim_description": "On the morning of the incident the customer was reversing the vehicle out of the driveway in gear R. After reaching the street and shifting to gear D, the gear cable snapped with a loud noise. The vehicle rolled to the side of the road, but after shifting to P it could not be shifted into any other gear. A tow truck was called to move the vehicle to the garage.",
+  "documents_submitted": [
+    "Claim form",
+    "Vehicle registration",
+    "Photos of damage"
+  ],
+  "customer_claim_history": "No claims in the past 24 months"
+}

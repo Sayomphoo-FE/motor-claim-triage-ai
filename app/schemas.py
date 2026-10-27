@@ -31,6 +31,8 @@ RoutingDecision = Literal[
 
 ConfidenceLevel = Literal["High", "Medium", "Low"]
 
+ResponseLanguage = Literal["auto", "th", "en"]
+
 
 class ClaimInput(BaseModel):
     """Input case following assignment PDF §5.2."""
@@ -48,6 +50,14 @@ class ClaimInput(BaseModel):
     customer_claim_history: str = Field(
         "",
         description="Historical claim count or behavior (e.g. '1 claim in past 24 months')",
+    )
+    response_language: ResponseLanguage = Field(
+        "auto",
+        description=(
+            "Override the language of free-text output. "
+            "'auto' = detect from claim_description; 'th' = force Thai; "
+            "'en' = force English. Enum values and Clause IDs stay English regardless."
+        ),
     )
 
     @field_validator("documents_submitted", mode="before")

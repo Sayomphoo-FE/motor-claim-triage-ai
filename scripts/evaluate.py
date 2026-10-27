@@ -37,12 +37,19 @@ RESULTS_PATH = ROOT / "data" / "eval" / "results.json"
 REPORT_PATH = ROOT / "docs" / "eval_report.md"
 
 CASE_FILES = [
-    "case1_parked_car.json",
-    "case2_illegal_racing.json",
-    "case3_theft_no_police.json",
-    "case4_fraud_risk.json",
-    "case5_late_submission.json",
+    "case1_en_parked_car.json",
+    "case1_th_parked_car.json",
+    "case2_en_illegal_racing.json",
+    "case2_th_illegal_racing.json",
+    "case3_en_theft_no_police.json",
+    "case3_th_theft_no_police.json",
+    "case4_en_fraud_risk.json",
+    "case4_th_fraud_risk.json",
+    "case5_en_late_submission.json",
+    "case5_th_late_submission.json",
+    "case6_en_gear_cable.json",
     "case6_th_gear_cable.json",
+    "case7_en_skirt_crack.json",
     "case7_th_skirt_crack.json",
 ]
 

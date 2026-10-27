@@ -145,6 +145,7 @@ def _render_prompt(
         documents_submitted=", ".join(claim.documents_submitted) or "(none provided)",
         customer_claim_history=claim.customer_claim_history or "(none provided)",
         claim_description=sanitized_description,
+        response_language=claim.response_language,
     )
 
 

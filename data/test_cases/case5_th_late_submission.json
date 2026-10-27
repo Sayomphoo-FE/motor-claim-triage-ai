@@ -1,0 +1,14 @@
+{
+  "claim_id": "CLM-2026-00005-TH",
+  "customer": "C-50987",
+  "vehicle": "Toyota Fortuner ปี 2021",
+  "incident_date": "2026-09-11",
+  "claim_submitted_date": "2026-10-26",
+  "claim_description": "ลูกค้าแจ้งน้ำท่วมรถเมื่อวันที่ 11 กันยายน 2026 ตอนฝนตกหนัก ขณะจอดรถอยู่ริมถนนย่านลาดพร้าว น้ำเข้าถึงห้องเครื่องและสตาร์ทไม่ติดอีกเลยหลังจากนั้น ลูกค้าไม่ได้ระบุเหตุผลที่แจ้งเคลมล่าช้า",
+  "documents_submitted": [
+    "Claim form",
+    "Vehicle registration",
+    "Photos of damage"
+  ],
+  "customer_claim_history": "ไม่มีประวัติเคลม"
+}

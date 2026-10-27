@@ -1,0 +1,17 @@
+{
+  "claim_id": "CLM-2026-00002-TH",
+  "customer": "C-22810",
+  "vehicle": "Honda Civic Type R ปี 2023",
+  "incident_date": "2026-10-18",
+  "claim_submitted_date": "2026-10-19",
+  "claim_description": "ลูกค้าชนแบริเออร์คอนกรีตขณะร่วมแข่งรถผิดกฎหมายบนถนนพระราม 9 ประมาณตี 2 ตำรวจมาที่เกิดเหตุ ลูกค้าให้ปากคำกับตำรวจยืนยันว่ากำลังแข่งรถกับรถอีกคัน ด้านหน้ารถเสียหายรุนแรง",
+  "documents_submitted": [
+    "Claim form",
+    "Photos of damage",
+    "Police report",
+    "Copy of driving license",
+    "Vehicle registration",
+    "Incident report"
+  ],
+  "customer_claim_history": "ไม่มีประวัติเคลม"
+}

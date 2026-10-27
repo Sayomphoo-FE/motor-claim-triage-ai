@@ -231,6 +231,19 @@ def _render_form_tab() -> None:
             value=st.session_state.get("customer_claim_history", ""),
         )
 
+        st.radio(
+            "Response language",
+            options=["auto", "th", "en"],
+            format_func=lambda x: {
+                "auto": "Auto-detect from description",
+                "th": "Force Thai 🇹🇭",
+                "en": "Force English 🇬🇧",
+            }[x],
+            key="response_language",
+            index=0,
+            horizontal=True,
+        )
+
         run_clicked = st.button("Run triage", type="primary", use_container_width=True)
 
     with right:
@@ -253,6 +266,7 @@ def _render_form_tab() -> None:
                         if d.strip()
                     ],
                     customer_claim_history=st.session_state["customer_claim_history"],
+                    response_language=st.session_state.get("response_language", "auto"),
                 )
             except Exception as e:
                 st.error(f"Invalid claim input: {e}")

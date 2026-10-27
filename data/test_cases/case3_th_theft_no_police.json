@@ -1,0 +1,13 @@
+{
+  "claim_id": "CLM-2026-00003-TH",
+  "customer": "C-30455",
+  "vehicle": "Mazda CX-30 ปี 2024",
+  "incident_date": "2026-10-15",
+  "claim_submitted_date": "2026-10-21",
+  "claim_description": "ลูกค้าแจ้งว่ารถถูกขโมยจากลานจอดรถของคอนโดย่านรัชดาฯ ระหว่าง 22.00 น. ถึง 6.00 น. เช้าวันถัดมาลูกค้ามาที่ลานจอดแล้วไม่พบรถเลยแจ้งเคลมทันที ลูกค้ายังไม่ได้ไปแจ้งความที่สถานีตำรวจในพื้นที่",
+  "documents_submitted": [
+    "Claim form",
+    "Vehicle registration"
+  ],
+  "customer_claim_history": "ไม่มีประวัติเคลม"
+}
