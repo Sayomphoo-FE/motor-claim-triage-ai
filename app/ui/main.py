@@ -8,12 +8,20 @@ Layout:
 """
 from __future__ import annotations
 
-import json
-from datetime import date
+import sys
 from pathlib import Path
 
-import streamlit as st
-from dotenv import load_dotenv
+# Streamlit launches this file as a script, which puts app/ui on sys.path
+# instead of the project root. Add the project root so `import app.*` works.
+_PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+if str(_PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(_PROJECT_ROOT))
+
+import json  # noqa: E402
+from datetime import date  # noqa: E402
+
+import streamlit as st  # noqa: E402
+from dotenv import load_dotenv  # noqa: E402
 
 from app.agents.triage import TRIAGE_MODEL, TriageAgent, TriageResult
 from app.schemas import ClaimInput

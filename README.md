@@ -158,7 +158,7 @@ in [`docs/eval_report.md`](docs/eval_report.md) and
 | `app/observability/audit.py` | JSON audit log writer |
 | `app/schemas.py` | Pydantic input/output schemas |
 | `app/prompts/claim_triage.md` | Main agent prompt |
-| `app/ui/app.py` | Streamlit UI |
+| `app/ui/main.py` | Streamlit UI |
 | `app/eval/` | Deterministic metrics + LLM-Judge |
 | `scripts/` | Ingest / evaluate / smoke-test entry points |
 | `data/policies/` | Policy source (markdown, cite-able clauses) |

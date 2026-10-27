@@ -43,7 +43,7 @@ eval:  ## Run all test cases and generate eval report
 
 .PHONY: ui
 ui:  ## Launch Streamlit UI
-	uv run streamlit run app/ui/app.py
+	PYTHONPATH=. uv run streamlit run app/ui/main.py
 
 .PHONY: test
 test:  ## Run pytest
