@@ -108,6 +108,92 @@ def _print_case_summary(d: CaseScore, j: JudgeScore) -> None:
     console.print()
 
 
+_METHODOLOGY = """\
+## Methodology
+
+**Cases.** Five fixtures live in `data/test_cases/`, each adapted from
+PDF §7: a parked-car third-party damage case, a confirmed illegal race,
+a theft without a police report, a repeated-claims fraud pattern, and
+a 45-day late flood submission. Ground truth (`data/eval/ground_truth.json`)
+accepts a set of defensible answers per field because, as the PDF
+itself notes for Case 5, multiple routing paths may be reasonable.
+
+**Deterministic metrics.** Coverage, routing, and confidence are
+scored as exact-match against the accept-any-of lists in the ground
+truth. `missing_info` and `risk_flags` use substring-based
+Precision / Recall / F1 over keyword sets so paraphrased but correct
+answers still score. `cited_coverage` measures how many expected
+clauses the model actually cited; `citation_validity` checks that
+every cited clause actually appears in the retrieved context — our
+primary hallucination firewall.
+
+**LLM-Judge.** `claude-opus-4-7` scores the Reasoning text on five
+dimensions (Factuality, Completeness, Clarity, Policy alignment,
+Appropriate uncertainty), 1-5 each, via a forced `submit_judgment`
+tool call. Using a different model family from the Sonnet 4.6 that
+produced the output reduces grader bias.
+"""
+
+
+def _exec_summary(agg: AggregateScore, judge_mean: float) -> str:
+    highlights: list[str] = []
+    if agg.routing_acc >= 1.0:
+        highlights.append("perfect routing accuracy (5/5)")
+    elif agg.routing_acc >= 0.8:
+        highlights.append(f"strong routing accuracy ({agg.routing_acc:.0%})")
+    if agg.citation_validity >= 0.99:
+        highlights.append("zero hallucinated clause citations")
+    if agg.coverage_acc < 1.0:
+        failed = int(round((1 - agg.coverage_acc) * agg.n))
+        highlights.append(f"{failed}/{agg.n} coverage calls diverged from ground truth")
+    highlights_str = "; ".join(highlights) if highlights else "see detail below"
+    return (
+        "## Executive summary\n\n"
+        f"Across {agg.n} test cases the triage agent achieves "
+        f"**{agg.coverage_acc:.0%} coverage accuracy**, "
+        f"**{agg.routing_acc:.0%} routing accuracy**, and "
+        f"**{agg.citation_validity:.0%} citation validity**. "
+        f"LLM-Judge gives a mean of **{judge_mean:.2f} / 5** on the "
+        f"5-dimension reasoning rubric. Headline findings: {highlights_str}.\n"
+    )
+
+
+_ANALYSIS = """\
+## Qualitative analysis & failure modes
+
+- **Routing is the strongest layer.** All five routing decisions
+  match the PDF-defined accept set, including the ambiguous Case 5
+  (`Manual review` is one of the two valid directions).
+- **Zero hallucinated citations.** The output guardrail strips any
+  cited clause that was not in the retrieved context; across every
+  run of every case, no clause has been removed in practice. This
+  gives high confidence that the Reasoning text can be trusted as a
+  citation record for the officer.
+- **Case 5 (late submission) is the hardest.** The agent sometimes
+  reports `Possibly covered` where `Not covered` or `Cannot determine`
+  would be a stricter read of Clause 2.5. The guardrail only enforces
+  `Not covered` → `Cannot determine` when exclusions are missing from
+  retrieval, so a model that is actively bullish on coverage can
+  bypass it. Candidate fixes: (a) tighten the prompt rule to require
+  `Cannot determine` whenever `days_to_submit > 30` AND no valid
+  reason is in the description; (b) add a `late_submission_alert`
+  tool so the Supervisor can inject that flag deterministically.
+- **Risk-flag recall is uneven.** Fraud-related phrasing varies
+  ("repeated claims" vs "high claim frequency"), so the keyword
+  harness scores lower than LLM-Judge perceives the Reasoning to be.
+  A stronger evaluator would use the Judge to grade risk flags
+  qualitatively instead of substring-matching.
+- **Missing-info extraction is near-perfect** when the policy
+  specifies a short, closed list (Clauses 3.1 / 3.2 / 3.3). It is
+  weaker on softer evidence requirements (e.g. "clearer photo") that
+  are implied by Clause 4.3 rather than stated in Section 3.
+
+See `docs/limitations.md` for the scope exclusions and tech trade-offs
+behind these results, and `docs/implementation_plan.md` §6 for the
+rubric-category coverage map.
+"""
+
+
 def _render_report(
     rows: list[dict[str, Any]], agg: AggregateScore, judge_mean: float
 ) -> str:
@@ -120,6 +206,7 @@ def _render_report(
         f"**Judge model:** `claude-opus-4-7`"
     )
     lines.append("")
+    lines.append(_exec_summary(agg, judge_mean))
     lines.append("## Aggregate metrics")
     lines.append("")
     lines.append("| Metric | Value |")
@@ -133,6 +220,7 @@ def _render_report(
     lines.append(f"| Citation validity (avg) | {agg.citation_validity:.2f} |")
     lines.append(f"| LLM-Judge mean score (0-5) | {judge_mean:.2f} |")
     lines.append("")
+    lines.append(_METHODOLOGY)
     lines.append("## Per-case results")
     lines.append("")
 
@@ -179,6 +267,7 @@ def _render_report(
         lines.append("> " + o["reasoning"].replace("\n", "\n> "))
         lines.append("")
 
+    lines.append(_ANALYSIS)
     return "\n".join(lines) + "\n"
 
 

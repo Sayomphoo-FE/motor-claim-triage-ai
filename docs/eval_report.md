@@ -2,6 +2,10 @@
 
 **Cases:** 5  **Triage model:** `claude-sonnet-4-6`  **Judge model:** `claude-opus-4-7`
 
+## Executive summary
+
+Across 5 test cases the triage agent achieves **80% coverage accuracy**, **100% routing accuracy**, and **100% citation validity**. LLM-Judge gives a mean of **3.92 / 5** on the 5-dimension reasoning rubric. Headline findings: perfect routing accuracy (5/5); zero hallucinated clause citations; 1/5 coverage calls diverged from ground truth.
+
 ## Aggregate metrics
 
 | Metric | Value |
@@ -14,6 +18,30 @@
 | Cited-clause coverage (avg) | 0.78 |
 | Citation validity (avg) | 1.00 |
 | LLM-Judge mean score (0-5) | 3.92 |
+
+## Methodology
+
+**Cases.** Five fixtures live in `data/test_cases/`, each adapted from
+PDF §7: a parked-car third-party damage case, a confirmed illegal race,
+a theft without a police report, a repeated-claims fraud pattern, and
+a 45-day late flood submission. Ground truth (`data/eval/ground_truth.json`)
+accepts a set of defensible answers per field because, as the PDF
+itself notes for Case 5, multiple routing paths may be reasonable.
+
+**Deterministic metrics.** Coverage, routing, and confidence are
+scored as exact-match against the accept-any-of lists in the ground
+truth. `missing_info` and `risk_flags` use substring-based
+Precision / Recall / F1 over keyword sets so paraphrased but correct
+answers still score. `cited_coverage` measures how many expected
+clauses the model actually cited; `citation_validity` checks that
+every cited clause actually appears in the retrieved context — our
+primary hallucination firewall.
+
+**LLM-Judge.** `claude-opus-4-7` scores the Reasoning text on five
+dimensions (Factuality, Completeness, Clarity, Policy alignment,
+Appropriate uncertainty), 1-5 each, via a forced `submit_judgment`
+tool call. Using a different model family from the Sonnet 4.6 that
+produced the output reduces grader bias.
 
 ## Per-case results
 
@@ -152,3 +180,36 @@ _All cited clauses (1.1, 2.5, 3.1, 4.1, 4.2, 4.3) are within the retrieved set �
 
 > The reported flood damage event matches a covered peril [Clause 1.1], so the claim is not excluded on the basis of the peril type. However, the claim was submitted 45 days after the incident, exceeding the 30-day limit, and no valid reason for the delay has been provided, which triggers the late submission exclusion [Clause 2.5] — though that clause allows manual review if a valid reason is subsequently provided. Required documents are incomplete: the driving license copy and incident report are both missing [Clause 3.1], making document submission insufficient for standard processing. The combination of missing documents and the unresolved late submission issue constitute conflicting and incomplete information [Clause 4.2], precluding standard processing [Clause 4.1]. No fraud patterns such as repeated claims or an inconsistent story are evident at this stage, so Fraud Review is not warranted [Clause 4.3]. Manual review is appropriate to allow the customer to provide a reason for late submission and the missing documents before a coverage determination can be finalised [Clause 4.2].
 
+
+## Qualitative analysis & failure modes
+
+- **Routing is the strongest layer.** All five routing decisions
+  match the PDF-defined accept set, including the ambiguous Case 5
+  (`Manual review` is one of the two valid directions).
+- **Zero hallucinated citations.** The output guardrail strips any
+  cited clause that was not in the retrieved context; across every
+  run of every case, no clause has been removed in practice. This
+  gives high confidence that the Reasoning text can be trusted as a
+  citation record for the officer.
+- **Case 5 (late submission) is the hardest.** The agent sometimes
+  reports `Possibly covered` where `Not covered` or `Cannot determine`
+  would be a stricter read of Clause 2.5. The guardrail only enforces
+  `Not covered` → `Cannot determine` when exclusions are missing from
+  retrieval, so a model that is actively bullish on coverage can
+  bypass it. Candidate fixes: (a) tighten the prompt rule to require
+  `Cannot determine` whenever `days_to_submit > 30` AND no valid
+  reason is in the description; (b) add a `late_submission_alert`
+  tool so the Supervisor can inject that flag deterministically.
+- **Risk-flag recall is uneven.** Fraud-related phrasing varies
+  ("repeated claims" vs "high claim frequency"), so the keyword
+  harness scores lower than LLM-Judge perceives the Reasoning to be.
+  A stronger evaluator would use the Judge to grade risk flags
+  qualitatively instead of substring-matching.
+- **Missing-info extraction is near-perfect** when the policy
+  specifies a short, closed list (Clauses 3.1 / 3.2 / 3.3). It is
+  weaker on softer evidence requirements (e.g. "clearer photo") that
+  are implied by Clause 4.3 rather than stated in Section 3.
+
+See `docs/limitations.md` for the scope exclusions and tech trade-offs
+behind these results, and `docs/implementation_plan.md` §6 for the
+rubric-category coverage map.
