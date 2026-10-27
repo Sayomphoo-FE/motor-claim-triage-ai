@@ -1,0 +1,13 @@
+{
+  "claim_id": "CLM-2026-00003",
+  "customer": "C-30455",
+  "vehicle": "Mazda CX-30 2024",
+  "incident_date": "2026-10-15",
+  "claim_submitted_date": "2026-10-21",
+  "claim_description": "The customer reports that the vehicle was stolen from the resident parking area of a condominium in Ratchada between 22:00 and 06:00. The customer discovered the vehicle missing the next morning and immediately filed a claim. The customer has not yet filed a report with the local police station.",
+  "documents_submitted": [
+    "Claim form",
+    "Vehicle registration"
+  ],
+  "customer_claim_history": "No prior claims"
+}

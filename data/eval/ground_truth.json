@@ -1,0 +1,75 @@
+{
+  "case1_parked_car": {
+    "description": "Parked car hit by third party in mall; missing third-party info and some documents.",
+    "expected_coverage": ["Possibly covered", "Likely covered"],
+    "expected_routing": ["Manual review"],
+    "expected_missing_any_of": [
+      "driving license",
+      "incident report",
+      "third-party contact",
+      "third-party evidence"
+    ],
+    "expected_risk_flags_any_of": [],
+    "expected_cited_clauses_any_of": ["1.1", "3.1", "3.3", "4.2"],
+    "expected_confidence": ["High", "Medium"],
+    "notes": "PDF Case 1. Third-party property damage is covered, but required docs are incomplete."
+  },
+  "case2_illegal_racing": {
+    "description": "Confirmed illegal street race crash. Documentation present.",
+    "expected_coverage": ["Not covered"],
+    "expected_routing": ["Rejection review"],
+    "expected_missing_any_of": [],
+    "expected_risk_flags_any_of": ["illegal racing", "exclusion"],
+    "expected_cited_clauses_any_of": ["2.2", "4.4"],
+    "expected_confidence": ["High", "Medium"],
+    "notes": "PDF Case 2. Clear Clause 2.2 exclusion → Rejection review."
+  },
+  "case3_theft_no_police": {
+    "description": "Theft from condo parking without a police report.",
+    "expected_coverage": ["Possibly covered", "Cannot determine"],
+    "expected_routing": ["Manual review"],
+    "expected_missing_any_of": [
+      "police report",
+      "incident report",
+      "driving license",
+      "photos of damage"
+    ],
+    "expected_risk_flags_any_of": [],
+    "expected_cited_clauses_any_of": ["1.1", "3.1", "3.2", "4.2"],
+    "expected_confidence": ["High", "Medium"],
+    "notes": "PDF Case 3. Theft is covered but police report (Clause 3.2) missing."
+  },
+  "case4_fraud_risk": {
+    "description": "Severe damage with weak evidence, 4 claims in 12 months.",
+    "expected_coverage": ["Cannot determine", "Possibly covered"],
+    "expected_routing": ["Fraud review"],
+    "expected_missing_any_of": [
+      "driving license",
+      "incident report",
+      "clear photo",
+      "police report"
+    ],
+    "expected_risk_flags_any_of": [
+      "repeated claims",
+      "weak evidence",
+      "severe damage"
+    ],
+    "expected_cited_clauses_any_of": ["4.3"],
+    "expected_confidence": ["Medium", "Low"],
+    "notes": "PDF Case 4. Clause 4.3 fraud pattern (repeated claims + weak evidence) must be identified."
+  },
+  "case5_late_submission": {
+    "description": "Flood damage reported 45 days after the incident; no reason given.",
+    "expected_coverage": ["Not covered", "Cannot determine"],
+    "expected_routing": ["Rejection review", "Manual review"],
+    "expected_missing_any_of": [
+      "driving license",
+      "incident report",
+      "reason for late submission"
+    ],
+    "expected_risk_flags_any_of": ["late submission", "exclusion"],
+    "expected_cited_clauses_any_of": ["2.5", "4.4", "4.2"],
+    "expected_confidence": ["High", "Medium"],
+    "notes": "PDF Case 5. Clause 2.5 exclusion applies (>30 days without valid reason). Strong answers acknowledge uncertainty since manual review may still consider a valid reason."
+  }
+}
