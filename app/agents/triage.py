@@ -172,11 +172,15 @@ class TriageAgent:
             section_nums=[s for _, s in queries],
         )
 
-        # 3. LLM call.
+        # 3. LLM call. The forced tool-use payload must land all 8
+        # required fields in a single response. Budget 4000 tokens so
+        # a long `reasoning` field can't truncate the trailing enum
+        # fields (confidence_level, cited_clauses) off the end of the
+        # tool call — an observed Claude quirk when max_tokens was 1500.
         prompt = _render_prompt(claim, sanitized_description, chunks)
         response = self.client.messages.create(
             model=self.model,
-            max_tokens=1500,
+            max_tokens=4000,
             tools=[TRIAGE_TOOL],
             tool_choice={"type": "tool", "name": "submit_triage"},
             messages=[{"role": "user", "content": prompt}],

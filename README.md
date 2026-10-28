@@ -10,6 +10,21 @@
 > for the 3-day build plan, [`ai-insurance-claim-voice-triage-assistant.md`](ai-insurance-claim-voice-triage-assistant.md)
 > for the full solution design.
 
+## 🧭 Branch guide
+
+This project is organised across two branches to keep the assignment
+submission tight while preserving the stretch work:
+
+| Branch | Scope | What's in it |
+|---|---|---|
+| **`develop`** _(this branch)_ | **Strict PDF scope only** | Text-based claim triage, Form-tab Streamlit UI, 5 EN test cases from PDF §7, RAG with `bge-small-en-v1.5`, 3-layer guardrails, audit log, LLM-Judge evaluation. 100% of the assignment deliverables. |
+| **`extensions`** | Beyond-PDF stretch work | Everything on `develop` **plus** voice I/O (STT + TTS), multi-turn Call-tab UX, SupervisorAgent routing, bilingual TH/EN with multilingual embeddings, 14 bilingual test cases, call transcript log, `.txt` export. Design-doc §12.2+ Phase-2 preview. |
+
+If you are reviewing the assignment deliverable, read **this branch**.
+If you want to see where the design doc's voice / multi-agent /
+Thai-support vision was taken as a working prototype, check out
+`git checkout extensions`.
+
 ---
 
 ## 1. What this prototype does
