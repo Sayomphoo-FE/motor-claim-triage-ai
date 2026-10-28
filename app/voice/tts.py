@@ -118,3 +118,28 @@ def synthesize(text: str, lang: str | None = None, rate: str = DEFAULT_RATE) -> 
             "try a shorter message or a different voice via TTS_VOICE_TH/EN env."
         )
     return audio
+
+
+async def _synthesize_mixed_async(text: str, rate: str) -> bytes:
+    """Synthesize bilingual text, using the TH voice for Thai-containing
+    sentences and the EN voice for English-only sentences. Concatenate
+    the MP3 bytes so the caller hears one continuous stream.
+    """
+    normalised = _normalise(text)
+    sentences = _split_sentences(normalised) or [normalised]
+    out = bytearray()
+    for sentence in sentences:
+        voice = VOICE_BY_LANG["th"] if _THAI_CHARS_RE.search(sentence) else VOICE_BY_LANG["en"]
+        chunk = await _synthesize_chunk(sentence, voice, rate)
+        if chunk:
+            out.extend(chunk)
+    return bytes(out)
+
+
+def synthesize_mixed(text: str, rate: str = DEFAULT_RATE) -> bytes:
+    """Synthesize text that mixes Thai and English, switching voice per
+    sentence so each language is spoken by its native-voice."""
+    audio = asyncio.run(_synthesize_mixed_async(text, rate))
+    if not audio:
+        raise RuntimeError("Edge-TTS returned no audio for the mixed-language text.")
+    return audio

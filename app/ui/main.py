@@ -329,20 +329,17 @@ def _render_call_tab() -> None:
                 f"action = `{d.action}` · {d.note}"
             )
 
-    # If we already ran triage, show it and stop here
+    # If we already ran triage, show it and keep the call "ended" state.
+    # No explicit button — the handoff is the natural end.
     if state.triage is not None:
         st.divider()
         st.markdown("### 🧾 Triage recommendation")
         _render_result(state.triage)
-        if st.button("☎️  End call and start a new one", use_container_width=True):
-            del st.session_state["call_state"]
-            st.rerun()
         return
 
-    # If language is still unset, require the caller to pick before anything else
+    # Language gate: the ONLY buttons in the whole call UI
     if state.language is None:
         st.divider()
-        st.markdown("#### Please choose your language / กรุณาเลือกภาษา")
         cols = st.columns(2)
         with cols[0]:
             if st.button(
@@ -364,29 +361,33 @@ def _render_call_tab() -> None:
                 st.rerun()
         return
 
-    # Otherwise collect the next customer turn
+    # Minimal call UX: ONE control — the mic. The recording auto-sends
+    # the moment the caller presses the mic again to stop. No Send
+    # button, no End-call button. Just like a real phone line.
     st.divider()
-    st.markdown("#### 🎙 Your turn")
     audio_blob = st.audio_input(
-        "Press to record, press again to stop.",
+        "🎙  Press the mic to speak, press again to stop.",
         key=f"call_audio_{len(state.turns)}",
     )
     if audio_blob is None:
         return
 
-    if st.button(
-        "➡️  Send",
-        type="primary",
-        use_container_width=True,
-        key=f"call_send_{len(state.turns)}",
-    ):
-        _begin_customer_turn(state, audio_blob.getvalue())
-        st.rerun()
+    import hashlib
+
+    blob_bytes = audio_blob.getvalue()
+    blob_hash = hashlib.md5(blob_bytes).hexdigest()[:12]
+    processed_key = f"call_blob_processed_{len(state.turns)}"
+    if st.session_state.get(processed_key) == blob_hash:
+        return  # we've already handled this blob — a benign rerun
+
+    st.session_state[processed_key] = blob_hash
+    _begin_customer_turn(state, blob_bytes)
+    st.rerun()
 
 
 def _render_chat_messages(state) -> None:
     """Render the conversation + autoplay TTS for the latest AI message only."""
-    from app.voice.tts import synthesize
+    from app.voice.tts import synthesize, synthesize_mixed
 
     cached: dict[int, bytes] = st.session_state.setdefault("call_tts_cache", {})
     last_autoplay = st.session_state.get("call_last_tts_idx", -1)
@@ -397,7 +398,10 @@ def _render_chat_messages(state) -> None:
             continue
         if i not in cached:
             try:
-                cached[i] = synthesize(turn.text, lang=turn.lang)
+                if turn.lang == "mixed":
+                    cached[i] = synthesize_mixed(turn.text)
+                else:
+                    cached[i] = synthesize(turn.text, lang=turn.lang)
             except Exception as e:  # noqa: BLE001
                 st.caption(f"(TTS unavailable for this message: {e})")
                 cached[i] = b""

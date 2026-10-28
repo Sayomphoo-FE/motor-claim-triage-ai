@@ -25,9 +25,7 @@ Why bother with a thin wrapper?
 from __future__ import annotations
 
 from app.agents.conversation import (
-    BRIDGE_TH_TO_EN,
-    GREETING_EN,
-    GREETING_TH,
+    GREETING_COMBINED,
     ConversationAgent,
     ConversationState,
     ConversationStep,
@@ -46,20 +44,19 @@ class SupervisorAgent:
     def start(self) -> ConversationState:
         """Create the state and queue the scripted bilingual greeting.
 
-        The greeting itself is not an LLM call — it's a static script
-        (see docs/call_agent_playbook.md §1). The supervisor records
-        this decision so the audit log is explicit about where the
-        content came from.
+        The greeting is a single assistant turn containing both the Thai
+        and the English introduction. TTS at render time uses
+        `synthesize_mixed`, which switches voice per sentence so each
+        language is spoken by its native-voice. The content is not an
+        LLM call — it's a static script (see
+        docs/call_agent_playbook.md §1).
         """
         state = ConversationState()
-        state.append_assistant(GREETING_TH, lang="th")
-        state.log_decision("intake", "greeting", "scripted TH greeting (not LLM)")
-
-        state.append_assistant(BRIDGE_TH_TO_EN, lang="th")
-        state.log_decision("intake", "greeting", "scripted TH→EN bridge")
-
-        state.append_assistant(GREETING_EN, lang="en")
-        state.log_decision("intake", "greeting", "scripted EN greeting (not LLM)")
+        # lang="mixed" is a sentinel the UI uses to pick synthesize_mixed.
+        state.append_assistant(GREETING_COMBINED, lang="mixed")
+        state.log_decision(
+            "intake", "greeting", "scripted TH+EN combined greeting (not LLM)"
+        )
         return state
 
     # ---- Phase 2: language choice ------------------------------------

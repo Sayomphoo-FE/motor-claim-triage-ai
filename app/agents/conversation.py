@@ -41,34 +41,30 @@ PROMPT_PATH = Path(__file__).parent.parent / "prompts" / "conversation.md"
 
 ConvLang = Literal["th", "en"]
 
-# After the TH greeting, this line primes the EN greeting and is the
-# natural pivot that the EN voice starts from.
-BRIDGE_TH_TO_EN = "ขอเรียนภาษาอังกฤษต่อนะคะ"
-
 # ----------------------------------------------------------------------
 # Scripted greetings
 # ----------------------------------------------------------------------
 BRAND_NAME = "ABC Insurance"
 
-GREETING_TH = (
+GREETING_TH_INTRO = (
     f"สวัสดีค่ะ ดิฉันคือ AI ผู้ช่วยรับเรื่องเคลมของ {BRAND_NAME} "
     "มีหน้าที่สอบถามข้อมูลเบื้องต้นแล้วส่งต่อให้เจ้าหน้าที่ "
     "ขอเรียนให้ทราบว่าดิฉันไม่ใช่ผู้ตัดสินใจอนุมัติ "
     "การตัดสินใจสุดท้ายทำโดยเจ้าหน้าที่เสมอค่ะ "
-    "รบกวนเริ่มเล่าได้เลยค่ะว่าเกิดอะไรขึ้นกับรถของท่าน"
+    "รบกวนเลือกภาษาที่ท่านสะดวกค่ะ"
 )
 
-GREETING_EN = (
+GREETING_EN_INTRO = (
     f"Hello, I'm the AI claim intake assistant at {BRAND_NAME}. "
     "My job is to collect the initial details of your claim and pass them "
     "to a human officer. I am not the final decision maker — a human "
     "officer will make the final call. "
-    "Please tell me what happened to your vehicle."
+    "Please choose the language you prefer."
 )
 
-
-def greeting_for(language: ConvLang) -> str:
-    return GREETING_TH if language == "th" else GREETING_EN
+# Combined single-turn greeting played with mixed TH + EN voices.
+# No prompt-to-speak at the end — the caller must pick a language first.
+GREETING_COMBINED = f"{GREETING_TH_INTRO} {GREETING_EN_INTRO}"
 
 
 # ----------------------------------------------------------------------
@@ -183,11 +179,16 @@ CONVERSATION_TOOL = {
 # ----------------------------------------------------------------------
 # Conversation agent
 # ----------------------------------------------------------------------
+TurnLang = Literal["th", "en", "mixed"]
+
+
 @dataclass
 class Turn:
     role: Literal["assistant", "user"]
     text: str
-    lang: ConvLang | None = None  # which voice to use for TTS playback
+    # "th"/"en" use single-voice TTS; "mixed" uses synthesize_mixed; None =
+    # fall back to detect_lang from text.
+    lang: TurnLang | None = None
 
 
 @dataclass
@@ -213,7 +214,7 @@ class ConversationState:
     def append_user(self, text: str) -> None:
         self.turns.append(Turn(role="user", text=text, lang=self.language))
 
-    def append_assistant(self, text: str, lang: ConvLang | None = None) -> None:
+    def append_assistant(self, text: str, lang: TurnLang | None = None) -> None:
         self.turns.append(Turn(role="assistant", text=text, lang=lang or self.language))
 
     def log_decision(

@@ -182,7 +182,50 @@ These rules govern every spoken turn the AI produces.
 | Caller asks the AI for a coverage opinion | AI must politely decline and refer them to the human officer (rule §3.6). |
 | Caller switches language mid-call | AI keeps responding in the originally-chosen `state.language`. Switching is a Phase-2+ feature. |
 
-## 6. Observability
+## 6. Why not continuous "always-on" mic?
+
+Reviewers often ask whether the mic can stay open so the caller
+speaks whenever they like and the AI replies in real time, like a
+real call. The honest answer is **no, not with the current stack**:
+
+- `st.audio_input` is batch (returns a complete blob on stop), not
+  streaming.
+- `faster-whisper` decodes a full audio file; it is not a streaming
+  recogniser.
+- Edge-TTS plays the generated MP3 to completion; there is no
+  "barge-in" primitive to let the caller interrupt.
+- Each turn therefore costs about 5-15 seconds end-to-end (Whisper
+  decode + Claude response + Edge-TTS synthesis), which is too slow
+  to feel like a conversation.
+
+To get a true always-on bidirectional call, replace the three
+pieces above with streaming equivalents:
+
+| Component | Current (batch) | Streaming replacement |
+|---|---|---|
+| Audio capture | `st.audio_input` | WebRTC into a FastAPI backend |
+| STT | `faster-whisper large-v3-turbo` | OpenAI Realtime API, Deepgram, or `faster-whisper` with its streaming interface + VAD |
+| LLM | Claude Sonnet 4.6 (single response) | Server-sent streaming of partial tokens |
+| TTS | Edge-TTS synth-then-play | Streaming TTS (ElevenLabs, OpenAI Realtime, Azure) |
+| Interruption | none | VAD-driven barge-in; stop TTS when user speech is detected |
+
+A pragmatic path, in order of effort:
+
+1. **OpenAI Realtime API** — single bidirectional WebSocket, 200ms
+   latency, roughly $0.06-0.24 per minute. Lowest-code option.
+2. **Pipecat / LiveKit Agents** — open-source orchestration you can
+   point at ElevenLabs + Deepgram + Claude; more control, more ops.
+3. **Custom WebRTC + VAD + Claude streaming + ElevenLabs** — most
+   flexible, 1-2 weeks of development.
+
+All three require moving the UI off Streamlit (which cannot host a
+WebRTC audio stream) to a FastAPI backend with a browser frontend.
+This is a Phase-2+ architectural change, out of scope for the
+3-day prototype. The current press-to-talk flow is the honest
+compromise: it demonstrates the pipeline end-to-end in Streamlit
+without pretending to be real-time.
+
+## 7. Observability
 
 Every call produces, in addition to the normal triage audit log:
 
