@@ -185,12 +185,12 @@ def main() -> None:
         st.caption("**STT:** faster-whisper · large-v3-turbo")
         st.caption("**TTS:** Edge-TTS · Microsoft Neural")
 
-    # ---- Tabs: form vs voice ----
-    tab_form, tab_voice = st.tabs(["📝  Form input", "🎙  Voice input (Thai / EN)"])
+    # ---- Tabs: form vs call ----
+    tab_form, tab_call = st.tabs(["📝  Form input", "📞  Call insurance"])
     with tab_form:
         _render_form_tab()
-    with tab_voice:
-        _render_voice_tab()
+    with tab_call:
+        _render_call_tab()
 
 
 def _render_form_tab() -> None:
@@ -283,99 +283,216 @@ def _render_form_tab() -> None:
             )
 
 
-def _render_voice_tab() -> None:
-    """Mic → STT → Agent → TTS end-to-end voice loop."""
-    st.markdown(
-        "🎙 **Record a claim description** in Thai or English. The system will "
-        "transcribe your audio, run the triage agent, and read the summary back "
-        "to you in the same language."
-    )
+def _render_call_tab() -> None:
+    """Multi-turn phone-style intake routed through the SupervisorAgent."""
+    from app.agents.conversation import ConversationState
+    from app.agents.supervisor import SupervisorAgent
 
+    # --- Initial state: just the "Call" button -----------------------
+    if "call_state" not in st.session_state:
+        st.markdown(
+            "### 📞 Call ABC Insurance\n"
+            "Press the button to start a voice intake call. The AI will greet "
+            "you in Thai and English, you choose your preferred language, and "
+            "then we talk through your claim one question at a time."
+        )
+        if st.button(
+            "📞  Call ABC Insurance",
+            type="primary",
+            use_container_width=True,
+            key="call_start_btn",
+        ):
+            supervisor = SupervisorAgent()
+            state = supervisor.start()
+            st.session_state["call_state"] = state
+            st.rerun()
+        return
+
+    # --- Call in progress --------------------------------------------
+    state: ConversationState = st.session_state["call_state"]
+    supervisor = SupervisorAgent()
+
+    _render_chat_messages(state)
+
+    # If we are between user-send and AI-response, show a "thinking" bubble
+    # and perform the LLM call in this same rerun.
+    if state.processing:
+        _render_processing_bubble(state)
+        _run_pending_llm_turn(supervisor, state)
+        st.rerun()
+
+    # Supervisor log — show which specialist handled each turn
+    with st.expander(f"🧭 Supervisor log ({len(state.supervisor_log)} decisions)"):
+        for d in state.supervisor_log:
+            st.markdown(
+                f"- **turn {d.turn_index}** · `{d.specialist}` · "
+                f"action = `{d.action}` · {d.note}"
+            )
+
+    # If we already ran triage, show it and stop here
+    if state.triage is not None:
+        st.divider()
+        st.markdown("### 🧾 Triage recommendation")
+        _render_result(state.triage)
+        if st.button("☎️  End call and start a new one", use_container_width=True):
+            del st.session_state["call_state"]
+            st.rerun()
+        return
+
+    # If language is still unset, require the caller to pick before anything else
+    if state.language is None:
+        st.divider()
+        st.markdown("#### Please choose your language / กรุณาเลือกภาษา")
+        cols = st.columns(2)
+        with cols[0]:
+            if st.button(
+                "🇹🇭  ภาษาไทย",
+                use_container_width=True,
+                type="primary",
+                key="call_pick_th",
+            ):
+                supervisor.set_language(state, "th")
+                st.rerun()
+        with cols[1]:
+            if st.button(
+                "🇬🇧  English",
+                use_container_width=True,
+                type="primary",
+                key="call_pick_en",
+            ):
+                supervisor.set_language(state, "en")
+                st.rerun()
+        return
+
+    # Otherwise collect the next customer turn
+    st.divider()
+    st.markdown("#### 🎙 Your turn")
     audio_blob = st.audio_input(
-        "Press the microphone to start recording, press again to stop.",
-        key="voice_audio",
+        "Press to record, press again to stop.",
+        key=f"call_audio_{len(state.turns)}",
     )
     if audio_blob is None:
-        st.info("Waiting for recording…")
         return
 
-    lang_hint = st.radio(
-        "Language hint (optional)",
-        options=["auto", "th", "en"],
-        horizontal=True,
-        index=0,
-        key="voice_lang_hint",
-    )
-
-    run_voice = st.button(
-        "🚀  Transcribe and run triage",
+    if st.button(
+        "➡️  Send",
         type="primary",
         use_container_width=True,
-        key="voice_run_btn",
-    )
-    if not run_voice:
-        return
+        key=f"call_send_{len(state.turns)}",
+    ):
+        _begin_customer_turn(state, audio_blob.getvalue())
+        st.rerun()
 
-    # --- STT ---
+
+def _render_chat_messages(state) -> None:
+    """Render the conversation + autoplay TTS for the latest AI message only."""
+    from app.voice.tts import synthesize
+
+    cached: dict[int, bytes] = st.session_state.setdefault("call_tts_cache", {})
+    last_autoplay = st.session_state.get("call_last_tts_idx", -1)
+
+    for i, turn in enumerate(state.turns):
+        _render_bubble(turn.role, turn.text)
+        if turn.role != "assistant":
+            continue
+        if i not in cached:
+            try:
+                cached[i] = synthesize(turn.text, lang=turn.lang)
+            except Exception as e:  # noqa: BLE001
+                st.caption(f"(TTS unavailable for this message: {e})")
+                cached[i] = b""
+        if cached[i]:
+            autoplay = (i == len(state.turns) - 1) and i > last_autoplay
+            st.audio(cached[i], format="audio/mp3", autoplay=autoplay)
+            if autoplay:
+                st.session_state["call_last_tts_idx"] = i
+
+
+def _render_bubble(role: str, text: str) -> None:
+    role_label = "🤖 AI" if role == "assistant" else "🧑 You"
+    bg = "#2d2d33" if role == "assistant" else "#1c3a5e"
+    align = "flex-start" if role == "assistant" else "flex-end"
+    st.markdown(
+        f"""<div style="display:flex;justify-content:{align};margin:6px 0">
+          <div style="background:{bg};color:#f0f0f0;padding:10px 14px;
+                      border-radius:14px;max-width:72%;font-size:0.95rem;">
+            <div style="opacity:0.6;font-size:0.75rem;margin-bottom:4px">{role_label}</div>
+            {text}
+          </div>
+        </div>""",
+        unsafe_allow_html=True,
+    )
+
+
+def _render_processing_bubble(state) -> None:
+    """Show an animated placeholder while the LLM is thinking."""
+    hint = {
+        "th": "⋯ ดิฉันกำลังคิดสักครู่นะคะ",
+        "en": "⋯ Let me think for a moment…",
+        None: "⋯ Thinking…",
+    }[state.language]
+    st.markdown(
+        f"""<div style="display:flex;justify-content:flex-start;margin:6px 0">
+          <div style="background:#2d2d33;color:#aaa;padding:10px 14px;
+                      border-radius:14px;max-width:72%;font-size:0.95rem;
+                      font-style:italic">
+            <div style="opacity:0.6;font-size:0.75rem;margin-bottom:4px">🤖 AI</div>
+            <span class="dots">{hint}</span>
+          </div>
+        </div>
+        <style>
+          @keyframes dots {{ 0% {{opacity:0.4}} 50% {{opacity:1}} 100% {{opacity:0.4}} }}
+          .dots {{ animation: dots 1.4s infinite ease-in-out; }}
+        </style>""",
+        unsafe_allow_html=True,
+    )
+
+
+def _begin_customer_turn(state, audio_bytes: bytes) -> None:
+    """Transcribe the customer's audio, stash it, and flip `processing`
+    so the next rerun shows a loader AND runs the supervisor turn.
+
+    We only transcribe here; the user turn is appended inside the
+    supervisor on the next rerun so the supervisor_log order matches
+    the chat order.
+    """
     from app.voice.stt import transcribe
 
-    audio_bytes = audio_blob.getvalue()
-    with st.spinner("Transcribing with Whisper (first run downloads ~1.5 GB)…"):
+    with st.spinner("Transcribing…"):
         try:
-            transcript = transcribe(
-                audio_bytes, language=None if lang_hint == "auto" else lang_hint
-            )
+            transcript = transcribe(audio_bytes, language=state.language)
         except Exception as e:  # noqa: BLE001
             st.error(f"Transcription failed: {e}")
             return
 
-    st.success(
-        f"Detected language: **{transcript.detected_language}** "
-        f"(p={transcript.language_probability:.2f}) · "
-        f"audio {transcript.duration_seconds:.1f}s"
-    )
-    st.markdown("**Transcript:**")
-    st.info(transcript.text or "(empty — try recording again)")
-
-    if not transcript.text:
+    if not transcript.text.strip():
+        st.warning("No speech detected — please try again.")
         return
 
-    # --- Build minimal ClaimInput from voice ---
-    now = datetime.now()
-    claim = ClaimInput(
-        claim_id=f"CLM-VOICE-{now.strftime('%Y%m%d-%H%M%S')}-{uuid.uuid4().hex[:4]}",
-        customer="Voice caller (anonymous)",
-        vehicle="(unspecified — see description)",
-        incident_date=now.date(),
-        claim_submitted_date=now.date(),
-        claim_description=transcript.text,
-        documents_submitted=[],
-        customer_claim_history="(unknown — asked via follow-up)",
+    st.session_state["call_pending_user_text"] = transcript.text
+    state.processing = True
+
+
+def _run_pending_llm_turn(supervisor, state) -> None:
+    """Second half of a user turn: delegate to SupervisorAgent."""
+    import uuid as _uuid
+    from datetime import datetime as _dt
+
+    user_text = st.session_state.pop("call_pending_user_text", "")
+    if not user_text:
+        state.processing = False
+        return
+
+    claim_id = (
+        f"CLM-CALL-{_dt.now().strftime('%Y%m%d-%H%M%S')}-{_uuid.uuid4().hex[:4]}"
     )
 
-    # --- Agent ---
-    with st.spinner("Retrieving policy and calling Claude Sonnet…"):
-        agent = TriageAgent()
-        result = agent.run(claim)
-    _render_result(result)
+    try:
+        supervisor.handle_user_turn(state, user_text, claim_id=claim_id)
+    except Exception as e:  # noqa: BLE001
+        st.error(f"Supervisor turn failed: {e}")
 
-    # --- TTS of claim_summary ---
-    from app.voice.tts import synthesize
-
-    st.markdown("### 🔊 Spoken summary")
-    with st.spinner("Synthesizing speech with Edge-TTS…"):
-        try:
-            mp3 = synthesize(result.output.claim_summary)
-        except Exception as e:  # noqa: BLE001
-            st.warning(f"TTS failed (text output above still valid): {e}")
-            return
-    st.audio(mp3, format="audio/mp3", autoplay=True)
-    st.download_button(
-        "Download spoken summary (MP3)",
-        data=mp3,
-        file_name=f"{claim.claim_id}_summary.mp3",
-        mime="audio/mp3",
-    )
+    state.processing = False
 
 
 if __name__ == "__main__":
