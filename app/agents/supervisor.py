@@ -32,6 +32,7 @@ from app.agents.conversation import (
     ConvLang,
 )
 from app.agents.triage import TriageAgent, TriageResult
+from app.observability.call_log import save_call_log
 
 
 class SupervisorAgent:
@@ -44,28 +45,33 @@ class SupervisorAgent:
     def start(self) -> ConversationState:
         """Create the state and queue the scripted bilingual greeting.
 
-        The greeting is a single assistant turn containing both the Thai
-        and the English introduction. TTS at render time uses
-        `synthesize_mixed`, which switches voice per sentence so each
-        language is spoken by its native-voice. The content is not an
-        LLM call — it's a static script (see
-        docs/call_agent_playbook.md §1).
+        Default conversation language is Thai (local market). The
+        bilingual greeting still plays both introductions so a
+        non-Thai-speaking caller can tell at once that the AI
+        understands English; if they want to switch, they can simply
+        reply in English and the LLM will handle the code-switch.
         """
-        state = ConversationState()
+        state = ConversationState(language="th")
         # lang="mixed" is a sentinel the UI uses to pick synthesize_mixed.
         state.append_assistant(GREETING_COMBINED, lang="mixed")
         state.log_decision(
             "intake", "greeting", "scripted TH+EN combined greeting (not LLM)"
         )
+        state.log_decision(
+            "intake", "set_language", "default = 'th' (local market)"
+        )
+        _persist(state)
         return state
 
     # ---- Phase 2: language choice ------------------------------------
     def set_language(self, state: ConversationState, language: ConvLang) -> None:
-        """Called by the UI when the caller taps 🇹🇭 or 🇬🇧."""
+        """Available but no longer surfaced in the UI (default='th').
+        Kept so a future UI can offer manual override."""
         state.language = language
         state.log_decision(
             "intake", "set_language", f"caller chose {language!r}"
         )
+        _persist(state)
 
     # ---- Phase 3+: per-turn routing ----------------------------------
     def handle_user_turn(
@@ -100,11 +106,21 @@ class SupervisorAgent:
             )
             state.triage = self._run_triage(state, claim_id)
 
+        _persist(state)
         return step
 
     # ---- Internal ---------------------------------------------------
     def _run_triage(self, state: ConversationState, claim_id: str) -> TriageResult:
         return self.intake.run_triage(state, claim_id=claim_id)
+
+
+def _persist(state: ConversationState) -> None:
+    """Save the full call log; silence IO errors so the UI never blocks on
+    disk problems during a live call."""
+    try:
+        save_call_log(state)
+    except Exception:  # noqa: BLE001
+        pass
 
 
 # Convenience singleton import for the UI.

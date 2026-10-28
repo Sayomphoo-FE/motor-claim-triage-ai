@@ -225,7 +225,44 @@ This is a Phase-2+ architectural change, out of scope for the
 compromise: it demonstrates the pipeline end-to-end in Streamlit
 without pretending to be real-time.
 
-## 7. Observability
+## 7. Roadmap — Translator specialist (Phase 2)
+
+Currently every call log preserves the dialogue in the language the
+caller used. When a Thai claim officer or auditor opens
+`data/call_logs/*.json` and sees an English transcript, they have to
+reach for Google Translate. The planned fix is a dedicated
+specialist:
+
+```
+                        ┌──────────────────────┐
+                        │ SupervisorAgent      │
+                        │  (owns state)        │
+                        └──┬───────────────────┘
+                           │
+          ┌────────────┬───┴───┬────────────────┐
+          ▼            ▼       ▼                ▼
+   IntakeSpecialist  Triage  Translator…    (future)
+                            ← NEW: translates
+                              non-Thai turns in
+                              a saved call log
+                              to Thai for review
+```
+
+Minimum viable scope for Phase 2:
+- `app/agents/translator.py`: `TranslatorAgent.translate_call_log(
+  session_id)` that reads a saved call log, Claude Sonnet 4.6 is
+  asked to translate any non-Thai `turns[i].text` to Thai in-place,
+  original is retained alongside under a new `text_th` field.
+- `scripts/translate_log.py` CLI for ad-hoc backfill.
+- No live-translation during a call — translation is a review-time
+  step only. Live calls stay in the chosen language per Playbook §3.4.
+
+Why "specialist" rather than a function call: fits the Supervisor
+pattern we already have, so the UI can later surface a "Translate
+log" button whose implementation is just
+`supervisor.translate(session_id)`.
+
+## 8. Observability
 
 Every call produces, in addition to the normal triage audit log:
 

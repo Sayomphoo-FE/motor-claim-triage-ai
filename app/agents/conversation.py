@@ -23,7 +23,7 @@ from __future__ import annotations
 import json
 import os
 from dataclasses import dataclass, field
-from datetime import date
+from datetime import date, datetime
 from pathlib import Path
 from typing import Literal
 
@@ -202,6 +202,14 @@ class SupervisorDecision:
     note: str = ""
 
 
+def _default_session_id() -> str:
+    # Lazy import so the module stays importable without touching the
+    # call-log module (and its env/filesystem assumptions) at import time.
+    from app.observability.call_log import new_session_id
+
+    return new_session_id()
+
+
 @dataclass
 class ConversationState:
     language: ConvLang | None = None  # None = still awaiting customer's choice
@@ -210,6 +218,8 @@ class ConversationState:
     triage: TriageResult | None = None
     processing: bool = False  # True while we are between user send and AI response
     supervisor_log: list[SupervisorDecision] = field(default_factory=list)
+    session_id: str = field(default_factory=_default_session_id)
+    started_at: datetime = field(default_factory=datetime.now)
 
     def append_user(self, text: str) -> None:
         self.turns.append(Turn(role="user", text=text, lang=self.language))

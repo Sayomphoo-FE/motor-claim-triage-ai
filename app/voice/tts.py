@@ -56,11 +56,40 @@ def _normalise(text: str) -> str:
 
 
 def _split_sentences(text: str) -> list[str]:
-    """Split on Thai + English sentence terminators, preserving them."""
+    """Split on Thai + English sentence terminators, preserving them.
+
+    The previous implementation used a character class
+    ``[\\.\\?!。ค่ะคะครับนะคะนะครับ]`` which actually matches each
+    individual Thai letter (ค, ะ, ร, ั, บ, น), not the words
+    "ค่ะ"/"ครับ". That over-split the greeting into fragments
+    Edge-TTS could not synthesise, so whole sentences silently
+    disappeared from the output. The fix matches sentence-end
+    markers as proper alternatives.
+    """
     import re
 
-    parts = re.split(r"(?<=[\.\?!。ค่ะคะครับนะคะนะครับ])\s+", text)
-    return [p.strip() for p in parts if p.strip()]
+    text = text.strip()
+    if not text:
+        return []
+
+    # Match an end-of-sentence marker that is followed by whitespace or
+    # the end of the string. We iterate matches instead of using re.split
+    # because the TH particles are multi-character and only variable-
+    # width lookbehind (unsupported in `re`) would let us split cleanly.
+    end_re = re.compile(r"(?:[\.\?!。]|ค่ะ|คะ|ครับ|นะคะ|นะครับ)(?=\s|$)")
+
+    sentences: list[str] = []
+    last = 0
+    for m in end_re.finditer(text):
+        end = m.end()
+        chunk = text[last:end].strip()
+        if chunk:
+            sentences.append(chunk)
+        last = end
+    tail = text[last:].strip()
+    if tail:
+        sentences.append(tail)
+    return sentences
 
 
 async def _synthesize_chunk(text: str, voice: str, rate: str) -> bytes:

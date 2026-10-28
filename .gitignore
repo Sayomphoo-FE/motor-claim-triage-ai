@@ -221,3 +221,4 @@ __marimo__/
 
 # Prototype runtime data
 data/audit_logs/
+data/call_logs/

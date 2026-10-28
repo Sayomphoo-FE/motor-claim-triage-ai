@@ -323,6 +323,10 @@ def _render_call_tab() -> None:
 
     # Supervisor log — show which specialist handled each turn
     with st.expander(f"🧭 Supervisor log ({len(state.supervisor_log)} decisions)"):
+        st.caption(
+            f"call session: `{state.session_id}` · "
+            f"transcript saved to `data/call_logs/{state.session_id}.json`"
+        )
         for d in state.supervisor_log:
             st.markdown(
                 f"- **turn {d.turn_index}** · `{d.specialist}` · "
@@ -335,30 +339,6 @@ def _render_call_tab() -> None:
         st.divider()
         st.markdown("### 🧾 Triage recommendation")
         _render_result(state.triage)
-        return
-
-    # Language gate: the ONLY buttons in the whole call UI
-    if state.language is None:
-        st.divider()
-        cols = st.columns(2)
-        with cols[0]:
-            if st.button(
-                "🇹🇭  ภาษาไทย",
-                use_container_width=True,
-                type="primary",
-                key="call_pick_th",
-            ):
-                supervisor.set_language(state, "th")
-                st.rerun()
-        with cols[1]:
-            if st.button(
-                "🇬🇧  English",
-                use_container_width=True,
-                type="primary",
-                key="call_pick_en",
-            ):
-                supervisor.set_language(state, "en")
-                st.rerun()
         return
 
     # Minimal call UX: ONE control — the mic. The recording auto-sends
