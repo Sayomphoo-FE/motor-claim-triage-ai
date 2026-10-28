@@ -1,0 +1,14 @@
+{
+  "claim_id": "CLM-2026-00005",
+  "customer": "C-50987",
+  "vehicle": "Toyota Fortuner 2021",
+  "incident_date": "2026-09-11",
+  "claim_submitted_date": "2026-10-26",
+  "claim_description": "The customer reports flood damage that occurred during heavy rainfall on 2026-09-11 while the vehicle was parked on a street in Lat Phrao. Water reached the engine compartment and the vehicle could not be started afterwards. The customer did not provide a reason for the delayed submission.",
+  "documents_submitted": [
+    "Claim form",
+    "Vehicle registration",
+    "Photos of damage"
+  ],
+  "customer_claim_history": "No prior claims"
+}

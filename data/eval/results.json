@@ -1,0 +1,499 @@
+{
+  "cases": [
+    {
+      "case_id": "case1_parked_car",
+      "input": {
+        "claim_id": "CLM-2026-00001",
+        "customer": "C-14201",
+        "vehicle": "Toyota Camry 2.5G 2022",
+        "incident_date": "2026-10-20",
+        "claim_submitted_date": "2026-10-22",
+        "claim_description": "The customer's vehicle was parked at the Central World shopping mall P4 parking lot when another driver backed into the front bumper. The customer was inside the mall at the time and only returned to find the damage. The other driver left a note but was no longer at the scene when mall security was contacted.",
+        "documents_submitted": [
+          "Claim form",
+          "Vehicle registration",
+          "Photos of damage"
+        ],
+        "customer_claim_history": "1 claim in the past 24 months (minor windshield replacement, 2025-04)"
+      },
+      "output": {
+        "claim_summary": "Customer C-14201 reports that their 2022 Toyota Camry was struck by a third-party driver while parked at Central World mall on 2026-10-20. The at-fault driver left a note but departed before mall security arrived. The claim was submitted 2 days after the incident with only partial documentation.",
+        "coverage_assessment": "Possibly covered",
+        "missing_information": [
+          "Driving license copy (required by Clause 3.1)",
+          "Incident report (required by Clause 3.1)",
+          "Third-party contact information from the note left by the at-fault driver (required by Clause 3.3)",
+          "Third-party evidence such as photos or statement from the at-fault driver (required by Clause 3.3)",
+          "Mall CCTV footage or security report (supporting evidence for the incident)"
+        ],
+        "risk_flags": [
+          "Missing standard required documents: driving license and incident report [Clause 3.1]",
+          "Missing third-party contact information and evidence despite customer claiming a note was left \u2014 note not submitted [Clause 3.3]",
+          "No independent corroboration of the incident (no security report, no witness statement, no CCTV reference)"
+        ],
+        "recommended_routing": "Manual review",
+        "reasoning": "The incident description \u2014 a parked vehicle struck by a reversing third-party driver \u2014 aligns with a covered peril (accidental collision / third-party property damage) [Clause 1.1], and no Section 2 exclusion appears to directly apply. However, several required standard documents are absent: a driving license copy and an incident report [Clause 3.1]. Additionally, as a third-party damage claim, third-party contact information and third-party evidence (e.g., the note allegedly left by the at-fault driver) are also required but have not been submitted [Clause 3.3]. Coverage is therefore assessed as \"Possibly covered\" due to incomplete documentation rather than any clear exclusion. The claim does not meet all three conditions for standard processing [Clause 4.1], and while no strong fraud pattern is present under [Clause 4.3], the absence of key third-party evidence and corroborating documentation warrants manual review to verify the incident and collect outstanding items.",
+        "confidence_level": "Medium",
+        "cited_clauses": [
+          "1.1",
+          "2.3",
+          "2.4",
+          "2.5",
+          "3.1",
+          "3.3",
+          "4.1",
+          "4.3"
+        ]
+      },
+      "retrieved_clauses": [
+        "3.1",
+        "3.3",
+        "3.2",
+        "2.3",
+        "4.1",
+        "4.3",
+        "2.4",
+        "2.5",
+        "1.1",
+        "4.4"
+      ],
+      "guardrail_triggers": {
+        "input": [
+          "PLATE:P4"
+        ],
+        "output": []
+      },
+      "latency_ms": 13383,
+      "audit_file": "sess_9278a70ef339.json",
+      "deterministic": {
+        "coverage_ok": true,
+        "routing_ok": true,
+        "confidence_ok": true,
+        "missing_info": {
+          "precision": 0.8,
+          "recall": 1.0,
+          "f1": 0.888888888888889,
+          "matched": [
+            "driving license",
+            "incident report",
+            "third-party contact",
+            "third-party evidence"
+          ],
+          "missed": []
+        },
+        "risk_flags": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "matched": [],
+          "missed": []
+        },
+        "cited_coverage": 0.75,
+        "citation_validity": 1.0
+      },
+      "judge": {
+        "factuality": 5,
+        "completeness": 4,
+        "clarity": 3,
+        "policy_alignment": 4,
+        "appropriate_uncertainty": 4,
+        "overall_comment": "All cited clauses (1.1, 2.3, 2.4, 2.5, 3.1, 3.3, 4.1, 4.3) appear in the retrieved list, so factuality is clean. Completeness is solid: it addresses covered peril, notes exclusions were reviewed, flags missing documents, and identifies risk factors (missing third-party evidence, hit-and-run-ish situation). However, it only generically asserts \"no Section 2 exclusion appears to apply\" without specifically engaging 2.3/2.4/2.5, and doesn't flag the risk that the other driver left the scene as a potential red flag beyond documentation. Clarity suffers slightly \u2014 the response runs ~6 sentences but is dense and could be more structured (bullet form would help); listing 2.3/2.4/2.5 in citations without discussion is noise. Policy alignment is reasonable: \"Possibly covered\" + manual review is consistent with missing docs under 3.1/3.3 and failing 4.1 conditions. Uncertainty is appropriately calibrated to Medium given missing documentation, though \"Low\" could also be defensible given the absent third party and incident report.",
+        "mean": 4.0
+      }
+    },
+    {
+      "case_id": "case2_illegal_racing",
+      "input": {
+        "claim_id": "CLM-2026-00002",
+        "customer": "C-22810",
+        "vehicle": "Honda Civic Type R 2023",
+        "incident_date": "2026-10-18",
+        "claim_submitted_date": "2026-10-19",
+        "claim_description": "The customer crashed into a concrete barrier while participating in an illegal street race on Rama 9 road around 02:00 AM. Police attended the scene. The customer's statement to the officer confirmed they were racing against another vehicle. The front of the car is severely damaged.",
+        "documents_submitted": [
+          "Claim form",
+          "Photos of damage",
+          "Police report",
+          "Copy of driving license",
+          "Vehicle registration",
+          "Incident report"
+        ],
+        "customer_claim_history": "No prior claims"
+      },
+      "output": {
+        "claim_summary": "Customer C-22810 submitted a claim for severe front-end damage to a Honda Civic Type R 2023 following a crash into a concrete barrier on 2026-10-18. The customer's own statement to attending police confirms they were participating in an illegal street race on Rama 9 road at approximately 02:00 AM. All standard required documents have been submitted and the claim was filed the following day.",
+        "coverage_assessment": "Not covered",
+        "missing_information": [],
+        "risk_flags": [
+          "Customer's own statement explicitly confirms participation in illegal street racing, directly triggering exclusion [Clause 2.2]",
+          "Incident occurred at 02:00 AM during an illegal street race \u2014 potential alcohol/drug impairment cannot be ruled out [Clause 2.1]"
+        ],
+        "recommended_routing": "Rejection review",
+        "reasoning": "The incident is a collision [Clause 1.1], which is ordinarily a covered peril; however, the exclusion for illegal racing directly and unambiguously applies here [Clause 2.2], as the customer's own police statement confirms participation in an illegal street race. Because a clear Section 2 exclusion applies, the coverage assessment is \"Not covered\" and the claim should be routed to rejection review. Additionally, the late-night timing of an illegal race raises a secondary concern regarding possible alcohol or drug impairment [Clause 2.1], though this has not been confirmed and is noted as an ancillary risk flag rather than the primary basis for rejection. All standard required documents per [Clause 3.1] are present, so no documentation gaps exist. The conditions for standard processing [Clause 4.1] and manual review [Clause 4.2] are not met given the clear applicable exclusion.",
+        "confidence_level": "High",
+        "cited_clauses": [
+          "1.1",
+          "2.1",
+          "2.2",
+          "3.1",
+          "4.1",
+          "4.2"
+        ]
+      },
+      "retrieved_clauses": [
+        "3.1",
+        "3.3",
+        "3.2",
+        "2.2",
+        "2.3",
+        "4.3",
+        "4.1",
+        "1.1",
+        "2.1",
+        "4.2"
+      ],
+      "guardrail_triggers": {
+        "input": [],
+        "output": []
+      },
+      "latency_ms": 10602,
+      "audit_file": "sess_f582a6688d0c.json",
+      "deterministic": {
+        "coverage_ok": true,
+        "routing_ok": true,
+        "confidence_ok": true,
+        "missing_info": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "matched": [],
+          "missed": []
+        },
+        "risk_flags": {
+          "precision": 0.5,
+          "recall": 0.5,
+          "f1": 0.5,
+          "matched": [
+            "exclusion"
+          ],
+          "missed": [
+            "illegal racing"
+          ]
+        },
+        "cited_coverage": 0.5,
+        "citation_validity": 1.0
+      },
+      "judge": {
+        "factuality": 5,
+        "completeness": 4,
+        "clarity": 4,
+        "policy_alignment": 5,
+        "appropriate_uncertainty": 4,
+        "overall_comment": "All cited clauses (1.1, 2.1, 2.2, 3.1, 4.1, 4.2) are within the retrieved set, so factuality is solid. The reasoning correctly identifies the illegal racing exclusion (2.2) as the basis for rejection and routes to rejection review, consistent with the cited clauses. It flags a secondary risk around possible impairment (2.1) appropriately as ancillary and not overclaimed. Minor issues: it asserts \"all standard required documents per 3.1 are present\" without evidence from the claim description \u2014 this is an overconfident claim given no document list was provided, and clauses 3.2/3.3 were retrieved but not considered. Clarity is good though slightly over 6 sentences and somewhat verbose. High confidence is defensible here given the explicit police-confirmed admission of illegal racing, so the confidence calibration is reasonable overall.",
+        "mean": 4.4
+      }
+    },
+    {
+      "case_id": "case3_theft_no_police",
+      "input": {
+        "claim_id": "CLM-2026-00003",
+        "customer": "C-30455",
+        "vehicle": "Mazda CX-30 2024",
+        "incident_date": "2026-10-15",
+        "claim_submitted_date": "2026-10-21",
+        "claim_description": "The customer reports that the vehicle was stolen from the resident parking area of a condominium in Ratchada between 22:00 and 06:00. The customer discovered the vehicle missing the next morning and immediately filed a claim. The customer has not yet filed a report with the local police station.",
+        "documents_submitted": [
+          "Claim form",
+          "Vehicle registration"
+        ],
+        "customer_claim_history": "No prior claims"
+      },
+      "output": {
+        "claim_summary": "Customer C-30455 reports their 2024 Mazda CX-30 was stolen overnight (22:00\u201306:00) from a condominium parking area in Ratchada on 2026-10-15. The claim was submitted 6 days after the incident, which is within the 30-day limit. However, critical documents are missing and no police report has been filed yet.",
+        "coverage_assessment": "Possibly covered",
+        "missing_information": [
+          "Police report (required for theft claims per Clause 3.2)",
+          "Copy of driving license (required per Clause 3.1)",
+          "Photos of damage or evidence of theft (required per Clause 3.1)",
+          "Incident report (required per Clause 3.1)"
+        ],
+        "risk_flags": [
+          "No police report filed \u2014 customer states they have not yet reported the theft to the local police station, which is a mandatory document for theft claims and its absence may delay or complicate verification",
+          "Severe damage/loss reported (full vehicle theft) with very weak supporting evidence submitted \u2014 only claim form and vehicle registration provided, matching the Clause 4.3 pattern of severe loss with missing supporting evidence"
+        ],
+        "recommended_routing": "Manual review",
+        "reasoning": "The reported incident \u2014 vehicle theft from a residential parking area \u2014 falls under a covered peril [Clause 1.1]. However, the submission is significantly incomplete: the police report mandatory for theft claims is absent [Clause 3.2], and the driving license, photos/evidence, and incident report required for all claims are also missing [Clause 3.1]. Coverage is therefore assessed as \"Possibly covered\" rather than \"Likely covered\" due to these documentation gaps. Additionally, a full vehicle theft is being reported with only two documents submitted, which resembles the pattern of severe loss with weak or missing supporting evidence [Clause 4.3], warranting a risk flag. The claim was submitted within 6 days of the incident, so the late submission exclusion does not apply [Clause 2.5]. Given the incomplete documents and the need to obtain the police report before further assessment, Manual review is the appropriate routing [Clause 4.2].",
+        "confidence_level": "Medium",
+        "cited_clauses": [
+          "1.1",
+          "2.5",
+          "3.1",
+          "3.2",
+          "4.2",
+          "4.3"
+        ]
+      },
+      "retrieved_clauses": [
+        "3.1",
+        "3.3",
+        "3.2",
+        "2.5",
+        "2.3",
+        "1.1",
+        "4.3",
+        "2.4",
+        "4.2",
+        "4.1"
+      ],
+      "guardrail_triggers": {
+        "input": [],
+        "output": []
+      },
+      "latency_ms": 12790,
+      "audit_file": "sess_850874ed5cf6.json",
+      "deterministic": {
+        "coverage_ok": true,
+        "routing_ok": true,
+        "confidence_ok": true,
+        "missing_info": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "matched": [
+            "police report",
+            "incident report",
+            "driving license",
+            "photos of damage"
+          ],
+          "missed": []
+        },
+        "risk_flags": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "matched": [],
+          "missed": []
+        },
+        "cited_coverage": 1.0,
+        "citation_validity": 1.0
+      },
+      "judge": {
+        "factuality": 5,
+        "completeness": 4,
+        "clarity": 4,
+        "policy_alignment": 4,
+        "appropriate_uncertainty": 3,
+        "overall_comment": "All cited clauses (1.1, 2.5, 3.1, 3.2, 4.2, 4.3) are within the retrieved set, so factuality is strong. The reasoning covers the covered peril, missing documents (police report, license, photos), risk flag for high-severity/low-evidence pattern, and timeliness check \u2014 reasonably complete, though it doesn't explicitly rule out other exclusions (2.3, 2.4). The response is structured and reasonably concise (~6 sentences). Routing to manual review aligns well with the documentation gaps and risk flag. Confidence of \"Medium\" is slightly overconfident given that the police report \u2014 explicitly mandatory for theft \u2014 is entirely missing; \"Low\" or \"Cannot determine coverage until police report filed\" would be more appropriate. Also, the claim that submission was \"within 6 days\" is unsupported \u2014 the description only says the claim was filed the next morning, not the retrieval timeline, and no 6-day threshold is cited from policy text.",
+        "mean": 4.0
+      }
+    },
+    {
+      "case_id": "case4_fraud_risk",
+      "input": {
+        "claim_id": "CLM-2026-00004",
+        "customer": "C-44102",
+        "vehicle": "Nissan Almera 2020",
+        "incident_date": "2026-10-24",
+        "claim_submitted_date": "2026-10-25",
+        "claim_description": "The customer reports severe front-end damage from an alleged accidental collision with a utility pole on a rural road at night. No police attended. No third-party is involved. The customer submitted a single blurry photo of the damage. The customer could not provide the exact location of the incident.",
+        "documents_submitted": [
+          "Claim form",
+          "Photos of damage"
+        ],
+        "customer_claim_history": "4 claims in the past 12 months (3 collision claims totalling approximately 320,000 THB, 1 glass claim)"
+      },
+      "output": {
+        "claim_summary": "Customer C-44102 reports severe front-end damage to a 2020 Nissan Almera from an alleged accidental collision with a utility pole on a rural road at night, submitted one day after the incident. No police attended, no third party is involved, and the customer could not provide the exact incident location. The customer has a history of 4 claims in the past 12 months, including 3 collision claims totalling approximately 320,000 THB.",
+        "coverage_assessment": "Possibly covered",
+        "missing_information": [
+          "Copy of driving license",
+          "Vehicle registration",
+          "Incident report",
+          "Clear, high-quality photos of damage (only one blurry photo submitted)",
+          "Exact location of the incident"
+        ],
+        "risk_flags": [
+          "Severe front-end damage reported but only a single blurry photo submitted as supporting evidence \u2014 weak evidence for severity [Clause 4.3]",
+          "4 claims filed in the past 12 months (3 collision claims totalling ~320,000 THB) \u2014 repeated claims from the same customer over a short period [Clause 4.3]",
+          "Customer unable to provide exact incident location, raising story consistency concerns [Clause 4.3]",
+          "No police attendance and no independent witnesses or third-party evidence to corroborate the incident"
+        ],
+        "recommended_routing": "Fraud review",
+        "reasoning": "The reported event \u2014 an accidental collision \u2014 is a covered peril under [Clause 1.1], so coverage is not outright excluded; however, multiple risk signals prevent a clear positive assessment. The submission is critically incomplete: the driving license, vehicle registration, and incident report are all absent as required by [Clause 3.1], and the single blurry photo does not adequately evidence the severe damage described. Most significantly, three Clause 4.3 fraud indicators are simultaneously present: severe damage paired with weak supporting evidence, repeated collision claims from the same customer within 12 months, and an inconsistent or vague story (unknown incident location) [Clause 4.3]. No Section 2 exclusion can be confirmed from the available facts, but the combination of missing documents and multiple fraud patterns makes standard or manual processing inappropriate at this stage. Accordingly, the claim must be routed to Fraud Review [Clause 4.3] before any further processing.",
+        "confidence_level": "High",
+        "cited_clauses": [
+          "1.1",
+          "3.1",
+          "4.1",
+          "4.2",
+          "4.3"
+        ]
+      },
+      "retrieved_clauses": [
+        "3.1",
+        "3.3",
+        "2.5",
+        "4.1",
+        "3.2",
+        "2.3",
+        "1.1",
+        "4.3",
+        "4.2",
+        "2.1"
+      ],
+      "guardrail_triggers": {
+        "input": [],
+        "output": []
+      },
+      "latency_ms": 13580,
+      "audit_file": "sess_2107d4293cbf.json",
+      "deterministic": {
+        "coverage_ok": true,
+        "routing_ok": true,
+        "confidence_ok": false,
+        "missing_info": {
+          "precision": 0.4,
+          "recall": 0.5,
+          "f1": 0.4444444444444445,
+          "matched": [
+            "driving license",
+            "incident report"
+          ],
+          "missed": [
+            "clear photo",
+            "police report"
+          ]
+        },
+        "risk_flags": {
+          "precision": 0.5,
+          "recall": 0.6666666666666666,
+          "f1": 0.5714285714285715,
+          "matched": [
+            "repeated claims",
+            "weak evidence"
+          ],
+          "missed": [
+            "severe damage"
+          ]
+        },
+        "cited_coverage": 1.0,
+        "citation_validity": 1.0
+      },
+      "judge": {
+        "factuality": 5,
+        "completeness": 3,
+        "clarity": 3,
+        "policy_alignment": 4,
+        "appropriate_uncertainty": 2,
+        "overall_comment": "All cited clauses (1.1, 3.1, 4.1, 4.2, 4.3) are in the retrieved list, so factuality is clean. However, the reasoning asserts a fraud indicator \u2014 \"repeated collision claims from the same customer within 12 months\" \u2014 that is not supported by anything in the claim description; this is a fabricated fact and should have lowered confidence. The confidence level \"High\" is inappropriate given missing documents, unknown location, and only a blurry photo; \"Cannot determine\" or Medium would be more defensible, so appropriate_uncertainty is weak. Completeness is partial: it mentions covered peril, missing docs, and fraud flags, but does not meaningfully examine applicable exclusions (e.g., 2.1/2.3/2.5 such as night driving, unreported-to-police, or intoxication possibilities) despite them being retrieved. Clarity suffers slightly from length (5 long sentences with some redundancy) and repeated 4.3 citations. Routing to Fraud Review is reasonably aligned with the cited routing clauses, though 4.1/4.2 are name-dropped without explanation.",
+        "mean": 3.4
+      }
+    },
+    {
+      "case_id": "case5_late_submission",
+      "input": {
+        "claim_id": "CLM-2026-00005",
+        "customer": "C-50987",
+        "vehicle": "Toyota Fortuner 2021",
+        "incident_date": "2026-09-11",
+        "claim_submitted_date": "2026-10-26",
+        "claim_description": "The customer reports flood damage that occurred during heavy rainfall on 2026-09-11 while the vehicle was parked on a street in Lat Phrao. Water reached the engine compartment and the vehicle could not be started afterwards. The customer did not provide a reason for the delayed submission.",
+        "documents_submitted": [
+          "Claim form",
+          "Vehicle registration",
+          "Photos of damage"
+        ],
+        "customer_claim_history": "No prior claims"
+      },
+      "output": {
+        "claim_summary": "Customer C-50987 reports flood damage to a 2021 Toyota Fortuner on 2026-09-11 while the vehicle was parked in Lat Phrao during heavy rainfall, with water reaching the engine compartment. The claim was submitted on 2026-10-26, which is 45 days after the incident \u2014 exceeding the 30-day submission window. No reason for the delayed submission has been provided.",
+        "coverage_assessment": "Possibly covered",
+        "missing_information": [
+          "Driving license copy (required by Clause 3.1)",
+          "Incident report (required by Clause 3.1)",
+          "Valid reason for late submission beyond the 30-day limit (required by Clause 2.5)"
+        ],
+        "risk_flags": [
+          "Claim submitted 45 days after the incident with no explanation provided, triggering the late submission exclusion [Clause 2.5]",
+          "Severe engine damage reported but no incident report submitted to corroborate the flood event [Clause 3.1]"
+        ],
+        "recommended_routing": "Manual review",
+        "reasoning": "The reported flood damage is a covered peril under [Clause 1.1]. However, the claim was submitted 45 days after the incident, exceeding the 30-day window; without a valid reason, this triggers the late submission exclusion [Clause 2.5], though if a valid reason is provided the claim may still be considered via manual review. Several required documents are missing: a copy of the driving license and an incident report [Clause 3.1]. The absence of an incident report is particularly notable given the severity of the engine damage reported, weakening the evidentiary basis of the claim [Clause 4.3]. Because documents are incomplete and the late submission issue is unresolved, coverage cannot be confirmed as \"Likely covered\" [Clause 4.2]. Manual review is required to determine whether a valid reason for late submission exists and to collect the outstanding documents [Clause 4.2].",
+        "confidence_level": "Medium",
+        "cited_clauses": [
+          "1.1",
+          "2.5",
+          "3.1",
+          "4.2",
+          "4.3"
+        ]
+      },
+      "retrieved_clauses": [
+        "3.1",
+        "3.3",
+        "1.1",
+        "3.2",
+        "2.5",
+        "2.3",
+        "2.4",
+        "4.1",
+        "4.2",
+        "4.3"
+      ],
+      "guardrail_triggers": {
+        "input": [],
+        "output": []
+      },
+      "latency_ms": 12075,
+      "audit_file": "sess_57e964c5cf4f.json",
+      "deterministic": {
+        "coverage_ok": false,
+        "routing_ok": true,
+        "confidence_ok": true,
+        "missing_info": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "matched": [
+            "driving license",
+            "incident report",
+            "reason for late submission"
+          ],
+          "missed": []
+        },
+        "risk_flags": {
+          "precision": 0.5,
+          "recall": 1.0,
+          "f1": 0.6666666666666666,
+          "matched": [
+            "late submission",
+            "exclusion"
+          ],
+          "missed": []
+        },
+        "cited_coverage": 0.6666666666666666,
+        "citation_validity": 1.0
+      },
+      "judge": {
+        "factuality": 5,
+        "completeness": 4,
+        "clarity": 4,
+        "policy_alignment": 4,
+        "appropriate_uncertainty": 4,
+        "overall_comment": "All cited clauses (1.1, 2.5, 3.1, 4.2, 4.3) are in the retrieved list \u2014 no hallucinations. Reasoning covers the covered peril, late-submission exclusion, missing documents, and routing rationale. However, the claim notes the customer \"did not provide a reason\" for the delay, so leaning on \"if a valid reason is provided\" is slightly overcharitable \u2014 a stronger stance toward denial or Low confidence would be warranted given the clear 2.5 trigger. Medium confidence is defensible but borderline. Length is appropriate (~6 sentences) and structured, though the repeated 4.2 citations feel slightly redundant. Overall a solid triage with minor overconfidence given the explicitly absent justification.",
+        "mean": 4.2
+      }
+    }
+  ],
+  "aggregate": {
+    "n": 5,
+    "coverage_acc": 0.8,
+    "routing_acc": 1.0,
+    "confidence_acc": 0.8,
+    "missing_info_f1": 0.8666666666666668,
+    "risk_flags_f1": 0.7476190476190476,
+    "cited_coverage": 0.7833333333333333,
+    "citation_validity": 1.0
+  },
+  "judge_mean": 4.0
+}

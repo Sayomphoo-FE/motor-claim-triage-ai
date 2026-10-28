@@ -1,0 +1,17 @@
+{
+  "claim_id": "CLM-2026-00002",
+  "customer": "C-22810",
+  "vehicle": "Honda Civic Type R 2023",
+  "incident_date": "2026-10-18",
+  "claim_submitted_date": "2026-10-19",
+  "claim_description": "The customer crashed into a concrete barrier while participating in an illegal street race on Rama 9 road around 02:00 AM. Police attended the scene. The customer's statement to the officer confirmed they were racing against another vehicle. The front of the car is severely damaged.",
+  "documents_submitted": [
+    "Claim form",
+    "Photos of damage",
+    "Police report",
+    "Copy of driving license",
+    "Vehicle registration",
+    "Incident report"
+  ],
+  "customer_claim_history": "No prior claims"
+}

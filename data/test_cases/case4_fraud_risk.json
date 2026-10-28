@@ -1,0 +1,13 @@
+{
+  "claim_id": "CLM-2026-00004",
+  "customer": "C-44102",
+  "vehicle": "Nissan Almera 2020",
+  "incident_date": "2026-10-24",
+  "claim_submitted_date": "2026-10-25",
+  "claim_description": "The customer reports severe front-end damage from an alleged accidental collision with a utility pole on a rural road at night. No police attended. No third-party is involved. The customer submitted a single blurry photo of the damage. The customer could not provide the exact location of the incident.",
+  "documents_submitted": [
+    "Claim form",
+    "Photos of damage"
+  ],
+  "customer_claim_history": "4 claims in the past 12 months (3 collision claims totalling approximately 320,000 THB, 1 glass claim)"
+}
