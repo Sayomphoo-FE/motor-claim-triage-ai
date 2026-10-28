@@ -333,12 +333,11 @@ def _render_call_tab() -> None:
                 f"action = `{d.action}` · {d.note}"
             )
 
-    # If we already ran triage, show it and keep the call "ended" state.
-    # No explicit button — the handoff is the natural end.
+    # If we already ran triage, the call is OVER. Freeze the dialogue,
+    # show the collected intake summary, the triage card, and the
+    # export button — but no mic, no language toggle, nothing else.
     if state.triage is not None:
-        st.divider()
-        st.markdown("### 🧾 Triage recommendation")
-        _render_result(state.triage)
+        _render_call_ended(state)
         return
 
     # Minimal call UX: ONE control — the mic. The recording auto-sends
@@ -477,6 +476,114 @@ def _run_pending_llm_turn(supervisor, state) -> None:
         st.error(f"Supervisor turn failed: {e}")
 
     state.processing = False
+
+
+def _render_call_ended(state) -> None:
+    """Terminal state after triage has been produced."""
+    st.success(
+        "📞 **Call ended** — the AI has handed your case to a claim officer. "
+        "Below is the information collected during the call, the triage "
+        "recommendation, and a downloadable transcript."
+    )
+
+    st.markdown("### 📋 Information collected during this call")
+    collected = state.collected
+    tbl = {
+        "Vehicle": collected.vehicle or "—",
+        "Incident date": collected.incident_date or "—",
+        "What happened": collected.claim_description or "—",
+        "Documents submitted": ", ".join(collected.documents_submitted) or "—",
+        "Claim history": collected.customer_claim_history or "—",
+    }
+    for k, v in tbl.items():
+        st.markdown(f"- **{k}:** {v}")
+
+    txt = _build_transcript_txt(state)
+    st.download_button(
+        "📥  Export conversation to .txt",
+        data=txt.encode("utf-8"),
+        file_name=f"{state.session_id}.txt",
+        mime="text/plain",
+        use_container_width=True,
+    )
+
+    st.divider()
+    st.markdown("### 🧾 Triage recommendation")
+    _render_result(state.triage)
+
+    st.divider()
+    if st.button(
+        "☎️  Place another call",
+        use_container_width=True,
+        key="call_restart_after_end",
+    ):
+        for k in ("call_state", "call_tts_cache", "call_last_tts_idx"):
+            st.session_state.pop(k, None)
+        for k in list(st.session_state.keys()):
+            if k.startswith("call_blob_processed_") or k.startswith("call_audio_"):
+                st.session_state.pop(k, None)
+        st.rerun()
+
+
+def _build_transcript_txt(state) -> str:
+    """Human-readable .txt of the whole call."""
+    lines: list[str] = []
+    lines.append("Motor Insurance Claim Triage — Call Transcript")
+    lines.append("=" * 60)
+    lines.append(f"Session ID : {state.session_id}")
+    lines.append(f"Started    : {state.started_at.isoformat()}")
+    lines.append(f"Language   : {state.language}")
+    lines.append("")
+
+    lines.append("--- Conversation ---")
+    for t in state.turns:
+        who = "AI       " if t.role == "assistant" else "Customer"
+        lines.append(f"[{who}] {t.text}")
+    lines.append("")
+
+    lines.append("--- Information collected ---")
+    c = state.collected
+    lines.append(f"Vehicle              : {c.vehicle or '-'}")
+    lines.append(f"Incident date        : {c.incident_date or '-'}")
+    lines.append(f"Claim description    : {c.claim_description or '-'}")
+    lines.append(
+        f"Documents submitted  : {', '.join(c.documents_submitted) or '-'}"
+    )
+    lines.append(f"Claim history        : {c.customer_claim_history or '-'}")
+    lines.append("")
+
+    if state.triage is not None:
+        o = state.triage.output
+        lines.append("--- Triage recommendation ---")
+        lines.append(f"Coverage       : {o.coverage_assessment}")
+        lines.append(f"Routing        : {o.recommended_routing}")
+        lines.append(f"Confidence     : {o.confidence_level}")
+        lines.append(f"Cited clauses  : {', '.join(o.cited_clauses) or '-'}")
+        lines.append("")
+        lines.append("Claim summary:")
+        lines.append(o.claim_summary)
+        lines.append("")
+        lines.append("Reasoning:")
+        lines.append(o.reasoning)
+        lines.append("")
+        if o.missing_information:
+            lines.append("Missing information:")
+            for item in o.missing_information:
+                lines.append(f"  - {item}")
+            lines.append("")
+        if o.risk_flags:
+            lines.append("Risk flags:")
+            for item in o.risk_flags:
+                lines.append(f"  - {item}")
+            lines.append("")
+
+    lines.append("--- Supervisor decisions ---")
+    for d in state.supervisor_log:
+        lines.append(
+            f"turn {d.turn_index:>2} | {d.specialist:<7} | {d.action:<15} | {d.note}"
+        )
+
+    return "\n".join(lines) + "\n"
 
 
 if __name__ == "__main__":

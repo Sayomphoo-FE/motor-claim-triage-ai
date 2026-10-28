@@ -108,25 +108,60 @@ async def _synthesize_chunk(text: str, voice: str, rate: str) -> bytes:
     return bytes(buf)
 
 
+def _merge_mp3_chunks(chunks: list[bytes], pause_ms: int = 180) -> bytes:
+    """Decode each MP3 chunk, append in order with a brief silence between,
+    and re-encode as a single valid MP3.
+
+    Why: Edge-TTS emits a full MP3 stream per call (ID3 header + frames).
+    Concatenating the raw bytes gives an invalid "double-headed" file:
+    some browsers (and Streamlit's bundled audio player) stop at the
+    end-of-stream marker of the first chunk, which was the true cause
+    of Thai responses appearing to be cut off after the first sentence.
+    Round-tripping through pydub guarantees a single header + one
+    continuous frame stream the player can walk from start to finish.
+    """
+    import io
+
+    from pydub import AudioSegment
+
+    non_empty = [c for c in chunks if c]
+    if not non_empty:
+        return b""
+    if len(non_empty) == 1:
+        return non_empty[0]
+
+    combined = AudioSegment.empty()
+    pause = AudioSegment.silent(duration=pause_ms)
+    for i, raw in enumerate(non_empty):
+        seg = AudioSegment.from_mp3(io.BytesIO(raw))
+        combined += seg
+        if i < len(non_empty) - 1:
+            combined += pause
+
+    out = io.BytesIO()
+    combined.export(out, format="mp3")
+    return out.getvalue()
+
+
 async def _synthesize_async(text: str, voice: str, rate: str) -> bytes:
-    """Synthesize sentence-by-sentence.
+    """Synthesize sentence-by-sentence then merge properly.
 
     Splitting always (not just on failure) gives:
-    - Natural pauses between sentences (the gap between MP3 streams
-      becomes a brief silence when played back).
-    - Robustness against Edge-TTS's "NoAudioReceived" bug on
-      long mixed-script content — if one sentence fails we drop it
-      instead of losing the whole message.
+    - Robustness against Edge-TTS's "NoAudioReceived" bug on long
+      mixed-script content — if one sentence fails we drop it instead
+      of losing the whole message.
+    - Deterministic sentence-level pacing via `_merge_mp3_chunks`,
+      which decodes each chunk and inserts a short silence between.
     """
     normalised = _normalise(text)
     sentences = _split_sentences(normalised) or [normalised]
 
-    out = bytearray()
+    chunks: list[bytes] = []
     for sentence in sentences:
         chunk = await _synthesize_chunk(sentence, voice, rate)
         if chunk:
-            out.extend(chunk)
-    return bytes(out)
+            chunks.append(chunk)
+    return _merge_mp3_chunks(chunks)
 
 
 def synthesize(text: str, lang: str | None = None, rate: str = DEFAULT_RATE) -> bytes:
@@ -151,18 +186,19 @@ def synthesize(text: str, lang: str | None = None, rate: str = DEFAULT_RATE) -> 
 
 async def _synthesize_mixed_async(text: str, rate: str) -> bytes:
     """Synthesize bilingual text, using the TH voice for Thai-containing
-    sentences and the EN voice for English-only sentences. Concatenate
-    the MP3 bytes so the caller hears one continuous stream.
+    sentences and the EN voice for English-only sentences. Merged into
+    a single valid MP3 via `_merge_mp3_chunks` so browsers play it
+    end-to-end without stopping at inter-sentence stream boundaries.
     """
     normalised = _normalise(text)
     sentences = _split_sentences(normalised) or [normalised]
-    out = bytearray()
+    chunks: list[bytes] = []
     for sentence in sentences:
         voice = VOICE_BY_LANG["th"] if _THAI_CHARS_RE.search(sentence) else VOICE_BY_LANG["en"]
         chunk = await _synthesize_chunk(sentence, voice, rate)
         if chunk:
-            out.extend(chunk)
-    return bytes(out)
+            chunks.append(chunk)
+    return _merge_mp3_chunks(chunks)
 
 
 def synthesize_mixed(text: str, rate: str = DEFAULT_RATE) -> bytes:
