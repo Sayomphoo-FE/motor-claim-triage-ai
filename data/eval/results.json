@@ -1,7 +1,7 @@
 {
   "cases": [
     {
-      "case_id": "case1_parked_car",
+      "case_id": "case1_en_parked_car",
       "input": {
         "claim_id": "CLM-2026-00001",
         "customer": "C-14201",
@@ -14,218 +14,30 @@
           "Vehicle registration",
           "Photos of damage"
         ],
-        "customer_claim_history": "1 claim in the past 24 months (minor windshield replacement, 2025-04)"
+        "customer_claim_history": "1 claim in the past 24 months (minor windshield replacement, 2025-04)",
+        "response_language": "auto"
       },
       "output": {
-        "claim_summary": "Customer C-14201 reports that their 2022 Toyota Camry was struck by a third-party driver while parked at Central World mall on 2026-10-20. The at-fault driver left a note but departed the scene before security arrived. The claim was submitted 2 days after the incident with partial documentation.",
+        "claim_summary": "Customer C-14201 reports that their 2022 Toyota Camry was struck by a third-party driver while parked at Central World mall on 2026-10-20. The at-fault driver left a note but departed before mall security arrived. The claim was submitted 2 days after the incident with only partial documentation.",
         "coverage_assessment": "Possibly covered",
         "missing_information": [
-          "Driving license copy (required by Clause 3.1)",
-          "Incident report (required by Clause 3.1)",
-          "Third-party contact information from the note left by the other driver (required by Clause 3.3)",
-          "Third-party evidence such as photos or statement from the other driver (required by Clause 3.3)",
-          "Mall security report or CCTV footage corroborating the incident"
+          "Driving license copy (required under [Clause 3.1])",
+          "Incident report (required under [Clause 3.1])",
+          "Third-party contact information from the note left by the at-fault driver (required under [Clause 3.3])",
+          "Third-party evidence such as photos or a written statement from the at-fault driver or witnesses (required under [Clause 3.3])"
         ],
         "risk_flags": [
-          "Missing third-party contact details despite customer stating the other driver left a note \u2014 the contents of the note have not been provided",
-          "No incident report submitted, leaving the circumstances unverified",
-          "Hit-and-run scenario (driver left the scene) reduces corroborating evidence for the third-party damage claim"
+          "No third-party contact details or corroborating evidence provided despite the at-fault driver allegedly leaving a note \u2014 this note has not been submitted as supporting evidence [Clause 4.3]",
+          "Mall security was contacted but no security report or CCTV reference has been included, weakening the supporting evidence for a damage claim [Clause 4.3]"
         ],
         "recommended_routing": "Manual review",
-        "reasoning": "The incident is described as a third-party driver backing into the insured's parked vehicle, which falls under accidental collision and third-party property damage \u2014 both covered perils [Clause 1.1]. No Section 2 exclusions appear to apply on the current facts (no indication of intentional damage [Clause 2.3], geographic issue [Clause 2.4], or late submission [Clause 2.5], as the claim was filed within 2 days). However, several required documents are absent: a driving license copy and incident report are missing from the standard set [Clause 3.1], and third-party contact information and third-party evidence are missing as required for third-party damage claims [Clause 3.3]. Because required documents are incomplete, Standard Processing conditions are not fully met [Clause 4.1]. The claim is therefore routed to Manual Review pending receipt of the missing documents, particularly the contents of the note left by the at-fault driver and any available security or CCTV evidence.",
+        "reasoning": "The incident \u2014 a third-party driver backing into a parked vehicle \u2014 falls under third-party property damage, a covered peril [Clause 1.1]. The claim was submitted within 2 days, well within the 30-day limit [Clause 2.5], and no Section 2 exclusions appear to directly apply. However, required standard documents are incomplete: the driving license copy and incident report are missing [Clause 3.1]. Additionally, third-party contact information and third-party evidence are absent, both mandatory for third-party damage claims [Clause 3.3]. The alleged note left by the at-fault driver has not been submitted, and no security report or CCTV reference is provided, representing weak supporting evidence [Clause 4.3]. Given the incomplete documentation and the need to verify third-party details, manual review is appropriate [Clause 4.2].",
         "confidence_level": "Medium",
         "cited_clauses": [
           "1.1",
-          "2.3",
-          "2.4",
           "2.5",
           "3.1",
           "3.3",
-          "4.1"
-        ]
-      },
-      "retrieved_clauses": [
-        "3.1",
-        "3.3",
-        "3.2",
-        "2.3",
-        "4.1",
-        "4.3",
-        "2.4",
-        "2.5",
-        "1.1",
-        "4.4"
-      ],
-      "guardrail_triggers": {
-        "input": [
-          "PLATE:P4"
-        ],
-        "output": []
-      },
-      "latency_ms": 13368,
-      "audit_file": "sess_3de5404ec481.json",
-      "deterministic": {
-        "coverage_ok": true,
-        "routing_ok": true,
-        "confidence_ok": true,
-        "missing_info": {
-          "precision": 0.8,
-          "recall": 1.0,
-          "f1": 0.888888888888889,
-          "matched": [
-            "driving license",
-            "incident report",
-            "third-party contact",
-            "third-party evidence"
-          ],
-          "missed": []
-        },
-        "risk_flags": {
-          "precision": 1.0,
-          "recall": 1.0,
-          "f1": 1.0,
-          "matched": [],
-          "missed": []
-        },
-        "cited_coverage": 0.75,
-        "citation_validity": 1.0
-      },
-      "judge": {
-        "factuality": 5,
-        "completeness": 4,
-        "clarity": 3,
-        "policy_alignment": 4,
-        "appropriate_uncertainty": 3,
-        "overall_comment": "All cited clauses (1.1, 2.3, 2.4, 2.5, 3.1, 3.3, 4.1) are within the retrieved set \u2014 no hallucinated citations. Completeness is good: covers covered peril, scans exclusions, flags missing documents (note contents, CCTV, third-party details), and routes to manual review. However, clarity suffers: the reasoning runs long (effectively 5-6 dense sentences with heavy bracketed citations) and could be more structured. Policy alignment is reasonable \u2014 manual review is appropriate given missing docs \u2014 though Clause 4.3/4.4 on manual-review triggers were available and not leveraged. Uncertainty is marked \"Medium\" which is defensible, but given that the hit-and-run element (driver left scene), unverified note, and absence of CCTV/police report introduce material unknowns about fault and third-party identification, \"Low\" confidence or an explicit \"cannot determine liability\" caveat would have been more appropriate. The assumption that the claim was filed within 2 days is also unsupported by the facts provided.",
-        "mean": 3.8
-      }
-    },
-    {
-      "case_id": "case2_illegal_racing",
-      "input": {
-        "claim_id": "CLM-2026-00002",
-        "customer": "C-22810",
-        "vehicle": "Honda Civic Type R 2023",
-        "incident_date": "2026-10-18",
-        "claim_submitted_date": "2026-10-19",
-        "claim_description": "The customer crashed into a concrete barrier while participating in an illegal street race on Rama 9 road around 02:00 AM. Police attended the scene. The customer's statement to the officer confirmed they were racing against another vehicle. The front of the car is severely damaged.",
-        "documents_submitted": [
-          "Claim form",
-          "Photos of damage",
-          "Police report",
-          "Copy of driving license",
-          "Vehicle registration",
-          "Incident report"
-        ],
-        "customer_claim_history": "No prior claims"
-      },
-      "output": {
-        "claim_summary": "Customer C-22810 submitted a claim (CLM-2026-00002) for a Honda Civic Type R 2023 that sustained severe front-end damage after colliding with a concrete barrier on 2026-10-18. The incident occurred at approximately 02:00 AM on Rama 9 road while the customer, by their own admission to attending police officers, was participating in an illegal street race against another vehicle. The claim was submitted the following day with a full set of standard documents.",
-        "coverage_assessment": "Not covered",
-        "missing_information": [],
-        "risk_flags": [
-          "Customer explicitly admitted to participating in illegal street racing, directly triggering the Clause 2.2 exclusion",
-          "Incident occurred at 02:00 AM, a time commonly associated with illegal racing activity, corroborating the exclusion",
-          "Severe front-end damage reported \u2014 consistent with high-speed racing collision"
-        ],
-        "recommended_routing": "Rejection review",
-        "reasoning": "The incident is an accidental collision, which is a covered peril under [Clause 1.1]; however, the customer's own statement to attending police officers confirms participation in an illegal street race on Rama 9 road. [Clause 2.2] explicitly excludes coverage for damage arising from participation in illegal racing, and this exclusion directly and unambiguously applies here. All standard documents required by [Clause 3.1] have been submitted, including a police report that corroborates the illegal racing activity, leaving no factual ambiguity about the circumstances. Because a clear Section 2 exclusion applies, the claim does not satisfy the conditions for standard processing under [Clause 4.1]. The recommended routing is therefore Rejection review, consistent with the application of a definitive exclusion clause.",
-        "confidence_level": "High",
-        "cited_clauses": [
-          "1.1",
-          "2.2",
-          "3.1",
-          "4.1"
-        ]
-      },
-      "retrieved_clauses": [
-        "3.1",
-        "3.3",
-        "3.2",
-        "2.2",
-        "2.3",
-        "4.3",
-        "4.1",
-        "1.1",
-        "2.1",
-        "4.2"
-      ],
-      "guardrail_triggers": {
-        "input": [],
-        "output": []
-      },
-      "latency_ms": 10541,
-      "audit_file": "sess_9eb00d5044e3.json",
-      "deterministic": {
-        "coverage_ok": true,
-        "routing_ok": true,
-        "confidence_ok": true,
-        "missing_info": {
-          "precision": 1.0,
-          "recall": 1.0,
-          "f1": 1.0,
-          "matched": [],
-          "missed": []
-        },
-        "risk_flags": {
-          "precision": 0.6666666666666666,
-          "recall": 1.0,
-          "f1": 0.8,
-          "matched": [
-            "illegal racing",
-            "exclusion"
-          ],
-          "missed": []
-        },
-        "cited_coverage": 0.5,
-        "citation_validity": 1.0
-      },
-      "judge": {
-        "factuality": 5,
-        "completeness": 4,
-        "clarity": 4,
-        "policy_alignment": 5,
-        "appropriate_uncertainty": 5,
-        "overall_comment": "All cited clauses (1.1, 2.2, 3.1, 4.1) are within the retrieved set \u2014 no hallucinations. The reasoning correctly identifies the covered peril, the applicable exclusion (illegal racing under 2.2), confirms document sufficiency, and routes to Rejection review consistent with the exclusion. High confidence is appropriate here because the customer's own statement plus police attendance provides strong corroboration \u2014 this is one of the rare cases where high confidence is warranted. Minor completeness gap: no explicit risk flags called out (e.g., 02:00 AM, potential criminal/legal exposure, possible intoxication to verify), and no mention of whether a toxicology/BAC report or formal police report document is on file vs. just a verbal statement. Clarity is good but slightly verbose at ~5 sentences with some redundancy (\"directly and unambiguously\", \"definitive exclusion\").",
-        "mean": 4.6
-      }
-    },
-    {
-      "case_id": "case3_theft_no_police",
-      "input": {
-        "claim_id": "CLM-2026-00003",
-        "customer": "C-30455",
-        "vehicle": "Mazda CX-30 2024",
-        "incident_date": "2026-10-15",
-        "claim_submitted_date": "2026-10-21",
-        "claim_description": "The customer reports that the vehicle was stolen from the resident parking area of a condominium in Ratchada between 22:00 and 06:00. The customer discovered the vehicle missing the next morning and immediately filed a claim. The customer has not yet filed a report with the local police station.",
-        "documents_submitted": [
-          "Claim form",
-          "Vehicle registration"
-        ],
-        "customer_claim_history": "No prior claims"
-      },
-      "output": {
-        "claim_summary": "Customer C-30455 reports that their 2024 Mazda CX-30 was stolen from a residential condominium parking area in Ratchada overnight on 2026-10-15, discovered missing the following morning. The claim was submitted 6 days after the incident, which is within the 30-day submission window. However, critical documents are missing and no police report has been filed to date.",
-        "coverage_assessment": "Possibly covered",
-        "missing_information": [
-          "Police report (required for theft claims per Clause 3.2)",
-          "Copy of driving license (required per Clause 3.1)",
-          "Photos of damage or evidence of theft (required per Clause 3.1)",
-          "Incident report (required per Clause 3.1)"
-        ],
-        "risk_flags": [
-          "No police report filed \u2014 customer states they have not yet reported the theft to local police, which is a mandatory document for theft claims [Clause 3.2] and may also raise questions about legitimacy of the theft claim",
-          "Severe/total loss event (vehicle theft) reported with very weak supporting evidence \u2014 only claim form and vehicle registration submitted [Clause 4.3]"
-        ],
-        "recommended_routing": "Manual review",
-        "reasoning": "The reported theft is a covered peril under [Clause 1.1], and the claim was submitted within 6 days, well within the 30-day limit [Clause 2.5]. However, coverage cannot be confirmed as \"Likely covered\" because several required documents are absent: the police report mandatory for theft claims [Clause 3.2], a copy of the driving license, photos/evidence of the theft, and an incident report [Clause 3.1]. The absence of a police report is particularly significant for a theft claim, as it is both a documentary requirement and a potential risk signal \u2014 a theft-category total loss with minimal supporting evidence aligns with a Clause 4.3 pattern of severe loss with weak evidence. No exclusions from Section 2 clearly apply at this stage, so outright rejection is not warranted. Per [Clause 4.2], the combination of incomplete required documents and the need to verify the theft report warrants routing to manual review.",
-        "confidence_level": "Medium",
-        "cited_clauses": [
-          "1.1",
-          "2.5",
-          "3.1",
-          "3.2",
           "4.2",
           "4.3"
         ]
@@ -234,35 +46,42 @@
         "3.1",
         "3.3",
         "3.2",
-        "2.5",
-        "2.3",
-        "1.1",
         "4.3",
         "2.4",
+        "1.1",
         "4.2",
-        "4.1"
+        "2.5",
+        "4.1",
+        "2.3"
       ],
       "guardrail_triggers": {
-        "input": [],
+        "input": [
+          "PLATE:P4"
+        ],
         "output": []
       },
-      "latency_ms": 12722,
-      "audit_file": "sess_b9ae0353f334.json",
+      "latency_ms": 17497,
+      "audit_file": "sess_4508d144a072.json",
       "deterministic": {
         "coverage_ok": true,
         "routing_ok": true,
         "confidence_ok": true,
         "missing_info": {
           "precision": 1.0,
-          "recall": 1.0,
-          "f1": 1.0,
+          "recall": 0.5,
+          "f1": 0.6666666666666666,
           "matched": [
-            "police report",
-            "incident report",
             "driving license",
-            "photos of damage"
+            "incident report",
+            "third-party contact",
+            "third-party evidence"
           ],
-          "missed": []
+          "missed": [
+            "\u0e43\u0e1a\u0e02\u0e31\u0e1a\u0e02\u0e35\u0e48",
+            "\u0e43\u0e1a\u0e23\u0e32\u0e22\u0e07\u0e32\u0e19",
+            "\u0e02\u0e49\u0e2d\u0e21\u0e39\u0e25\u0e04\u0e39\u0e48\u0e01\u0e23\u0e13\u0e35",
+            "\u0e2b\u0e25\u0e31\u0e01\u0e10\u0e32\u0e19\u0e04\u0e39\u0e48\u0e01\u0e23\u0e13\u0e35"
+          ]
         },
         "risk_flags": {
           "precision": 1.0,
@@ -280,12 +99,509 @@
         "clarity": 4,
         "policy_alignment": 4,
         "appropriate_uncertainty": 4,
-        "overall_comment": "All cited clauses (1.1, 2.5, 3.1, 3.2, 4.2, 4.3) are within the retrieved set \u2014 no hallucinations. However, Clause 2.5 is labeled as \"Exclusions\" in the retrieved list, but the AI cites it as supporting the 30-day filing window, which is a possible mislabeling/misuse concern (minor factuality/alignment issue, though not clearly wrong without clause text). Completeness is solid: covered peril, missing documents, risk flags, and routing are all addressed; exclusions are briefly dismissed without explicitly walking through 2.3/2.4. Reasoning is reasonably concise (~5 sentences) and well-structured. Medium confidence is appropriate given missing police report and absent evidence \u2014 not overclaiming. Routing to manual review is well-justified by Clause 4.2 and the document gaps. Minor deduction for the ambiguous use of 2.5 as both an exclusion and a timing clause.",
+        "overall_comment": "All cited clauses (1.1, 2.5, 3.1, 3.3, 4.2, 4.3) are in the retrieved list, so factuality is clean. Reasoning covers covered peril, exclusions check, missing docs, and risk flags (missing third-party details, no CCTV/security report), aligning with manual review routing. Minor issues: slightly long (~6 sentences, borderline), and treating clause 2.5 as a timeliness/30-day limit is an assumption since the clause is labeled \"Exclusions\" \u2014 the semantic mapping may be off. Medium confidence with manual review is reasonable given missing documents, though \"Low\" might be more apt given absent third-party evidence. Overall a solid, well-structured triage.",
         "mean": 4.2
       }
     },
     {
-      "case_id": "case4_fraud_risk",
+      "case_id": "case1_th_parked_car",
+      "input": {
+        "claim_id": "CLM-2026-00001-TH",
+        "customer": "C-14201",
+        "vehicle": "Toyota Camry 2.5G \u0e1b\u0e35 2022",
+        "incident_date": "2026-10-20",
+        "claim_submitted_date": "2026-10-22",
+        "claim_description": "\u0e23\u0e16\u0e02\u0e2d\u0e07\u0e25\u0e39\u0e01\u0e04\u0e49\u0e32\u0e08\u0e2d\u0e14\u0e2d\u0e22\u0e39\u0e48\u0e17\u0e35\u0e48\u0e25\u0e32\u0e19\u0e08\u0e2d\u0e14\u0e0a\u0e31\u0e49\u0e19 P4 \u0e28\u0e39\u0e19\u0e22\u0e4c\u0e01\u0e32\u0e23\u0e04\u0e49\u0e32\u0e40\u0e0b\u0e47\u0e19\u0e17\u0e23\u0e31\u0e25\u0e40\u0e27\u0e34\u0e25\u0e14\u0e4c \u0e41\u0e25\u0e49\u0e27\u0e21\u0e35\u0e23\u0e16\u0e04\u0e31\u0e19\u0e2d\u0e37\u0e48\u0e19\u0e16\u0e2d\u0e22\u0e21\u0e32\u0e0a\u0e19\u0e01\u0e31\u0e19\u0e0a\u0e19\u0e14\u0e49\u0e32\u0e19\u0e2b\u0e19\u0e49\u0e32 \u0e25\u0e39\u0e01\u0e04\u0e49\u0e32\u0e2d\u0e22\u0e39\u0e48\u0e43\u0e19\u0e2b\u0e49\u0e32\u0e07\u0e15\u0e2d\u0e19\u0e17\u0e35\u0e48\u0e40\u0e01\u0e34\u0e14\u0e40\u0e2b\u0e15\u0e38\u0e41\u0e25\u0e30\u0e01\u0e25\u0e31\u0e1a\u0e21\u0e32\u0e40\u0e08\u0e2d\u0e04\u0e27\u0e32\u0e21\u0e40\u0e2a\u0e35\u0e22\u0e2b\u0e32\u0e22\u0e17\u0e35\u0e2b\u0e25\u0e31\u0e07 \u0e04\u0e39\u0e48\u0e01\u0e23\u0e13\u0e35\u0e17\u0e34\u0e49\u0e07\u0e42\u0e19\u0e49\u0e15\u0e44\u0e27\u0e49\u0e41\u0e15\u0e48\u0e44\u0e21\u0e48\u0e2d\u0e22\u0e39\u0e48\u0e17\u0e35\u0e48\u0e40\u0e01\u0e34\u0e14\u0e40\u0e2b\u0e15\u0e38\u0e41\u0e25\u0e49\u0e27\u0e15\u0e2d\u0e19\u0e17\u0e35\u0e48 \u0e23\u0e1b\u0e20. \u0e02\u0e2d\u0e07\u0e2b\u0e49\u0e32\u0e07\u0e21\u0e32\u0e16\u0e36\u0e07",
+        "documents_submitted": [
+          "Claim form",
+          "Vehicle registration",
+          "Photos of damage"
+        ],
+        "customer_claim_history": "\u0e21\u0e35\u0e40\u0e04\u0e25\u0e21 1 \u0e04\u0e23\u0e31\u0e49\u0e07\u0e43\u0e19\u0e23\u0e2d\u0e1a 24 \u0e40\u0e14\u0e37\u0e2d\u0e19 (\u0e40\u0e1b\u0e25\u0e35\u0e48\u0e22\u0e19\u0e01\u0e23\u0e30\u0e08\u0e01\u0e1a\u0e31\u0e07\u0e25\u0e21\u0e40\u0e14\u0e37\u0e2d\u0e19\u0e40\u0e21\u0e29\u0e32\u0e22\u0e19 2025)",
+        "response_language": "auto"
+      },
+      "output": {
+        "claim_summary": "\u0e25\u0e39\u0e01\u0e04\u0e49\u0e32 C-14201 \u0e41\u0e08\u0e49\u0e07\u0e27\u0e48\u0e32\u0e23\u0e16 Toyota Camry 2.5G \u0e1b\u0e35 2022 \u0e08\u0e2d\u0e14\u0e2d\u0e22\u0e39\u0e48\u0e17\u0e35\u0e48\u0e25\u0e32\u0e19\u0e08\u0e2d\u0e14\u0e23\u0e16\u0e28\u0e39\u0e19\u0e22\u0e4c\u0e01\u0e32\u0e23\u0e04\u0e49\u0e32\u0e40\u0e0b\u0e47\u0e19\u0e17\u0e23\u0e31\u0e25\u0e40\u0e27\u0e34\u0e25\u0e14\u0e4c \u0e41\u0e25\u0e49\u0e27\u0e21\u0e35\u0e23\u0e16\u0e04\u0e31\u0e19\u0e2d\u0e37\u0e48\u0e19\u0e16\u0e2d\u0e22\u0e21\u0e32\u0e0a\u0e19\u0e14\u0e49\u0e32\u0e19\u0e2b\u0e19\u0e49\u0e32 \u0e40\u0e21\u0e37\u0e48\u0e2d\u0e27\u0e31\u0e19\u0e17\u0e35\u0e48 20 \u0e15\u0e38\u0e25\u0e32\u0e04\u0e21 2026 \u0e42\u0e14\u0e22\u0e25\u0e39\u0e01\u0e04\u0e49\u0e32\u0e44\u0e21\u0e48\u0e44\u0e14\u0e49\u0e2d\u0e22\u0e39\u0e48\u0e43\u0e19\u0e40\u0e2b\u0e15\u0e38\u0e01\u0e32\u0e23\u0e13\u0e4c \u0e04\u0e39\u0e48\u0e01\u0e23\u0e13\u0e35\u0e17\u0e34\u0e49\u0e07\u0e42\u0e19\u0e49\u0e15\u0e44\u0e27\u0e49\u0e41\u0e15\u0e48\u0e44\u0e21\u0e48\u0e2d\u0e22\u0e39\u0e48\u0e17\u0e35\u0e48\u0e40\u0e01\u0e34\u0e14\u0e40\u0e2b\u0e15\u0e38 \u0e22\u0e37\u0e48\u0e19\u0e40\u0e04\u0e25\u0e21\u0e20\u0e32\u0e22\u0e43\u0e19 2 \u0e27\u0e31\u0e19\u0e2b\u0e25\u0e31\u0e07\u0e40\u0e01\u0e34\u0e14\u0e40\u0e2b\u0e15\u0e38",
+        "coverage_assessment": "Possibly covered",
+        "missing_information": [
+          "\u0e43\u0e1a\u0e2d\u0e19\u0e38\u0e0d\u0e32\u0e15\u0e02\u0e31\u0e1a\u0e02\u0e35\u0e48 (Driving License) \u0e02\u0e2d\u0e07\u0e1c\u0e39\u0e49\u0e40\u0e2d\u0e32\u0e1b\u0e23\u0e30\u0e01\u0e31\u0e19 [Clause 3.1]",
+          "\u0e23\u0e32\u0e22\u0e07\u0e32\u0e19\u0e40\u0e2b\u0e15\u0e38\u0e01\u0e32\u0e23\u0e13\u0e4c (Incident Report) [Clause 3.1]",
+          "\u0e02\u0e49\u0e2d\u0e21\u0e39\u0e25\u0e15\u0e34\u0e14\u0e15\u0e48\u0e2d\u0e02\u0e2d\u0e07\u0e04\u0e39\u0e48\u0e01\u0e23\u0e13\u0e35 (Third-party contact information) [Clause 3.3]",
+          "\u0e2b\u0e25\u0e31\u0e01\u0e10\u0e32\u0e19\u0e08\u0e32\u0e01\u0e04\u0e39\u0e48\u0e01\u0e23\u0e13\u0e35 \u0e40\u0e0a\u0e48\u0e19 \u0e23\u0e39\u0e1b\u0e16\u0e48\u0e32\u0e22 \u0e2b\u0e23\u0e37\u0e2d\u0e04\u0e33\u0e43\u0e2b\u0e49\u0e01\u0e32\u0e23 (Third-party evidence) [Clause 3.3]",
+          "\u0e1a\u0e31\u0e19\u0e17\u0e36\u0e01\u0e2b\u0e23\u0e37\u0e2d\u0e2b\u0e25\u0e31\u0e01\u0e10\u0e32\u0e19\u0e08\u0e32\u0e01\u0e01\u0e25\u0e49\u0e2d\u0e07\u0e27\u0e07\u0e08\u0e23\u0e1b\u0e34\u0e14\u0e02\u0e2d\u0e07\u0e2b\u0e49\u0e32\u0e07 \u0e2b\u0e23\u0e37\u0e2d\u0e23\u0e32\u0e22\u0e07\u0e32\u0e19\u0e08\u0e32\u0e01 \u0e23\u0e1b\u0e20. (\u0e40\u0e1e\u0e37\u0e48\u0e2d\u0e22\u0e37\u0e19\u0e22\u0e31\u0e19\u0e40\u0e2b\u0e15\u0e38\u0e01\u0e32\u0e23\u0e13\u0e4c)",
+          "\u0e42\u0e19\u0e49\u0e15\u0e17\u0e35\u0e48\u0e04\u0e39\u0e48\u0e01\u0e23\u0e13\u0e35\u0e17\u0e34\u0e49\u0e07\u0e44\u0e27\u0e49 (\u0e40\u0e19\u0e37\u0e49\u0e2d\u0e2b\u0e32\u0e41\u0e25\u0e30\u0e02\u0e49\u0e2d\u0e21\u0e39\u0e25\u0e15\u0e34\u0e14\u0e15\u0e48\u0e2d\u0e43\u0e19\u0e42\u0e19\u0e49\u0e15)"
+        ],
+        "risk_flags": [
+          "\u0e40\u0e2d\u0e01\u0e2a\u0e32\u0e23\u0e44\u0e21\u0e48\u0e04\u0e23\u0e1a\u0e15\u0e32\u0e21\u0e17\u0e35\u0e48\u0e01\u0e33\u0e2b\u0e19\u0e14: \u0e02\u0e32\u0e14\u0e43\u0e1a\u0e2d\u0e19\u0e38\u0e0d\u0e32\u0e15\u0e02\u0e31\u0e1a\u0e02\u0e35\u0e48, \u0e23\u0e32\u0e22\u0e07\u0e32\u0e19\u0e40\u0e2b\u0e15\u0e38\u0e01\u0e32\u0e23\u0e13\u0e4c, \u0e41\u0e25\u0e30\u0e40\u0e2d\u0e01\u0e2a\u0e32\u0e23\u0e04\u0e39\u0e48\u0e01\u0e23\u0e13\u0e35 [Clause 3.1, Clause 3.3]",
+          "\u0e04\u0e39\u0e48\u0e01\u0e23\u0e13\u0e35\u0e44\u0e21\u0e48\u0e2d\u0e22\u0e39\u0e48\u0e17\u0e35\u0e48\u0e40\u0e01\u0e34\u0e14\u0e40\u0e2b\u0e15\u0e38\u0e41\u0e25\u0e30\u0e44\u0e21\u0e48\u0e21\u0e35\u0e02\u0e49\u0e2d\u0e21\u0e39\u0e25\u0e15\u0e34\u0e14\u0e15\u0e48\u0e2d\u0e17\u0e35\u0e48\u0e22\u0e37\u0e19\u0e22\u0e31\u0e19\u0e44\u0e14\u0e49 \u0e17\u0e33\u0e43\u0e2b\u0e49\u0e22\u0e32\u0e01\u0e15\u0e48\u0e2d\u0e01\u0e32\u0e23\u0e15\u0e23\u0e27\u0e08\u0e2a\u0e2d\u0e1a\u0e02\u0e49\u0e2d\u0e40\u0e17\u0e47\u0e08\u0e08\u0e23\u0e34\u0e07 [Clause 3.3]",
+          "\u0e25\u0e39\u0e01\u0e04\u0e49\u0e32\u0e44\u0e21\u0e48\u0e44\u0e14\u0e49\u0e2d\u0e22\u0e39\u0e48\u0e43\u0e19\u0e40\u0e2b\u0e15\u0e38\u0e01\u0e32\u0e23\u0e13\u0e4c\u0e02\u0e13\u0e30\u0e40\u0e01\u0e34\u0e14\u0e40\u0e2b\u0e15\u0e38 \u0e44\u0e21\u0e48\u0e21\u0e35\u0e1e\u0e22\u0e32\u0e19\u0e42\u0e14\u0e22\u0e15\u0e23\u0e07 \u2014 \u0e04\u0e27\u0e32\u0e21\u0e40\u0e2a\u0e35\u0e22\u0e2b\u0e32\u0e22\u0e44\u0e21\u0e48\u0e2a\u0e32\u0e21\u0e32\u0e23\u0e16\u0e22\u0e37\u0e19\u0e22\u0e31\u0e19\u0e2a\u0e32\u0e40\u0e2b\u0e15\u0e38\u0e44\u0e14\u0e49\u0e0a\u0e31\u0e14\u0e40\u0e08\u0e19\u0e08\u0e32\u0e01\u0e2b\u0e25\u0e31\u0e01\u0e10\u0e32\u0e19\u0e17\u0e35\u0e48\u0e21\u0e35 [Clause 4.3]",
+          "\u0e21\u0e35\u0e1b\u0e23\u0e30\u0e27\u0e31\u0e15\u0e34\u0e40\u0e04\u0e25\u0e21 1 \u0e04\u0e23\u0e31\u0e49\u0e07\u0e43\u0e19\u0e23\u0e2d\u0e1a 24 \u0e40\u0e14\u0e37\u0e2d\u0e19 (\u0e40\u0e1b\u0e25\u0e35\u0e48\u0e22\u0e19\u0e01\u0e23\u0e30\u0e08\u0e01\u0e1a\u0e31\u0e07\u0e25\u0e21 \u0e40\u0e21\u0e29\u0e32\u0e22\u0e19 2025) \u2014 \u0e44\u0e21\u0e48\u0e16\u0e36\u0e07\u0e40\u0e01\u0e13\u0e11\u0e4c 'repeated claims over a short period' \u0e41\u0e15\u0e48\u0e04\u0e27\u0e23\u0e1a\u0e31\u0e19\u0e17\u0e36\u0e01\u0e44\u0e27\u0e49 [Clause 4.3]"
+        ],
+        "recommended_routing": "Manual review",
+        "reasoning": "\u0e40\u0e2b\u0e15\u0e38\u0e01\u0e32\u0e23\u0e13\u0e4c\u0e19\u0e35\u0e49\u0e21\u0e35\u0e25\u0e31\u0e01\u0e29\u0e13\u0e30\u0e40\u0e1b\u0e47\u0e19 Third-party property damage / Accidental collision \u0e0b\u0e36\u0e48\u0e07\u0e40\u0e1b\u0e47\u0e19\u0e04\u0e27\u0e32\u0e21\u0e40\u0e2a\u0e35\u0e48\u0e22\u0e07\u0e17\u0e35\u0e48\u0e04\u0e38\u0e49\u0e21\u0e04\u0e23\u0e2d\u0e07\u0e15\u0e32\u0e21 [Clause 1.1] \u0e41\u0e25\u0e30\u0e22\u0e37\u0e48\u0e19\u0e40\u0e04\u0e25\u0e21\u0e20\u0e32\u0e22\u0e43\u0e19 2 \u0e27\u0e31\u0e19 \u0e08\u0e36\u0e07\u0e44\u0e21\u0e48\u0e40\u0e02\u0e49\u0e32\u0e02\u0e48\u0e32\u0e22\u0e02\u0e49\u0e2d\u0e22\u0e01\u0e40\u0e27\u0e49\u0e19 [Clause 2.5] \u0e2d\u0e22\u0e48\u0e32\u0e07\u0e44\u0e23\u0e01\u0e47\u0e15\u0e32\u0e21 \u0e40\u0e2d\u0e01\u0e2a\u0e32\u0e23\u0e17\u0e35\u0e48\u0e22\u0e37\u0e48\u0e19\u0e21\u0e32\u0e44\u0e21\u0e48\u0e04\u0e23\u0e1a\u0e15\u0e32\u0e21\u0e17\u0e35\u0e48\u0e01\u0e33\u0e2b\u0e19\u0e14 \u0e42\u0e14\u0e22\u0e02\u0e32\u0e14\u0e43\u0e1a\u0e2d\u0e19\u0e38\u0e0d\u0e32\u0e15\u0e02\u0e31\u0e1a\u0e02\u0e35\u0e48\u0e41\u0e25\u0e30\u0e23\u0e32\u0e22\u0e07\u0e32\u0e19\u0e40\u0e2b\u0e15\u0e38\u0e01\u0e32\u0e23\u0e13\u0e4c\u0e15\u0e32\u0e21 [Clause 3.1] \u0e41\u0e25\u0e30\u0e02\u0e32\u0e14\u0e02\u0e49\u0e2d\u0e21\u0e39\u0e25\u0e15\u0e34\u0e14\u0e15\u0e48\u0e2d\u0e04\u0e39\u0e48\u0e01\u0e23\u0e13\u0e35\u0e41\u0e25\u0e30\u0e2b\u0e25\u0e31\u0e01\u0e10\u0e32\u0e19\u0e08\u0e32\u0e01\u0e04\u0e39\u0e48\u0e01\u0e23\u0e13\u0e35\u0e15\u0e32\u0e21 [Clause 3.3] \u0e40\u0e19\u0e37\u0e48\u0e2d\u0e07\u0e08\u0e32\u0e01\u0e25\u0e39\u0e01\u0e04\u0e49\u0e32\u0e44\u0e21\u0e48\u0e44\u0e14\u0e49\u0e2d\u0e22\u0e39\u0e48\u0e43\u0e19\u0e40\u0e2b\u0e15\u0e38\u0e01\u0e32\u0e23\u0e13\u0e4c\u0e41\u0e25\u0e30\u0e04\u0e39\u0e48\u0e01\u0e23\u0e13\u0e35\u0e44\u0e21\u0e48\u0e2d\u0e22\u0e39\u0e48\u0e17\u0e35\u0e48\u0e40\u0e01\u0e34\u0e14\u0e40\u0e2b\u0e15\u0e38 \u0e21\u0e35\u0e40\u0e1e\u0e35\u0e22\u0e07\u0e42\u0e19\u0e49\u0e15\u0e17\u0e35\u0e48\u0e44\u0e21\u0e48\u0e44\u0e14\u0e49\u0e41\u0e19\u0e1a\u0e21\u0e32 \u0e17\u0e33\u0e43\u0e2b\u0e49\u0e02\u0e49\u0e2d\u0e40\u0e17\u0e47\u0e08\u0e08\u0e23\u0e34\u0e07\u0e22\u0e31\u0e07\u0e44\u0e21\u0e48\u0e0a\u0e31\u0e14\u0e40\u0e08\u0e19\u0e40\u0e1e\u0e35\u0e22\u0e07\u0e1e\u0e2d \u0e0b\u0e36\u0e48\u0e07\u0e2d\u0e32\u0e08\u0e40\u0e02\u0e49\u0e32\u0e02\u0e48\u0e32\u0e22 \"severe damage reported with weak or missing supporting evidence\" \u0e15\u0e32\u0e21 [Clause 4.3] \u0e41\u0e15\u0e48\u0e22\u0e31\u0e07\u0e44\u0e21\u0e48\u0e21\u0e35\u0e02\u0e49\u0e2d\u0e21\u0e39\u0e25\u0e40\u0e1e\u0e35\u0e22\u0e07\u0e1e\u0e2d\u0e17\u0e35\u0e48\u0e08\u0e30\u0e2a\u0e48\u0e07 Fraud review \u0e44\u0e14\u0e49\u0e2d\u0e22\u0e48\u0e32\u0e07\u0e41\u0e19\u0e48\u0e0a\u0e31\u0e14 \u0e14\u0e31\u0e07\u0e19\u0e31\u0e49\u0e19 \u0e01\u0e32\u0e23\u0e2a\u0e48\u0e07\u0e40\u0e23\u0e37\u0e48\u0e2d\u0e07\u0e44\u0e1b\u0e22\u0e31\u0e07 Manual review \u0e15\u0e32\u0e21 [Clause 4.2] \u0e08\u0e36\u0e07\u0e40\u0e2b\u0e21\u0e32\u0e30\u0e2a\u0e21\u0e17\u0e35\u0e48\u0e2a\u0e38\u0e14 \u0e40\u0e1e\u0e37\u0e48\u0e2d\u0e43\u0e2b\u0e49\u0e40\u0e08\u0e49\u0e32\u0e2b\u0e19\u0e49\u0e32\u0e17\u0e35\u0e48\u0e23\u0e27\u0e1a\u0e23\u0e27\u0e21\u0e40\u0e2d\u0e01\u0e2a\u0e32\u0e23\u0e40\u0e1e\u0e34\u0e48\u0e21\u0e40\u0e15\u0e34\u0e21\u0e41\u0e25\u0e30\u0e15\u0e23\u0e27\u0e08\u0e2a\u0e2d\u0e1a\u0e2b\u0e25\u0e31\u0e01\u0e10\u0e32\u0e19\u0e08\u0e32\u0e01\u0e01\u0e25\u0e49\u0e2d\u0e07\u0e27\u0e07\u0e08\u0e23\u0e1b\u0e34\u0e14\u0e2b\u0e23\u0e37\u0e2d \u0e23\u0e1b\u0e20. \u0e02\u0e2d\u0e07\u0e2b\u0e49\u0e32\u0e07\u0e01\u0e48\u0e2d\u0e19\u0e15\u0e31\u0e14\u0e2a\u0e34\u0e19\u0e43\u0e08",
+        "confidence_level": "Medium",
+        "cited_clauses": [
+          "1.1",
+          "2.5",
+          "3.1",
+          "3.3",
+          "4.2",
+          "4.3"
+        ]
+      },
+      "retrieved_clauses": [
+        "3.1",
+        "3.3",
+        "1.1",
+        "3.2",
+        "4.1",
+        "4.3",
+        "4.2",
+        "2.5",
+        "2.4",
+        "2.3"
+      ],
+      "guardrail_triggers": {
+        "input": [
+          "PLATE:P4"
+        ],
+        "output": []
+      },
+      "latency_ms": 35213,
+      "audit_file": "sess_57eb8a7f4443.json",
+      "deterministic": {
+        "coverage_ok": true,
+        "routing_ok": true,
+        "confidence_ok": true,
+        "missing_info": {
+          "precision": 0.6666666666666666,
+          "recall": 0.5,
+          "f1": 0.5714285714285715,
+          "matched": [
+            "driving license",
+            "incident report",
+            "third-party contact",
+            "third-party evidence"
+          ],
+          "missed": [
+            "\u0e43\u0e1a\u0e02\u0e31\u0e1a\u0e02\u0e35\u0e48",
+            "\u0e43\u0e1a\u0e23\u0e32\u0e22\u0e07\u0e32\u0e19",
+            "\u0e02\u0e49\u0e2d\u0e21\u0e39\u0e25\u0e04\u0e39\u0e48\u0e01\u0e23\u0e13\u0e35",
+            "\u0e2b\u0e25\u0e31\u0e01\u0e10\u0e32\u0e19\u0e04\u0e39\u0e48\u0e01\u0e23\u0e13\u0e35"
+          ]
+        },
+        "risk_flags": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "matched": [],
+          "missed": []
+        },
+        "cited_coverage": 1.0,
+        "citation_validity": 1.0
+      },
+      "judge": {
+        "factuality": 5,
+        "completeness": 5,
+        "clarity": 4,
+        "policy_alignment": 4,
+        "appropriate_uncertainty": 3,
+        "overall_comment": "All six cited clauses (1.1, 2.5, 3.1, 3.3, 4.2, 4.3) are within the retrieved set, so factuality is solid. The reasoning covers the covered peril, exclusion check, missing documents, routing rationale, and fraud-flag consideration \u2014 a complete picture for the officer. Structure is logical but slightly long (~6-7 sentences, somewhat dense). Routing to manual review aligns well with the cited routing clauses, though the claim that the 2-day filing avoids Clause 2.5 is asserted without the claim description actually stating when the claim was filed \u2014 a minor alignment issue. Confidence is marked \"Medium\" despite significant missing facts (no filing date given, no driver identification, no CCTV, uncorroborated note); \"Low\" or \"Cannot determine\" would be more appropriate given the weak evidence base.",
+        "mean": 4.2
+      }
+    },
+    {
+      "case_id": "case2_en_illegal_racing",
+      "input": {
+        "claim_id": "CLM-2026-00002",
+        "customer": "C-22810",
+        "vehicle": "Honda Civic Type R 2023",
+        "incident_date": "2026-10-18",
+        "claim_submitted_date": "2026-10-19",
+        "claim_description": "The customer crashed into a concrete barrier while participating in an illegal street race on Rama 9 road around 02:00 AM. Police attended the scene. The customer's statement to the officer confirmed they were racing against another vehicle. The front of the car is severely damaged.",
+        "documents_submitted": [
+          "Claim form",
+          "Photos of damage",
+          "Police report",
+          "Copy of driving license",
+          "Vehicle registration",
+          "Incident report"
+        ],
+        "customer_claim_history": "No prior claims",
+        "response_language": "auto"
+      },
+      "output": {
+        "claim_summary": "Customer C-22810 submitted a claim (CLM-2026-00002) for severe front-end damage to a 2023 Honda Civic Type R following a collision with a concrete barrier on Rama 9 road at approximately 02:00 AM on 2026-10-18. The customer's own statement to attending police confirmed they were actively participating in an illegal street race at the time of the incident. All standard documents plus a police report have been submitted.",
+        "coverage_assessment": "Not covered",
+        "missing_information": [],
+        "risk_flags": [
+          "Customer's own police statement explicitly confirms participation in illegal street racing, directly triggering the exclusion under [Clause 2.2].",
+          "Incident occurred at 02:00 AM on a public road (Rama 9), consistent with illegal street racing activity.",
+          "Severe front-end damage reported \u2014 while supporting evidence (photos, police report) is present, the circumstances of damage arise from an excluded activity [Clause 2.2]."
+        ],
+        "recommended_routing": "Rejection review",
+        "reasoning": "The incident is a collision, which is ordinarily a covered peril [Clause 1.1]; however, the customer's own statement to police explicitly confirms participation in an illegal street race at the time of the crash. This directly and unambiguously triggers the exclusion for damage arising from illegal racing [Clause 2.2], rendering the claim not covered. All standard required documents are present [Clause 3.1], and the police report further corroborates the excluded activity [Clause 3.2]. Because a clear Section 2 exclusion applies, routing to Rejection review is appropriate per the routing rules [Clause 4.1 conditions not met; Clause 4.2 not applicable as coverage is not merely unclear but excluded]. No prior claims history is noted, so no additional fraud pattern is flagged beyond the exclusion itself [Clause 4.3].",
+        "confidence_level": "High",
+        "cited_clauses": [
+          "1.1",
+          "2.2",
+          "3.1",
+          "3.2",
+          "4.1",
+          "4.3"
+        ]
+      },
+      "retrieved_clauses": [
+        "3.1",
+        "3.2",
+        "3.3",
+        "2.2",
+        "1.1",
+        "4.3",
+        "4.2",
+        "2.4",
+        "2.3",
+        "4.1"
+      ],
+      "guardrail_triggers": {
+        "input": [],
+        "output": []
+      },
+      "latency_ms": 13612,
+      "audit_file": "sess_17ab2a4aaf1c.json",
+      "deterministic": {
+        "coverage_ok": true,
+        "routing_ok": true,
+        "confidence_ok": true,
+        "missing_info": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "matched": [],
+          "missed": []
+        },
+        "risk_flags": {
+          "precision": 0.3333333333333333,
+          "recall": 0.25,
+          "f1": 0.28571428571428575,
+          "matched": [
+            "exclusion"
+          ],
+          "missed": [
+            "illegal racing",
+            "\u0e41\u0e02\u0e48\u0e07\u0e23\u0e16",
+            "\u0e02\u0e49\u0e2d\u0e22\u0e01\u0e40\u0e27\u0e49\u0e19"
+          ]
+        },
+        "cited_coverage": 0.5,
+        "citation_validity": 1.0
+      },
+      "judge": {
+        "factuality": 5,
+        "completeness": 4,
+        "clarity": 3,
+        "policy_alignment": 5,
+        "appropriate_uncertainty": 5,
+        "overall_comment": "All cited clauses (1.1, 2.2, 3.1, 3.2, 4.1, 4.3) are in the retrieved list, so factuality is clean. The reasoning correctly identifies the covered peril, applies the illegal-racing exclusion, confirms documents, and routes to Rejection review \u2014 well aligned with policy. High confidence is justified given the explicit admission to police. Minor issues: the reasoning is slightly verbose and contains filler (e.g., the parenthetical on 4.2 which wasn't even cited in the citation list but is mentioned in prose, and the fraud comment on 4.3 is thin). Completeness is good but could more explicitly flag the admission-of-illegal-activity as a potential legal/subrogation risk. Overall a solid, well-grounded triage.",
+        "mean": 4.4
+      }
+    },
+    {
+      "case_id": "case2_th_illegal_racing",
+      "input": {
+        "claim_id": "CLM-2026-00002-TH",
+        "customer": "C-22810",
+        "vehicle": "Honda Civic Type R \u0e1b\u0e35 2023",
+        "incident_date": "2026-10-18",
+        "claim_submitted_date": "2026-10-19",
+        "claim_description": "\u0e25\u0e39\u0e01\u0e04\u0e49\u0e32\u0e0a\u0e19\u0e41\u0e1a\u0e23\u0e34\u0e40\u0e2d\u0e2d\u0e23\u0e4c\u0e04\u0e2d\u0e19\u0e01\u0e23\u0e35\u0e15\u0e02\u0e13\u0e30\u0e23\u0e48\u0e27\u0e21\u0e41\u0e02\u0e48\u0e07\u0e23\u0e16\u0e1c\u0e34\u0e14\u0e01\u0e0e\u0e2b\u0e21\u0e32\u0e22\u0e1a\u0e19\u0e16\u0e19\u0e19\u0e1e\u0e23\u0e30\u0e23\u0e32\u0e21 9 \u0e1b\u0e23\u0e30\u0e21\u0e32\u0e13\u0e15\u0e35 2 \u0e15\u0e33\u0e23\u0e27\u0e08\u0e21\u0e32\u0e17\u0e35\u0e48\u0e40\u0e01\u0e34\u0e14\u0e40\u0e2b\u0e15\u0e38 \u0e25\u0e39\u0e01\u0e04\u0e49\u0e32\u0e43\u0e2b\u0e49\u0e1b\u0e32\u0e01\u0e04\u0e33\u0e01\u0e31\u0e1a\u0e15\u0e33\u0e23\u0e27\u0e08\u0e22\u0e37\u0e19\u0e22\u0e31\u0e19\u0e27\u0e48\u0e32\u0e01\u0e33\u0e25\u0e31\u0e07\u0e41\u0e02\u0e48\u0e07\u0e23\u0e16\u0e01\u0e31\u0e1a\u0e23\u0e16\u0e2d\u0e35\u0e01\u0e04\u0e31\u0e19 \u0e14\u0e49\u0e32\u0e19\u0e2b\u0e19\u0e49\u0e32\u0e23\u0e16\u0e40\u0e2a\u0e35\u0e22\u0e2b\u0e32\u0e22\u0e23\u0e38\u0e19\u0e41\u0e23\u0e07",
+        "documents_submitted": [
+          "Claim form",
+          "Photos of damage",
+          "Police report",
+          "Copy of driving license",
+          "Vehicle registration",
+          "Incident report"
+        ],
+        "customer_claim_history": "\u0e44\u0e21\u0e48\u0e21\u0e35\u0e1b\u0e23\u0e30\u0e27\u0e31\u0e15\u0e34\u0e40\u0e04\u0e25\u0e21",
+        "response_language": "auto"
+      },
+      "output": {
+        "claim_summary": "\u0e25\u0e39\u0e01\u0e04\u0e49\u0e32 C-22810 \u0e41\u0e08\u0e49\u0e07\u0e40\u0e04\u0e25\u0e21\u0e23\u0e16 Honda Civic Type R \u0e1b\u0e35 2023 (CLM-2026-00002-TH) \u0e2b\u0e25\u0e31\u0e07\u0e40\u0e01\u0e34\u0e14\u0e2d\u0e38\u0e1a\u0e31\u0e15\u0e34\u0e40\u0e2b\u0e15\u0e38\u0e0a\u0e19\u0e41\u0e1a\u0e23\u0e34\u0e40\u0e2d\u0e2d\u0e23\u0e4c\u0e04\u0e2d\u0e19\u0e01\u0e23\u0e35\u0e15\u0e1a\u0e19\u0e16\u0e19\u0e19\u0e1e\u0e23\u0e30\u0e23\u0e32\u0e21 9 \u0e40\u0e21\u0e37\u0e48\u0e2d\u0e27\u0e31\u0e19\u0e17\u0e35\u0e48 18 \u0e15\u0e38\u0e25\u0e32\u0e04\u0e21 2026 \u0e25\u0e39\u0e01\u0e04\u0e49\u0e32\u0e43\u0e2b\u0e49\u0e01\u0e32\u0e23\u0e22\u0e37\u0e19\u0e22\u0e31\u0e19\u0e01\u0e31\u0e1a\u0e40\u0e08\u0e49\u0e32\u0e2b\u0e19\u0e49\u0e32\u0e17\u0e35\u0e48\u0e15\u0e33\u0e23\u0e27\u0e08\u0e17\u0e35\u0e48\u0e40\u0e01\u0e34\u0e14\u0e40\u0e2b\u0e15\u0e38\u0e27\u0e48\u0e32\u0e01\u0e33\u0e25\u0e31\u0e07\u0e41\u0e02\u0e48\u0e07\u0e23\u0e16\u0e1c\u0e34\u0e14\u0e01\u0e0e\u0e2b\u0e21\u0e32\u0e22\u0e01\u0e31\u0e1a\u0e22\u0e32\u0e19\u0e1e\u0e32\u0e2b\u0e19\u0e30\u0e2d\u0e35\u0e01\u0e04\u0e31\u0e19 \u0e14\u0e49\u0e32\u0e19\u0e2b\u0e19\u0e49\u0e32\u0e23\u0e16\u0e44\u0e14\u0e49\u0e23\u0e31\u0e1a\u0e04\u0e27\u0e32\u0e21\u0e40\u0e2a\u0e35\u0e22\u0e2b\u0e32\u0e22\u0e23\u0e38\u0e19\u0e41\u0e23\u0e07",
+        "coverage_assessment": "Not covered",
+        "missing_information": [],
+        "risk_flags": [
+          "\u0e25\u0e39\u0e01\u0e04\u0e49\u0e32\u0e43\u0e2b\u0e49\u0e01\u0e32\u0e23\u0e22\u0e37\u0e19\u0e22\u0e31\u0e19\u0e01\u0e31\u0e1a\u0e15\u0e33\u0e23\u0e27\u0e08\u0e27\u0e48\u0e32\u0e01\u0e33\u0e25\u0e31\u0e07\u0e41\u0e02\u0e48\u0e07\u0e23\u0e16\u0e1c\u0e34\u0e14\u0e01\u0e0e\u0e2b\u0e21\u0e32\u0e22 \u0e0b\u0e36\u0e48\u0e07\u0e15\u0e23\u0e07\u0e01\u0e31\u0e1a\u0e02\u0e49\u0e2d\u0e22\u0e01\u0e40\u0e27\u0e49\u0e19 [Clause 2.2] \u0e42\u0e14\u0e22\u0e15\u0e23\u0e07",
+          "\u0e04\u0e27\u0e32\u0e21\u0e40\u0e2a\u0e35\u0e22\u0e2b\u0e32\u0e22\u0e23\u0e38\u0e19\u0e41\u0e23\u0e07\u0e17\u0e35\u0e48\u0e14\u0e49\u0e32\u0e19\u0e2b\u0e19\u0e49\u0e32\u0e23\u0e16 \u0e2a\u0e2d\u0e14\u0e04\u0e25\u0e49\u0e2d\u0e07\u0e01\u0e31\u0e1a\u0e1e\u0e24\u0e15\u0e34\u0e01\u0e23\u0e23\u0e21\u0e01\u0e32\u0e23\u0e41\u0e02\u0e48\u0e07\u0e23\u0e16\u0e14\u0e49\u0e27\u0e22\u0e04\u0e27\u0e32\u0e21\u0e40\u0e23\u0e47\u0e27\u0e2a\u0e39\u0e07"
+        ],
+        "recommended_routing": "Rejection review",
+        "reasoning": "\u0e40\u0e2b\u0e15\u0e38\u0e01\u0e32\u0e23\u0e13\u0e4c\u0e17\u0e35\u0e48\u0e40\u0e01\u0e34\u0e14\u0e02\u0e36\u0e49\u0e19\u0e40\u0e1b\u0e47\u0e19\u0e01\u0e32\u0e23\u0e0a\u0e19\u0e41\u0e1a\u0e23\u0e34\u0e40\u0e2d\u0e2d\u0e23\u0e4c\u0e04\u0e2d\u0e19\u0e01\u0e23\u0e35\u0e15 \u0e0b\u0e36\u0e48\u0e07\u0e42\u0e14\u0e22\u0e17\u0e31\u0e48\u0e27\u0e44\u0e1b\u0e2d\u0e32\u0e08\u0e16\u0e37\u0e2d\u0e40\u0e1b\u0e47\u0e19 accidental collision \u0e15\u0e32\u0e21 [Clause 1.1] \u0e2d\u0e22\u0e48\u0e32\u0e07\u0e44\u0e23\u0e01\u0e47\u0e15\u0e32\u0e21 \u0e25\u0e39\u0e01\u0e04\u0e49\u0e32\u0e44\u0e14\u0e49\u0e43\u0e2b\u0e49\u0e01\u0e32\u0e23\u0e22\u0e37\u0e19\u0e22\u0e31\u0e19\u0e01\u0e31\u0e1a\u0e40\u0e08\u0e49\u0e32\u0e2b\u0e19\u0e49\u0e32\u0e17\u0e35\u0e48\u0e15\u0e33\u0e23\u0e27\u0e08\u0e17\u0e35\u0e48\u0e40\u0e01\u0e34\u0e14\u0e40\u0e2b\u0e15\u0e38\u0e2d\u0e22\u0e48\u0e32\u0e07\u0e0a\u0e31\u0e14\u0e40\u0e08\u0e19\u0e27\u0e48\u0e32\u0e01\u0e33\u0e25\u0e31\u0e07\u0e23\u0e48\u0e27\u0e21\u0e41\u0e02\u0e48\u0e07\u0e23\u0e16\u0e1c\u0e34\u0e14\u0e01\u0e0e\u0e2b\u0e21\u0e32\u0e22\u0e02\u0e13\u0e30\u0e40\u0e01\u0e34\u0e14\u0e40\u0e2b\u0e15\u0e38 \u0e0b\u0e36\u0e48\u0e07\u0e17\u0e33\u0e43\u0e2b\u0e49\u0e02\u0e49\u0e2d\u0e22\u0e01\u0e40\u0e27\u0e49\u0e19 [Clause 2.2] \u0e21\u0e35\u0e1c\u0e25\u0e1a\u0e31\u0e07\u0e04\u0e31\u0e1a\u0e43\u0e0a\u0e49\u0e42\u0e14\u0e22\u0e15\u0e23\u0e07 \u0e40\u0e19\u0e37\u0e48\u0e2d\u0e07\u0e08\u0e32\u0e01\u0e04\u0e27\u0e32\u0e21\u0e40\u0e2a\u0e35\u0e22\u0e2b\u0e32\u0e22\u0e40\u0e01\u0e34\u0e14\u0e08\u0e32\u0e01\u0e01\u0e32\u0e23\u0e21\u0e35\u0e2a\u0e48\u0e27\u0e19\u0e23\u0e48\u0e27\u0e21\u0e43\u0e19\u0e01\u0e32\u0e23\u0e41\u0e02\u0e48\u0e07\u0e23\u0e16\u0e1c\u0e34\u0e14\u0e01\u0e0e\u0e2b\u0e21\u0e32\u0e22 \u0e01\u0e32\u0e23\u0e1b\u0e23\u0e30\u0e01\u0e31\u0e19\u0e08\u0e36\u0e07\u0e44\u0e21\u0e48\u0e04\u0e38\u0e49\u0e21\u0e04\u0e23\u0e2d\u0e07\u0e04\u0e27\u0e32\u0e21\u0e40\u0e2a\u0e35\u0e22\u0e2b\u0e32\u0e22\u0e19\u0e35\u0e49\u0e15\u0e32\u0e21 [Clause 2.2] \u0e40\u0e2d\u0e01\u0e2a\u0e32\u0e23\u0e17\u0e35\u0e48\u0e22\u0e37\u0e48\u0e19\u0e21\u0e32\u0e04\u0e23\u0e1a\u0e16\u0e49\u0e27\u0e19\u0e15\u0e32\u0e21 [Clause 3.1] \u0e41\u0e15\u0e48\u0e02\u0e49\u0e2d\u0e22\u0e01\u0e40\u0e27\u0e49\u0e19\u0e21\u0e35\u0e1c\u0e25\u0e1a\u0e31\u0e07\u0e04\u0e31\u0e1a\u0e2d\u0e22\u0e48\u0e32\u0e07\u0e0a\u0e31\u0e14\u0e40\u0e08\u0e19\u0e08\u0e36\u0e07\u0e44\u0e21\u0e48\u0e21\u0e35\u0e1c\u0e25\u0e15\u0e48\u0e2d\u0e01\u0e32\u0e23\u0e15\u0e31\u0e14\u0e2a\u0e34\u0e19\u0e43\u0e08 \u0e04\u0e27\u0e23\u0e2a\u0e48\u0e07\u0e40\u0e23\u0e37\u0e48\u0e2d\u0e07\u0e44\u0e1b\u0e22\u0e31\u0e07 Rejection review \u0e40\u0e19\u0e37\u0e48\u0e2d\u0e07\u0e08\u0e32\u0e01\u0e02\u0e49\u0e2d\u0e22\u0e01\u0e40\u0e27\u0e49\u0e19\u0e43\u0e19\u0e21\u0e32\u0e15\u0e23\u0e32 Section 2 \u0e21\u0e35\u0e1c\u0e25\u0e1a\u0e31\u0e07\u0e04\u0e31\u0e1a\u0e43\u0e0a\u0e49\u0e2d\u0e22\u0e48\u0e32\u0e07\u0e0a\u0e31\u0e14\u0e40\u0e08\u0e19",
+        "confidence_level": "High",
+        "cited_clauses": [
+          "1.1",
+          "2.2",
+          "3.1"
+        ]
+      },
+      "retrieved_clauses": [
+        "3.1",
+        "3.2",
+        "3.3",
+        "1.1",
+        "4.3",
+        "2.2",
+        "4.2",
+        "4.1",
+        "2.4",
+        "2.1"
+      ],
+      "guardrail_triggers": {
+        "input": [],
+        "output": []
+      },
+      "latency_ms": 19408,
+      "audit_file": "sess_010efcce6724.json",
+      "deterministic": {
+        "coverage_ok": true,
+        "routing_ok": true,
+        "confidence_ok": true,
+        "missing_info": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "matched": [],
+          "missed": []
+        },
+        "risk_flags": {
+          "precision": 1.0,
+          "recall": 0.5,
+          "f1": 0.6666666666666666,
+          "matched": [
+            "\u0e41\u0e02\u0e48\u0e07\u0e23\u0e16",
+            "\u0e02\u0e49\u0e2d\u0e22\u0e01\u0e40\u0e27\u0e49\u0e19"
+          ],
+          "missed": [
+            "illegal racing",
+            "exclusion"
+          ]
+        },
+        "cited_coverage": 0.5,
+        "citation_validity": 1.0
+      },
+      "judge": {
+        "factuality": 5,
+        "completeness": 4,
+        "clarity": 4,
+        "policy_alignment": 5,
+        "appropriate_uncertainty": 5,
+        "overall_comment": "All cited clauses (1.1, 2.2, 3.1) are within the retrieved list. The reasoning correctly identifies the illegal street racing exclusion (2.2) overriding the accidental collision coverage (1.1) and routes to Rejection review \u2014 consistent with the facts (customer admitted racing to police). High confidence is appropriate given the explicit police confession. Minor gaps: could have noted a specific routing clause (4.1/4.2/4.3) to justify Rejection review path, and the document completeness claim under 3.1 is asserted without evidence that all docs were actually submitted. Otherwise concise and well-structured.",
+        "mean": 4.6
+      }
+    },
+    {
+      "case_id": "case3_en_theft_no_police",
+      "input": {
+        "claim_id": "CLM-2026-00003",
+        "customer": "C-30455",
+        "vehicle": "Mazda CX-30 2024",
+        "incident_date": "2026-10-15",
+        "claim_submitted_date": "2026-10-21",
+        "claim_description": "The customer reports that the vehicle was stolen from the resident parking area of a condominium in Ratchada between 22:00 and 06:00. The customer discovered the vehicle missing the next morning and immediately filed a claim. The customer has not yet filed a report with the local police station.",
+        "documents_submitted": [
+          "Claim form",
+          "Vehicle registration"
+        ],
+        "customer_claim_history": "No prior claims",
+        "response_language": "auto"
+      },
+      "output": {
+        "claim_summary": "Customer C-30455 reports that their Mazda CX-30 2024 was stolen from a condominium parking area in Ratchada between 22:00 on 2026-10-15 and 06:00 the following morning. The claim was submitted 6 days after the incident. However, the customer has not yet filed a police report, and several required documents are missing from the submission.",
+        "coverage_assessment": "Possibly covered",
+        "missing_information": [
+          "Police report (required for theft claims) [Clause 3.2]",
+          "Copy of driving license [Clause 3.1]",
+          "Photos of damage or evidence related to the theft [Clause 3.1]",
+          "Incident report [Clause 3.1]"
+        ],
+        "risk_flags": [
+          "Police report not yet filed \u2014 a mandatory document for theft claims [Clause 3.2]; absence of this key evidence may weaken the claim's verifiability [Clause 4.3]",
+          "Only 2 of the minimum required documents were submitted (Claim form, Vehicle registration); Driving license, Photos, and Incident report are all missing [Clause 3.1]"
+        ],
+        "recommended_routing": "Manual review",
+        "reasoning": "The reported incident (vehicle theft) is a covered peril under [Clause 1.1]. However, the claim cannot be assessed as \"Likely covered\" because required documents are substantially incomplete [Clause 3.1]: the driving license, photos, and incident report are missing. Critically, a police report \u2014 mandatory for all theft claims \u2014 has not been filed or submitted [Clause 3.2]. The claim was submitted within 30 days of the incident (6 days), so no late-submission exclusion applies [Clause 2.5]. No exclusions under Section 2 appear to clearly apply based on the facts provided. Per [Clause 4.2], the combination of incomplete required documents and the missing police report warrants routing to Manual review until all outstanding documents are obtained.",
+        "confidence_level": "Medium",
+        "cited_clauses": [
+          "1.1",
+          "2.5",
+          "3.1",
+          "3.2",
+          "4.2",
+          "4.3"
+        ]
+      },
+      "retrieved_clauses": [
+        "3.1",
+        "1.1",
+        "3.2",
+        "4.3",
+        "2.4",
+        "3.3",
+        "4.2",
+        "2.5",
+        "4.1",
+        "2.2"
+      ],
+      "guardrail_triggers": {
+        "input": [],
+        "output": []
+      },
+      "latency_ms": 13771,
+      "audit_file": "sess_73f47f160ce3.json",
+      "deterministic": {
+        "coverage_ok": true,
+        "routing_ok": true,
+        "confidence_ok": true,
+        "missing_info": {
+          "precision": 1.0,
+          "recall": 0.5,
+          "f1": 0.6666666666666666,
+          "matched": [
+            "police report",
+            "incident report",
+            "driving license",
+            "photos of damage"
+          ],
+          "missed": [
+            "\u0e43\u0e1a\u0e41\u0e08\u0e49\u0e07\u0e04\u0e27\u0e32\u0e21",
+            "\u0e43\u0e1a\u0e23\u0e32\u0e22\u0e07\u0e32\u0e19",
+            "\u0e43\u0e1a\u0e02\u0e31\u0e1a\u0e02\u0e35\u0e48",
+            "\u0e23\u0e39\u0e1b\u0e16\u0e48\u0e32\u0e22"
+          ]
+        },
+        "risk_flags": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "matched": [],
+          "missed": []
+        },
+        "cited_coverage": 1.0,
+        "citation_validity": 1.0
+      },
+      "judge": {
+        "factuality": 4,
+        "completeness": 4,
+        "clarity": 4,
+        "policy_alignment": 4,
+        "appropriate_uncertainty": 4,
+        "overall_comment": "All cited clauses (1.1, 2.5, 3.1, 3.2, 4.2, 4.3) are within the retrieved set, so factuality holds \u2014 though 4.3 is listed in the citation header but never actually referenced in the reasoning body, a minor inconsistency. Completeness is good: covers peril, documents, police report, timing, and routing rationale, though risk flags (overnight theft window, condo parking) could have been mentioned explicitly. Clarity is solid and within the sentence budget. Routing to Manual review with Medium confidence is well-aligned with cited clauses and appropriately cautious given the missing police report, which is a key gating fact. Minor overconfidence in asserting \"no exclusions...clearly apply\" without having checked unlisted exclusion clauses (2.2, 2.4) that were retrieved but not evaluated.",
+        "mean": 4.0
+      }
+    },
+    {
+      "case_id": "case3_th_theft_no_police",
+      "input": {
+        "claim_id": "CLM-2026-00003-TH",
+        "customer": "C-30455",
+        "vehicle": "Mazda CX-30 \u0e1b\u0e35 2024",
+        "incident_date": "2026-10-15",
+        "claim_submitted_date": "2026-10-21",
+        "claim_description": "\u0e25\u0e39\u0e01\u0e04\u0e49\u0e32\u0e41\u0e08\u0e49\u0e07\u0e27\u0e48\u0e32\u0e23\u0e16\u0e16\u0e39\u0e01\u0e02\u0e42\u0e21\u0e22\u0e08\u0e32\u0e01\u0e25\u0e32\u0e19\u0e08\u0e2d\u0e14\u0e23\u0e16\u0e02\u0e2d\u0e07\u0e04\u0e2d\u0e19\u0e42\u0e14\u0e22\u0e48\u0e32\u0e19\u0e23\u0e31\u0e0a\u0e14\u0e32\u0e2f \u0e23\u0e30\u0e2b\u0e27\u0e48\u0e32\u0e07 22.00 \u0e19. \u0e16\u0e36\u0e07 6.00 \u0e19. \u0e40\u0e0a\u0e49\u0e32\u0e27\u0e31\u0e19\u0e16\u0e31\u0e14\u0e21\u0e32\u0e25\u0e39\u0e01\u0e04\u0e49\u0e32\u0e21\u0e32\u0e17\u0e35\u0e48\u0e25\u0e32\u0e19\u0e08\u0e2d\u0e14\u0e41\u0e25\u0e49\u0e27\u0e44\u0e21\u0e48\u0e1e\u0e1a\u0e23\u0e16\u0e40\u0e25\u0e22\u0e41\u0e08\u0e49\u0e07\u0e40\u0e04\u0e25\u0e21\u0e17\u0e31\u0e19\u0e17\u0e35 \u0e25\u0e39\u0e01\u0e04\u0e49\u0e32\u0e22\u0e31\u0e07\u0e44\u0e21\u0e48\u0e44\u0e14\u0e49\u0e44\u0e1b\u0e41\u0e08\u0e49\u0e07\u0e04\u0e27\u0e32\u0e21\u0e17\u0e35\u0e48\u0e2a\u0e16\u0e32\u0e19\u0e35\u0e15\u0e33\u0e23\u0e27\u0e08\u0e43\u0e19\u0e1e\u0e37\u0e49\u0e19\u0e17\u0e35\u0e48",
+        "documents_submitted": [
+          "Claim form",
+          "Vehicle registration"
+        ],
+        "customer_claim_history": "\u0e44\u0e21\u0e48\u0e21\u0e35\u0e1b\u0e23\u0e30\u0e27\u0e31\u0e15\u0e34\u0e40\u0e04\u0e25\u0e21",
+        "response_language": "auto"
+      },
+      "output": {
+        "claim_summary": "\u0e25\u0e39\u0e01\u0e04\u0e49\u0e32 C-30455 \u0e41\u0e08\u0e49\u0e07\u0e27\u0e48\u0e32\u0e23\u0e16 Mazda CX-30 \u0e1b\u0e35 2024 \u0e16\u0e39\u0e01\u0e02\u0e42\u0e21\u0e22\u0e08\u0e32\u0e01\u0e25\u0e32\u0e19\u0e08\u0e2d\u0e14\u0e23\u0e16\u0e02\u0e2d\u0e07\u0e04\u0e2d\u0e19\u0e42\u0e14\u0e22\u0e48\u0e32\u0e19\u0e23\u0e31\u0e0a\u0e14\u0e32\u0e2f \u0e43\u0e19\u0e04\u0e37\u0e19\u0e27\u0e31\u0e19\u0e17\u0e35\u0e48 15 \u0e15\u0e38\u0e25\u0e32\u0e04\u0e21 2566 \u0e23\u0e30\u0e2b\u0e27\u0e48\u0e32\u0e07\u0e40\u0e27\u0e25\u0e32 22.00\u201306.00 \u0e19. \u0e25\u0e39\u0e01\u0e04\u0e49\u0e32\u0e44\u0e21\u0e48\u0e1e\u0e1a\u0e23\u0e16\u0e43\u0e19\u0e40\u0e0a\u0e49\u0e32\u0e27\u0e31\u0e19\u0e16\u0e31\u0e14\u0e21\u0e32\u0e08\u0e36\u0e07\u0e41\u0e08\u0e49\u0e07\u0e40\u0e04\u0e25\u0e21\u0e17\u0e31\u0e19\u0e17\u0e35 \u0e41\u0e15\u0e48\u0e22\u0e31\u0e07\u0e44\u0e21\u0e48\u0e44\u0e14\u0e49\u0e41\u0e08\u0e49\u0e07\u0e04\u0e27\u0e32\u0e21\u0e01\u0e31\u0e1a\u0e2a\u0e16\u0e32\u0e19\u0e35\u0e15\u0e33\u0e23\u0e27\u0e08\u0e43\u0e19\u0e1e\u0e37\u0e49\u0e19\u0e17\u0e35\u0e48 \u0e41\u0e25\u0e30\u0e40\u0e2d\u0e01\u0e2a\u0e32\u0e23\u0e17\u0e35\u0e48\u0e2a\u0e48\u0e07\u0e21\u0e32\u0e21\u0e35\u0e40\u0e1e\u0e35\u0e22\u0e07\u0e41\u0e1a\u0e1a\u0e1f\u0e2d\u0e23\u0e4c\u0e21\u0e40\u0e04\u0e25\u0e21\u0e41\u0e25\u0e30\u0e17\u0e30\u0e40\u0e1a\u0e35\u0e22\u0e19\u0e23\u0e16\u0e40\u0e17\u0e48\u0e32\u0e19\u0e31\u0e49\u0e19",
+        "coverage_assessment": "Possibly covered",
+        "missing_information": [
+          "\u0e2a\u0e33\u0e40\u0e19\u0e32\u0e43\u0e1a\u0e02\u0e31\u0e1a\u0e02\u0e35\u0e48\u0e02\u0e2d\u0e07\u0e25\u0e39\u0e01\u0e04\u0e49\u0e32 (\u0e15\u0e32\u0e21 [Clause 3.1])",
+          "\u0e23\u0e39\u0e1b\u0e16\u0e48\u0e32\u0e22\u0e04\u0e27\u0e32\u0e21\u0e40\u0e2a\u0e35\u0e22\u0e2b\u0e32\u0e22 \u0e2b\u0e23\u0e37\u0e2d\u0e2b\u0e25\u0e31\u0e01\u0e10\u0e32\u0e19\u0e17\u0e32\u0e07\u0e01\u0e32\u0e22\u0e20\u0e32\u0e1e\u0e17\u0e35\u0e48\u0e40\u0e01\u0e35\u0e48\u0e22\u0e27\u0e02\u0e49\u0e2d\u0e07\u0e01\u0e31\u0e1a\u0e01\u0e32\u0e23\u0e42\u0e08\u0e23\u0e01\u0e23\u0e23\u0e21 (\u0e15\u0e32\u0e21 [Clause 3.1])",
+          "\u0e23\u0e32\u0e22\u0e07\u0e32\u0e19\u0e40\u0e2b\u0e15\u0e38\u0e01\u0e32\u0e23\u0e13\u0e4c (Incident report) (\u0e15\u0e32\u0e21 [Clause 3.1])",
+          "\u0e23\u0e32\u0e22\u0e07\u0e32\u0e19\u0e08\u0e32\u0e01\u0e15\u0e33\u0e23\u0e27\u0e08 (Police report) \u0e0b\u0e36\u0e48\u0e07\u0e40\u0e1b\u0e47\u0e19\u0e40\u0e2d\u0e01\u0e2a\u0e32\u0e23\u0e1a\u0e31\u0e07\u0e04\u0e31\u0e1a\u0e2a\u0e33\u0e2b\u0e23\u0e31\u0e1a\u0e40\u0e04\u0e25\u0e21\u0e1b\u0e23\u0e30\u0e40\u0e20\u0e17\u0e01\u0e32\u0e23\u0e42\u0e08\u0e23\u0e01\u0e23\u0e23\u0e21 (\u0e15\u0e32\u0e21 [Clause 3.2])",
+          "\u0e02\u0e49\u0e2d\u0e21\u0e39\u0e25\u0e22\u0e37\u0e19\u0e22\u0e31\u0e19\u0e1e\u0e37\u0e49\u0e19\u0e17\u0e35\u0e48\u0e17\u0e32\u0e07\u0e20\u0e39\u0e21\u0e34\u0e28\u0e32\u0e2a\u0e15\u0e23\u0e4c\u0e27\u0e48\u0e32\u0e40\u0e2b\u0e15\u0e38\u0e40\u0e01\u0e34\u0e14\u0e43\u0e19\u0e1e\u0e37\u0e49\u0e19\u0e17\u0e35\u0e48\u0e17\u0e35\u0e48\u0e01\u0e23\u0e21\u0e18\u0e23\u0e23\u0e21\u0e4c\u0e04\u0e38\u0e49\u0e21\u0e04\u0e23\u0e2d\u0e07 (\u0e15\u0e32\u0e21 [Clause 2.4])"
+        ],
+        "risk_flags": [
+          "\u0e22\u0e31\u0e07\u0e44\u0e21\u0e48\u0e21\u0e35\u0e01\u0e32\u0e23\u0e41\u0e08\u0e49\u0e07\u0e04\u0e27\u0e32\u0e21\u0e01\u0e31\u0e1a\u0e15\u0e33\u0e23\u0e27\u0e08 \u0e0b\u0e36\u0e48\u0e07\u0e40\u0e1b\u0e47\u0e19\u0e02\u0e31\u0e49\u0e19\u0e15\u0e2d\u0e19\u0e2a\u0e33\u0e04\u0e31\u0e0d\u0e41\u0e25\u0e30\u0e40\u0e2d\u0e01\u0e2a\u0e32\u0e23\u0e1a\u0e31\u0e07\u0e04\u0e31\u0e1a\u0e2a\u0e33\u0e2b\u0e23\u0e31\u0e1a\u0e40\u0e04\u0e25\u0e21\u0e1b\u0e23\u0e30\u0e40\u0e20\u0e17\u0e01\u0e32\u0e23\u0e42\u0e08\u0e23\u0e01\u0e23\u0e23\u0e21 [Clause 3.2] \u2014 \u0e01\u0e32\u0e23\u0e02\u0e32\u0e14\u0e2b\u0e25\u0e31\u0e01\u0e10\u0e32\u0e19\u0e01\u0e32\u0e23\u0e41\u0e08\u0e49\u0e07\u0e04\u0e27\u0e32\u0e21\u0e16\u0e37\u0e2d\u0e40\u0e1b\u0e47\u0e19\u0e2a\u0e31\u0e0d\u0e0d\u0e32\u0e13\u0e17\u0e35\u0e48\u0e04\u0e27\u0e23\u0e23\u0e30\u0e27\u0e31\u0e07",
+          "\u0e40\u0e2d\u0e01\u0e2a\u0e32\u0e23\u0e17\u0e35\u0e48\u0e2a\u0e48\u0e07\u0e21\u0e32\u0e44\u0e21\u0e48\u0e04\u0e23\u0e1a\u0e15\u0e32\u0e21 [Clause 3.1] \u0e41\u0e25\u0e30 [Clause 3.2] \u0e42\u0e14\u0e22\u0e02\u0e32\u0e14\u0e17\u0e31\u0e49\u0e07\u0e2a\u0e33\u0e40\u0e19\u0e32\u0e43\u0e1a\u0e02\u0e31\u0e1a\u0e02\u0e35\u0e48 \u0e23\u0e39\u0e1b\u0e16\u0e48\u0e32\u0e22 \u0e23\u0e32\u0e22\u0e07\u0e32\u0e19\u0e40\u0e2b\u0e15\u0e38\u0e01\u0e32\u0e23\u0e13\u0e4c \u0e41\u0e25\u0e30\u0e23\u0e32\u0e22\u0e07\u0e32\u0e19\u0e15\u0e33\u0e23\u0e27\u0e08"
+        ],
+        "recommended_routing": "Manual review",
+        "reasoning": "\u0e40\u0e2b\u0e15\u0e38\u0e01\u0e32\u0e23\u0e13\u0e4c\u0e23\u0e16\u0e16\u0e39\u0e01\u0e02\u0e42\u0e21\u0e22\u0e15\u0e23\u0e07\u0e01\u0e31\u0e1a\u0e01\u0e23\u0e13\u0e35\u0e17\u0e35\u0e48\u0e01\u0e23\u0e21\u0e18\u0e23\u0e23\u0e21\u0e4c\u0e04\u0e38\u0e49\u0e21\u0e04\u0e23\u0e2d\u0e07 (Theft) [Clause 1.1] \u0e41\u0e25\u0e30\u0e22\u0e37\u0e48\u0e19\u0e40\u0e04\u0e25\u0e21\u0e20\u0e32\u0e22\u0e43\u0e19 6 \u0e27\u0e31\u0e19 \u0e0b\u0e36\u0e48\u0e07\u0e44\u0e21\u0e48\u0e40\u0e01\u0e34\u0e19\u0e01\u0e33\u0e2b\u0e19\u0e14 30 \u0e27\u0e31\u0e19 [Clause 2.5] \u0e2d\u0e22\u0e48\u0e32\u0e07\u0e44\u0e23\u0e01\u0e47\u0e15\u0e32\u0e21 \u0e40\u0e2d\u0e01\u0e2a\u0e32\u0e23\u0e17\u0e35\u0e48\u0e2a\u0e48\u0e07\u0e21\u0e32\u0e21\u0e35\u0e40\u0e1e\u0e35\u0e22\u0e07\u0e41\u0e1a\u0e1a\u0e1f\u0e2d\u0e23\u0e4c\u0e21\u0e40\u0e04\u0e25\u0e21\u0e41\u0e25\u0e30\u0e17\u0e30\u0e40\u0e1a\u0e35\u0e22\u0e19\u0e23\u0e16 \u0e22\u0e31\u0e07\u0e02\u0e32\u0e14\u0e2a\u0e33\u0e40\u0e19\u0e32\u0e43\u0e1a\u0e02\u0e31\u0e1a\u0e02\u0e35\u0e48 \u0e23\u0e39\u0e1b\u0e16\u0e48\u0e32\u0e22 \u0e23\u0e32\u0e22\u0e07\u0e32\u0e19\u0e40\u0e2b\u0e15\u0e38\u0e01\u0e32\u0e23\u0e13\u0e4c [Clause 3.1] \u0e41\u0e25\u0e30\u0e23\u0e32\u0e22\u0e07\u0e32\u0e19\u0e15\u0e33\u0e23\u0e27\u0e08\u0e0b\u0e36\u0e48\u0e07\u0e1a\u0e31\u0e07\u0e04\u0e31\u0e1a\u0e2a\u0e33\u0e2b\u0e23\u0e31\u0e1a\u0e40\u0e04\u0e25\u0e21\u0e1b\u0e23\u0e30\u0e40\u0e20\u0e17\u0e01\u0e32\u0e23\u0e42\u0e08\u0e23\u0e01\u0e23\u0e23\u0e21 [Clause 3.2] \u0e01\u0e32\u0e23\u0e17\u0e35\u0e48\u0e25\u0e39\u0e01\u0e04\u0e49\u0e32\u0e22\u0e31\u0e07\u0e44\u0e21\u0e48\u0e44\u0e14\u0e49\u0e41\u0e08\u0e49\u0e07\u0e04\u0e27\u0e32\u0e21\u0e16\u0e37\u0e2d\u0e40\u0e1b\u0e47\u0e19\u0e40\u0e2d\u0e01\u0e2a\u0e32\u0e23\u0e2a\u0e33\u0e04\u0e31\u0e0d\u0e17\u0e35\u0e48\u0e02\u0e32\u0e14\u0e2b\u0e32\u0e22\u0e44\u0e1b\u0e41\u0e25\u0e30\u0e2d\u0e32\u0e08\u0e17\u0e33\u0e43\u0e2b\u0e49\u0e44\u0e21\u0e48\u0e2a\u0e32\u0e21\u0e32\u0e23\u0e16\u0e22\u0e37\u0e19\u0e22\u0e31\u0e19\u0e02\u0e49\u0e2d\u0e40\u0e17\u0e47\u0e08\u0e08\u0e23\u0e34\u0e07\u0e02\u0e2d\u0e07\u0e40\u0e2b\u0e15\u0e38\u0e01\u0e32\u0e23\u0e13\u0e4c\u0e44\u0e14\u0e49 \u0e40\u0e19\u0e37\u0e48\u0e2d\u0e07\u0e08\u0e32\u0e01\u0e40\u0e2d\u0e01\u0e2a\u0e32\u0e23\u0e44\u0e21\u0e48\u0e04\u0e23\u0e1a\u0e16\u0e49\u0e27\u0e19 \u0e08\u0e36\u0e07\u0e44\u0e21\u0e48\u0e2a\u0e32\u0e21\u0e32\u0e23\u0e16\u0e1c\u0e48\u0e32\u0e19\u0e40\u0e07\u0e37\u0e48\u0e2d\u0e19\u0e44\u0e02\u0e02\u0e2d\u0e07 [Clause 4.1] \u0e44\u0e14\u0e49 \u0e41\u0e25\u0e30\u0e04\u0e27\u0e23\u0e2a\u0e48\u0e07\u0e40\u0e23\u0e37\u0e48\u0e2d\u0e07\u0e40\u0e02\u0e49\u0e32 Manual review \u0e15\u0e32\u0e21 [Clause 4.2] \u0e40\u0e1e\u0e37\u0e48\u0e2d\u0e43\u0e2b\u0e49\u0e40\u0e08\u0e49\u0e32\u0e2b\u0e19\u0e49\u0e32\u0e17\u0e35\u0e48\u0e15\u0e34\u0e14\u0e15\u0e32\u0e21\u0e40\u0e2d\u0e01\u0e2a\u0e32\u0e23\u0e17\u0e35\u0e48\u0e02\u0e32\u0e14\u0e2b\u0e32\u0e22 \u0e42\u0e14\u0e22\u0e40\u0e09\u0e1e\u0e32\u0e30\u0e23\u0e32\u0e22\u0e07\u0e32\u0e19\u0e15\u0e33\u0e23\u0e27\u0e08 \u0e01\u0e48\u0e2d\u0e19\u0e14\u0e33\u0e40\u0e19\u0e34\u0e19\u0e01\u0e32\u0e23\u0e15\u0e48\u0e2d",
+        "confidence_level": "Medium",
+        "cited_clauses": [
+          "1.1",
+          "2.4",
+          "2.5",
+          "3.1",
+          "3.2",
+          "4.1",
+          "4.2"
+        ]
+      },
+      "retrieved_clauses": [
+        "3.1",
+        "1.1",
+        "3.2",
+        "4.3",
+        "3.3",
+        "4.2",
+        "4.1",
+        "2.4",
+        "2.5",
+        "2.2"
+      ],
+      "guardrail_triggers": {
+        "input": [],
+        "output": []
+      },
+      "latency_ms": 28698,
+      "audit_file": "sess_e996577a9c0b.json",
+      "deterministic": {
+        "coverage_ok": true,
+        "routing_ok": true,
+        "confidence_ok": true,
+        "missing_info": {
+          "precision": 0.8,
+          "recall": 0.5,
+          "f1": 0.6153846153846154,
+          "matched": [
+            "police report",
+            "incident report",
+            "\u0e43\u0e1a\u0e02\u0e31\u0e1a\u0e02\u0e35\u0e48",
+            "\u0e23\u0e39\u0e1b\u0e16\u0e48\u0e32\u0e22"
+          ],
+          "missed": [
+            "driving license",
+            "photos of damage",
+            "\u0e43\u0e1a\u0e41\u0e08\u0e49\u0e07\u0e04\u0e27\u0e32\u0e21",
+            "\u0e43\u0e1a\u0e23\u0e32\u0e22\u0e07\u0e32\u0e19"
+          ]
+        },
+        "risk_flags": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "matched": [],
+          "missed": []
+        },
+        "cited_coverage": 1.0,
+        "citation_validity": 1.0
+      },
+      "judge": {
+        "factuality": 4,
+        "completeness": 3,
+        "clarity": 4,
+        "policy_alignment": 3,
+        "appropriate_uncertainty": 3,
+        "overall_comment": "Reasoning cites Clauses 1.1, 2.4, 2.5, 3.1, 3.2, 4.1, 4.2. All appear in the retrieved list, so no outright hallucinated clause IDs \u2014 however, Clause 2.5 is labeled \"Exclusions\" in the retrieval list, but the AI uses it as a filing-deadline rule (30 days), which likely misrepresents what the clause actually says. Similarly 2.4 is listed as cited at the top but never actually discussed in the reasoning body. Completeness: covers covered peril, missing docs (police report), and routing, but does not meaningfully address applicable exclusions (2.2/2.4) such as whether leaving car in a condo lot overnight triggers any exclusion, nor risk flags (delay in filing police report is a fraud indicator). Clarity is good \u2014 concise and structured within ~6 sentences. Policy alignment: routing to manual review pending police report is sensible, but the invocation of 2.5 as a deadline clause when it's labeled an exclusion weakens alignment. Uncertainty: \"Medium\" confidence is arguably too high given no police report exists yet to corroborate the theft \u2014 \"Low\" would be more appropriate; also no fraud/risk flag raised about the customer not yet filing a police report.",
+        "mean": 3.4
+      }
+    },
+    {
+      "case_id": "case4_en_fraud_risk",
       "input": {
         "claim_id": "CLM-2026-00004",
         "customer": "C-44102",
@@ -297,31 +613,32 @@
           "Claim form",
           "Photos of damage"
         ],
-        "customer_claim_history": "4 claims in the past 12 months (3 collision claims totalling approximately 320,000 THB, 1 glass claim)"
+        "customer_claim_history": "4 claims in the past 12 months (3 collision claims totalling approximately 320,000 THB, 1 glass claim)",
+        "response_language": "auto"
       },
       "output": {
-        "claim_summary": "Customer C-44102 reports severe front-end damage to a Nissan Almera 2020 from an alleged accidental collision with a utility pole on a rural road at night, submitted one day after the incident (2026-10-25). No police were present, no third party is involved, and the customer could not provide the exact incident location. The customer has a history of 4 claims in the past 12 months, including 3 collision claims totalling approximately 320,000 THB.",
+        "claim_summary": "Customer C-44102 filed a claim (CLM-2026-00004) for severe front-end damage to a Nissan Almera 2020, alleging an accidental collision with a utility pole on a rural road at night on 2026-10-24. The claim was submitted the following day with only a claim form and a single blurry photo of damage. The customer has a history of 4 claims in the past 12 months and could not provide the exact incident location.",
         "coverage_assessment": "Possibly covered",
         "missing_information": [
-          "Copy of driving license",
-          "Vehicle registration",
-          "Incident report",
-          "Clear/high-quality photos of damage (submitted photo is blurry and insufficient)",
-          "Exact location of the incident"
+          "Copy of driving license [Clause 3.1]",
+          "Vehicle registration document [Clause 3.1]",
+          "Incident report [Clause 3.1]",
+          "Clear, high-quality photos of damage (submitted photo is blurry and insufficient) [Clause 3.1]",
+          "Exact location of the incident",
+          "Explanation for absence of police attendance"
         ],
         "risk_flags": [
-          "Severe front-end damage reported but supporting evidence is a single blurry photo \u2014 weak evidence for claimed severity [Clause 4.3]",
-          "Customer has 4 claims in the past 12 months (3 collision claims ~320,000 THB) \u2014 repeated claims pattern [Clause 4.3]",
-          "Customer unable to provide exact incident location \u2014 inconsistent/incomplete story [Clause 4.3]",
-          "No police attendance and no independent witnesses on a rural road at night \u2014 unverifiable circumstances"
+          "Severe front-end damage reported but supporting evidence is weak \u2014 only one blurry photo submitted [Clause 4.3]",
+          "Customer has 4 claims in the past 12 months (3 collision claims totalling ~320,000 THB), indicating a pattern of repeated claims over a short period [Clause 4.3]",
+          "Customer unable to provide the exact location of the incident, raising story consistency concerns [Clause 4.3]",
+          "No police report or incident report for a significant collision event, despite no third-party involvement",
+          "Multiple required documents missing [Clause 3.1], compounding evidentiary weakness"
         ],
         "recommended_routing": "Fraud review",
-        "reasoning": "The reported event (accidental collision) is a covered peril under [Clause 1.1], making coverage theoretically possible. However, multiple required documents are missing \u2014 driving license, vehicle registration, and incident report \u2014 making the submission incomplete per [Clause 3.1]. The claim exhibits at least two distinct Clause 4.3 fraud indicators: severe damage supported only by a single blurry photo (weak evidence for claimed severity) and a pattern of repeated claims from the same customer over a short period (4 claims in 12 months, 3 of which are collision claims) [Clause 4.3]. Additionally, the customer's inability to provide the exact incident location introduces an inconsistent/incomplete story element, a third Clause 4.3 trigger [Clause 4.3]. No Section 2 exclusion can be definitively confirmed or ruled out at this stage (e.g., [Clause 2.1] alcohol/drug impairment, [Clause 2.3] intentional damage) given the unverifiable circumstances. Routing to Fraud review is therefore required per [Clause 4.3], with document collection per [Clause 3.1] to proceed in parallel.",
-        "confidence_level": "Medium",
+        "reasoning": "The reported event (accidental collision) is a covered peril under [Clause 1.1], so coverage is not categorically excluded; however, the submission is critically incomplete, missing the driving license, vehicle registration, incident report, and adequate damage photos required by [Clause 3.1]. The single blurry photo constitutes weak supporting evidence for severe front-end damage, triggering the \"severe damage with weak or missing supporting evidence\" pattern under [Clause 4.3]. Additionally, the customer has filed 4 claims within 12 months \u2014 3 of which are collision claims \u2014 satisfying the \"repeated claims from the same customer over a short period\" flag under [Clause 4.3]. The customer's inability to provide the exact incident location further raises story consistency concerns consistent with [Clause 4.3]. At least two independent Clause 4.3 fraud patterns are present, making Fraud Review the appropriate routing ahead of any Manual Review consideration under [Clause 4.2]. Standard processing under [Clause 4.1] is not applicable given the missing documents and multiple risk flags.",
+        "confidence_level": "High",
         "cited_clauses": [
           "1.1",
-          "2.1",
-          "2.3",
           "3.1",
           "4.1",
           "4.2",
@@ -331,65 +648,186 @@
       "retrieved_clauses": [
         "3.1",
         "3.3",
-        "2.5",
-        "4.1",
-        "3.2",
-        "2.3",
         "1.1",
         "4.3",
+        "3.2",
         "4.2",
-        "2.1"
+        "4.1",
+        "2.4",
+        "2.5",
+        "2.2"
       ],
       "guardrail_triggers": {
         "input": [],
         "output": []
       },
-      "latency_ms": 14520,
-      "audit_file": "sess_e465e1026f28.json",
+      "latency_ms": 17500,
+      "audit_file": "sess_5e49be34325d.json",
       "deterministic": {
         "coverage_ok": true,
         "routing_ok": true,
-        "confidence_ok": true,
+        "confidence_ok": false,
         "missing_info": {
-          "precision": 0.4,
-          "recall": 0.5,
-          "f1": 0.4444444444444445,
+          "precision": 0.3333333333333333,
+          "recall": 0.25,
+          "f1": 0.28571428571428575,
           "matched": [
             "driving license",
             "incident report"
           ],
           "missed": [
             "clear photo",
-            "police report"
+            "police report",
+            "\u0e43\u0e1a\u0e02\u0e31\u0e1a\u0e02\u0e35\u0e48",
+            "\u0e43\u0e1a\u0e23\u0e32\u0e22\u0e07\u0e32\u0e19",
+            "\u0e23\u0e39\u0e1b\u0e16\u0e48\u0e32\u0e22\u0e0a\u0e31\u0e14",
+            "\u0e43\u0e1a\u0e41\u0e08\u0e49\u0e07\u0e04\u0e27\u0e32\u0e21"
           ]
         },
         "risk_flags": {
-          "precision": 0.5,
-          "recall": 0.6666666666666666,
-          "f1": 0.5714285714285715,
+          "precision": 0.2,
+          "recall": 0.16666666666666666,
+          "f1": 0.1818181818181818,
           "matched": [
-            "repeated claims",
-            "weak evidence"
+            "repeated claims"
           ],
           "missed": [
-            "severe damage"
+            "weak evidence",
+            "severe damage",
+            "\u0e40\u0e04\u0e25\u0e21\u0e0b\u0e49\u0e33",
+            "\u0e2b\u0e25\u0e31\u0e01\u0e10\u0e32\u0e19\u0e2d\u0e48\u0e2d\u0e19",
+            "\u0e04\u0e27\u0e32\u0e21\u0e40\u0e2a\u0e35\u0e22\u0e2b\u0e32\u0e22\u0e23\u0e38\u0e19\u0e41\u0e23\u0e07"
           ]
         },
         "cited_coverage": 1.0,
         "citation_validity": 1.0
       },
       "judge": {
-        "factuality": 3,
-        "completeness": 4,
+        "factuality": 4,
+        "completeness": 3,
         "clarity": 3,
         "policy_alignment": 4,
         "appropriate_uncertainty": 2,
-        "overall_comment": "All cited clauses are within the retrieved list, which is good. However, factuality is weakened because the reasoning invents facts not present in the claim description \u2014 specifically, \"a pattern of repeated claims from the same customer over a short period (4 claims in 12 months, 3 of which are collision claims).\" Nothing in the claim description supports this; it appears fabricated and is used to justify a fraud trigger. Completeness is reasonably strong: covered peril, missing documents, fraud flags, and exclusions are all addressed. Clarity is borderline \u2014 the reasoning runs ~6 sentences but is somewhat dense and repeats \"Clause 4.3\" multiple times. Policy alignment between the cited clauses and the Fraud-review routing is reasonable given the weak evidence and unverifiable location. Appropriate uncertainty is weak: confidence is set to Medium despite a fabricated claims-history fact, and the model should have flagged uncertainty more explicitly or chosen Low confidence given the missing documentation and unverifiable circumstances.",
+        "overall_comment": "All cited clauses (1.1, 3.1, 4.1, 4.2, 4.3) are within the retrieved set, so factuality is largely fine \u2014 though the reasoning asserts a specific claims history (\"4 claims within 12 months \u2014 3 collision\") that is not present in the claim description, which is a factual fabrication that undermines this dimension. Completeness is partial: it covers covered peril, missing documents, and risk flags, but does not address potentially relevant exclusions (e.g., 2.2/2.4/2.5, such as night-time/unreported-to-police scenarios) that were retrieved. Clarity is borderline \u2014 the reasoning runs ~6 sentences but is dense and somewhat repetitive on Clause 4.3. Policy alignment to Fraud Review is reasonable given weak evidence and inconsistent story, consistent with 4.3. The biggest weakness is appropriate uncertainty: confidence is marked \"High\" despite missing location, missing documents, and a fabricated claims-history fact \u2014 this should be Low or \"Cannot determine.\" Overall the output is directionally sensible but overconfident and partially hallucinated.",
         "mean": 3.2
       }
     },
     {
-      "case_id": "case5_late_submission",
+      "case_id": "case4_th_fraud_risk",
+      "input": {
+        "claim_id": "CLM-2026-00004-TH",
+        "customer": "C-44102",
+        "vehicle": "Nissan Almera \u0e1b\u0e35 2020",
+        "incident_date": "2026-10-24",
+        "claim_submitted_date": "2026-10-25",
+        "claim_description": "\u0e25\u0e39\u0e01\u0e04\u0e49\u0e32\u0e41\u0e08\u0e49\u0e07\u0e27\u0e48\u0e32\u0e23\u0e16\u0e40\u0e2a\u0e35\u0e22\u0e2b\u0e32\u0e22\u0e23\u0e38\u0e19\u0e41\u0e23\u0e07\u0e14\u0e49\u0e32\u0e19\u0e2b\u0e19\u0e49\u0e32\u0e08\u0e32\u0e01\u0e01\u0e32\u0e23\u0e0a\u0e19\u0e40\u0e2a\u0e32\u0e44\u0e1f\u0e1a\u0e19\u0e16\u0e19\u0e19\u0e43\u0e19\u0e0a\u0e19\u0e1a\u0e17\u0e0a\u0e48\u0e27\u0e07\u0e01\u0e25\u0e32\u0e07\u0e04\u0e37\u0e19 \u0e44\u0e21\u0e48\u0e21\u0e35\u0e15\u0e33\u0e23\u0e27\u0e08\u0e21\u0e32\u0e16\u0e36\u0e07\u0e17\u0e35\u0e48\u0e40\u0e01\u0e34\u0e14\u0e40\u0e2b\u0e15\u0e38 \u0e44\u0e21\u0e48\u0e21\u0e35\u0e04\u0e39\u0e48\u0e01\u0e23\u0e13\u0e35 \u0e25\u0e39\u0e01\u0e04\u0e49\u0e32\u0e2a\u0e48\u0e07\u0e23\u0e39\u0e1b\u0e16\u0e48\u0e32\u0e22\u0e04\u0e27\u0e32\u0e21\u0e40\u0e2a\u0e35\u0e22\u0e2b\u0e32\u0e22\u0e21\u0e32\u0e40\u0e1e\u0e35\u0e22\u0e07 1 \u0e23\u0e39\u0e1b\u0e0b\u0e36\u0e48\u0e07\u0e40\u0e1a\u0e25\u0e2d \u0e41\u0e25\u0e30\u0e44\u0e21\u0e48\u0e2a\u0e32\u0e21\u0e32\u0e23\u0e16\u0e23\u0e30\u0e1a\u0e38\u0e15\u0e33\u0e41\u0e2b\u0e19\u0e48\u0e07\u0e17\u0e35\u0e48\u0e40\u0e01\u0e34\u0e14\u0e40\u0e2b\u0e15\u0e38\u0e44\u0e14\u0e49\u0e41\u0e19\u0e48\u0e0a\u0e31\u0e14",
+        "documents_submitted": [
+          "Claim form",
+          "Photos of damage"
+        ],
+        "customer_claim_history": "\u0e21\u0e35\u0e40\u0e04\u0e25\u0e21 4 \u0e04\u0e23\u0e31\u0e49\u0e07\u0e43\u0e19\u0e23\u0e2d\u0e1a 12 \u0e40\u0e14\u0e37\u0e2d\u0e19 (\u0e40\u0e04\u0e25\u0e21\u0e2d\u0e38\u0e1a\u0e31\u0e15\u0e34\u0e40\u0e2b\u0e15\u0e38 3 \u0e04\u0e23\u0e31\u0e49\u0e07\u0e23\u0e27\u0e21\u0e1b\u0e23\u0e30\u0e21\u0e32\u0e13 320,000 \u0e1a\u0e32\u0e17, \u0e40\u0e04\u0e25\u0e21\u0e01\u0e23\u0e30\u0e08\u0e01 1 \u0e04\u0e23\u0e31\u0e49\u0e07)",
+        "response_language": "auto"
+      },
+      "output": {
+        "claim_summary": "\u0e25\u0e39\u0e01\u0e04\u0e49\u0e32 C-44102 \u0e41\u0e08\u0e49\u0e07\u0e40\u0e04\u0e25\u0e21\u0e23\u0e16\u0e22\u0e19\u0e15\u0e4c Nissan Almera \u0e1b\u0e35 2020 (CLM-2026-00004-TH) \u0e08\u0e32\u0e01\u0e40\u0e2b\u0e15\u0e38\u0e0a\u0e19\u0e40\u0e2a\u0e32\u0e44\u0e1f\u0e1a\u0e19\u0e16\u0e19\u0e19\u0e43\u0e19\u0e0a\u0e19\u0e1a\u0e17\u0e0a\u0e48\u0e27\u0e07\u0e01\u0e25\u0e32\u0e07\u0e04\u0e37\u0e19\u0e40\u0e21\u0e37\u0e48\u0e2d\u0e27\u0e31\u0e19\u0e17\u0e35\u0e48 24 \u0e15.\u0e04. 2569 \u0e42\u0e14\u0e22\u0e22\u0e37\u0e48\u0e19\u0e40\u0e04\u0e25\u0e21\u0e20\u0e32\u0e22\u0e43\u0e19 1 \u0e27\u0e31\u0e19 \u0e40\u0e2d\u0e01\u0e2a\u0e32\u0e23\u0e17\u0e35\u0e48\u0e2a\u0e48\u0e07\u0e21\u0e32\u0e21\u0e35\u0e40\u0e1e\u0e35\u0e22\u0e07\u0e41\u0e1a\u0e1a\u0e1f\u0e2d\u0e23\u0e4c\u0e21\u0e40\u0e04\u0e25\u0e21\u0e41\u0e25\u0e30\u0e23\u0e39\u0e1b\u0e16\u0e48\u0e32\u0e22\u0e04\u0e27\u0e32\u0e21\u0e40\u0e2a\u0e35\u0e22\u0e2b\u0e32\u0e22 1 \u0e23\u0e39\u0e1b\u0e17\u0e35\u0e48\u0e40\u0e1a\u0e25\u0e2d\u0e41\u0e25\u0e30\u0e23\u0e30\u0e1a\u0e38\u0e2a\u0e16\u0e32\u0e19\u0e17\u0e35\u0e48\u0e44\u0e21\u0e48\u0e44\u0e14\u0e49 \u0e25\u0e39\u0e01\u0e04\u0e49\u0e32\u0e21\u0e35\u0e1b\u0e23\u0e30\u0e27\u0e31\u0e15\u0e34\u0e40\u0e04\u0e25\u0e21 4 \u0e04\u0e23\u0e31\u0e49\u0e07\u0e43\u0e19\u0e23\u0e2d\u0e1a 12 \u0e40\u0e14\u0e37\u0e2d\u0e19 \u0e23\u0e27\u0e21\u0e21\u0e39\u0e25\u0e04\u0e48\u0e32\u0e1b\u0e23\u0e30\u0e21\u0e32\u0e13 320,000 \u0e1a\u0e32\u0e17\u0e08\u0e32\u0e01\u0e40\u0e2b\u0e15\u0e38\u0e2d\u0e38\u0e1a\u0e31\u0e15\u0e34\u0e40\u0e2b\u0e15\u0e38 3 \u0e04\u0e23\u0e31\u0e49\u0e07",
+        "coverage_assessment": "Possibly covered",
+        "missing_information": [
+          "\u0e2a\u0e33\u0e40\u0e19\u0e32\u0e43\u0e1a\u0e02\u0e31\u0e1a\u0e02\u0e35\u0e48 (\u0e15\u0e32\u0e21 [Clause 3.1])",
+          "\u0e2a\u0e33\u0e40\u0e19\u0e32\u0e17\u0e30\u0e40\u0e1a\u0e35\u0e22\u0e19\u0e23\u0e16 (\u0e15\u0e32\u0e21 [Clause 3.1])",
+          "\u0e23\u0e32\u0e22\u0e07\u0e32\u0e19\u0e40\u0e2b\u0e15\u0e38\u0e01\u0e32\u0e23\u0e13\u0e4c / Incident report (\u0e15\u0e32\u0e21 [Clause 3.1])",
+          "\u0e23\u0e39\u0e1b\u0e16\u0e48\u0e32\u0e22\u0e04\u0e27\u0e32\u0e21\u0e40\u0e2a\u0e35\u0e22\u0e2b\u0e32\u0e22\u0e17\u0e35\u0e48\u0e0a\u0e31\u0e14\u0e40\u0e08\u0e19\u0e41\u0e25\u0e30\u0e2a\u0e32\u0e21\u0e32\u0e23\u0e16\u0e23\u0e30\u0e1a\u0e38\u0e2a\u0e16\u0e32\u0e19\u0e17\u0e35\u0e48\u0e40\u0e01\u0e34\u0e14\u0e40\u0e2b\u0e15\u0e38\u0e44\u0e14\u0e49 (\u0e15\u0e32\u0e21 [Clause 3.1])",
+          "\u0e02\u0e49\u0e2d\u0e21\u0e39\u0e25\u0e1e\u0e34\u0e01\u0e31\u0e14/\u0e15\u0e33\u0e41\u0e2b\u0e19\u0e48\u0e07\u0e17\u0e35\u0e48\u0e40\u0e01\u0e34\u0e14\u0e40\u0e2b\u0e15\u0e38\u0e17\u0e35\u0e48\u0e0a\u0e31\u0e14\u0e40\u0e08\u0e19",
+          "\u0e02\u0e49\u0e2d\u0e21\u0e39\u0e25\u0e27\u0e48\u0e32\u0e1c\u0e39\u0e49\u0e02\u0e31\u0e1a\u0e02\u0e35\u0e48\u0e21\u0e35\u0e01\u0e32\u0e23\u0e14\u0e37\u0e48\u0e21\u0e41\u0e2d\u0e25\u0e01\u0e2d\u0e2e\u0e2d\u0e25\u0e4c\u0e2b\u0e23\u0e37\u0e2d\u0e43\u0e0a\u0e49\u0e2a\u0e32\u0e23\u0e40\u0e2a\u0e1e\u0e15\u0e34\u0e14\u0e2b\u0e23\u0e37\u0e2d\u0e44\u0e21\u0e48 (\u0e40\u0e1e\u0e37\u0e48\u0e2d\u0e1b\u0e23\u0e30\u0e40\u0e21\u0e34\u0e19 [Clause 2.1])"
+        ],
+        "risk_flags": [
+          "\u0e40\u0e04\u0e25\u0e21\u0e0b\u0e49\u0e33\u0e2b\u0e25\u0e32\u0e22\u0e04\u0e23\u0e31\u0e49\u0e07\u0e43\u0e19\u0e23\u0e30\u0e22\u0e30\u0e40\u0e27\u0e25\u0e32\u0e2a\u0e31\u0e49\u0e19: \u0e25\u0e39\u0e01\u0e04\u0e49\u0e32\u0e21\u0e35\u0e1b\u0e23\u0e30\u0e27\u0e31\u0e15\u0e34\u0e40\u0e04\u0e25\u0e21 4 \u0e04\u0e23\u0e31\u0e49\u0e07\u0e43\u0e19\u0e23\u0e2d\u0e1a 12 \u0e40\u0e14\u0e37\u0e2d\u0e19 (\u0e2d\u0e38\u0e1a\u0e31\u0e15\u0e34\u0e40\u0e2b\u0e15\u0e38 3 \u0e04\u0e23\u0e31\u0e49\u0e07 ~320,000 \u0e1a\u0e32\u0e17) \u0e0b\u0e36\u0e48\u0e07\u0e40\u0e02\u0e49\u0e32\u0e02\u0e48\u0e32\u0e22\u0e23\u0e39\u0e1b\u0e41\u0e1a\u0e1a\u0e40\u0e2a\u0e35\u0e48\u0e22\u0e07\u0e17\u0e38\u0e08\u0e23\u0e34\u0e15\u0e15\u0e32\u0e21 [Clause 4.3]",
+          "\u0e04\u0e27\u0e32\u0e21\u0e40\u0e2a\u0e35\u0e22\u0e2b\u0e32\u0e22\u0e23\u0e38\u0e19\u0e41\u0e23\u0e07\u0e41\u0e15\u0e48\u0e2b\u0e25\u0e31\u0e01\u0e10\u0e32\u0e19\u0e2a\u0e19\u0e31\u0e1a\u0e2a\u0e19\u0e38\u0e19\u0e2d\u0e48\u0e2d\u0e19\u0e21\u0e32\u0e01: \u0e21\u0e35\u0e40\u0e1e\u0e35\u0e22\u0e07\u0e23\u0e39\u0e1b\u0e16\u0e48\u0e32\u0e22\u0e40\u0e1a\u0e25\u0e2d 1 \u0e23\u0e39\u0e1b \u0e23\u0e30\u0e1a\u0e38\u0e2a\u0e16\u0e32\u0e19\u0e17\u0e35\u0e48\u0e44\u0e21\u0e48\u0e44\u0e14\u0e49 \u0e0b\u0e36\u0e48\u0e07\u0e40\u0e02\u0e49\u0e32\u0e02\u0e48\u0e32\u0e22 [Clause 4.3] (Severe damage with weak/missing supporting evidence)",
+          "\u0e44\u0e21\u0e48\u0e21\u0e35\u0e23\u0e32\u0e22\u0e07\u0e32\u0e19\u0e15\u0e33\u0e23\u0e27\u0e08\u0e41\u0e25\u0e30\u0e44\u0e21\u0e48\u0e21\u0e35\u0e1e\u0e22\u0e32\u0e19\u0e2b\u0e25\u0e31\u0e01\u0e10\u0e32\u0e19\u0e2d\u0e34\u0e2a\u0e23\u0e30\u0e22\u0e37\u0e19\u0e22\u0e31\u0e19\u0e40\u0e2b\u0e15\u0e38\u0e01\u0e32\u0e23\u0e13\u0e4c",
+          "\u0e44\u0e21\u0e48\u0e2a\u0e32\u0e21\u0e32\u0e23\u0e16\u0e23\u0e30\u0e1a\u0e38\u0e15\u0e33\u0e41\u0e2b\u0e19\u0e48\u0e07\u0e17\u0e35\u0e48\u0e40\u0e01\u0e34\u0e14\u0e40\u0e2b\u0e15\u0e38\u0e44\u0e14\u0e49 \u0e17\u0e33\u0e43\u0e2b\u0e49\u0e44\u0e21\u0e48\u0e2a\u0e32\u0e21\u0e32\u0e23\u0e16\u0e15\u0e23\u0e27\u0e08\u0e2a\u0e2d\u0e1a\u0e27\u0e48\u0e32\u0e2d\u0e22\u0e39\u0e48\u0e43\u0e19\u0e1e\u0e37\u0e49\u0e19\u0e17\u0e35\u0e48\u0e04\u0e23\u0e2d\u0e1a\u0e04\u0e25\u0e38\u0e21\u0e15\u0e32\u0e21 [Clause 2.4] \u0e2b\u0e23\u0e37\u0e2d\u0e44\u0e21\u0e48",
+          "\u0e44\u0e21\u0e48\u0e21\u0e35\u0e02\u0e49\u0e2d\u0e21\u0e39\u0e25\u0e40\u0e23\u0e37\u0e48\u0e2d\u0e07\u0e2a\u0e20\u0e32\u0e1e\u0e02\u0e2d\u0e07\u0e1c\u0e39\u0e49\u0e02\u0e31\u0e1a\u0e02\u0e35\u0e48\u0e02\u0e13\u0e30\u0e40\u0e01\u0e34\u0e14\u0e40\u0e2b\u0e15\u0e38 (\u0e2d\u0e32\u0e08\u0e40\u0e02\u0e49\u0e32\u0e02\u0e48\u0e32\u0e22 [Clause 2.1])"
+        ],
+        "recommended_routing": "Fraud review",
+        "reasoning": "\u0e40\u0e2b\u0e15\u0e38\u0e01\u0e32\u0e23\u0e13\u0e4c\u0e0a\u0e19\u0e40\u0e2a\u0e32\u0e44\u0e1f\u0e40\u0e02\u0e49\u0e32\u0e02\u0e48\u0e32\u0e22\u0e2d\u0e38\u0e1a\u0e31\u0e15\u0e34\u0e40\u0e2b\u0e15\u0e38\u0e17\u0e35\u0e48\u0e04\u0e38\u0e49\u0e21\u0e04\u0e23\u0e2d\u0e07\u0e15\u0e32\u0e21 [Clause 1.1] \u0e41\u0e25\u0e30\u0e22\u0e37\u0e48\u0e19\u0e40\u0e04\u0e25\u0e21\u0e20\u0e32\u0e22\u0e43\u0e19\u0e01\u0e33\u0e2b\u0e19\u0e14 \u0e08\u0e36\u0e07\u0e44\u0e21\u0e48\u0e21\u0e35\u0e1b\u0e31\u0e0d\u0e2b\u0e32\u0e15\u0e32\u0e21 [Clause 2.5] \u0e2d\u0e22\u0e48\u0e32\u0e07\u0e44\u0e23\u0e01\u0e47\u0e15\u0e32\u0e21 \u0e40\u0e2d\u0e01\u0e2a\u0e32\u0e23\u0e17\u0e35\u0e48\u0e22\u0e37\u0e48\u0e19\u0e21\u0e32\u0e22\u0e31\u0e07\u0e02\u0e32\u0e14\u0e2d\u0e35\u0e01\u0e2b\u0e25\u0e32\u0e22\u0e23\u0e32\u0e22\u0e01\u0e32\u0e23\u0e15\u0e32\u0e21 [Clause 3.1] \u0e44\u0e14\u0e49\u0e41\u0e01\u0e48 \u0e2a\u0e33\u0e40\u0e19\u0e32\u0e43\u0e1a\u0e02\u0e31\u0e1a\u0e02\u0e35\u0e48 \u0e17\u0e30\u0e40\u0e1a\u0e35\u0e22\u0e19\u0e23\u0e16 \u0e41\u0e25\u0e30\u0e23\u0e32\u0e22\u0e07\u0e32\u0e19\u0e40\u0e2b\u0e15\u0e38\u0e01\u0e32\u0e23\u0e13\u0e4c \u0e17\u0e33\u0e43\u0e2b\u0e49\u0e22\u0e31\u0e07\u0e44\u0e21\u0e48\u0e04\u0e23\u0e1a\u0e16\u0e49\u0e27\u0e19 \u0e2d\u0e35\u0e01\u0e17\u0e31\u0e49\u0e07\u0e23\u0e39\u0e1b\u0e16\u0e48\u0e32\u0e22\u0e40\u0e1e\u0e35\u0e22\u0e07 1 \u0e23\u0e39\u0e1b\u0e17\u0e35\u0e48\u0e40\u0e1a\u0e25\u0e2d\u0e41\u0e25\u0e30\u0e23\u0e30\u0e1a\u0e38\u0e2a\u0e16\u0e32\u0e19\u0e17\u0e35\u0e48\u0e44\u0e21\u0e48\u0e44\u0e14\u0e49\u0e16\u0e37\u0e2d\u0e40\u0e1b\u0e47\u0e19\u0e2b\u0e25\u0e31\u0e01\u0e10\u0e32\u0e19\u0e17\u0e35\u0e48\u0e2d\u0e48\u0e2d\u0e19\u0e21\u0e32\u0e01\u0e2a\u0e33\u0e2b\u0e23\u0e31\u0e1a\u0e04\u0e27\u0e32\u0e21\u0e40\u0e2a\u0e35\u0e22\u0e2b\u0e32\u0e22\u0e23\u0e38\u0e19\u0e41\u0e23\u0e07 \u0e0b\u0e36\u0e48\u0e07\u0e40\u0e02\u0e49\u0e32\u0e02\u0e48\u0e32\u0e22\u0e23\u0e39\u0e1b\u0e41\u0e1a\u0e1a \"Severe damage with weak or missing supporting evidence\" \u0e15\u0e32\u0e21 [Clause 4.3] \u0e19\u0e2d\u0e01\u0e08\u0e32\u0e01\u0e19\u0e35\u0e49\u0e1b\u0e23\u0e30\u0e27\u0e31\u0e15\u0e34\u0e01\u0e32\u0e23\u0e40\u0e04\u0e25\u0e21 4 \u0e04\u0e23\u0e31\u0e49\u0e07\u0e43\u0e19\u0e23\u0e2d\u0e1a 12 \u0e40\u0e14\u0e37\u0e2d\u0e19\u0e22\u0e31\u0e07\u0e40\u0e02\u0e49\u0e32\u0e02\u0e48\u0e32\u0e22 \"Repeated claims from the same customer over a short period\" \u0e15\u0e32\u0e21 [Clause 4.3] \u0e2d\u0e35\u0e01\u0e14\u0e49\u0e27\u0e22 \u0e22\u0e31\u0e07\u0e44\u0e21\u0e48\u0e2a\u0e32\u0e21\u0e32\u0e23\u0e16\u0e22\u0e37\u0e19\u0e22\u0e31\u0e19\u0e1e\u0e37\u0e49\u0e19\u0e17\u0e35\u0e48\u0e40\u0e01\u0e34\u0e14\u0e40\u0e2b\u0e15\u0e38\u0e15\u0e32\u0e21 [Clause 2.4] \u0e41\u0e25\u0e30\u0e2a\u0e20\u0e32\u0e1e\u0e1c\u0e39\u0e49\u0e02\u0e31\u0e1a\u0e02\u0e35\u0e48\u0e15\u0e32\u0e21 [Clause 2.1] \u0e44\u0e14\u0e49 \u0e14\u0e49\u0e27\u0e22\u0e2a\u0e31\u0e0d\u0e0d\u0e32\u0e13\u0e40\u0e2a\u0e35\u0e48\u0e22\u0e07\u0e2b\u0e25\u0e32\u0e22\u0e02\u0e49\u0e2d\u0e15\u0e32\u0e21 [Clause 4.3] \u0e08\u0e36\u0e07\u0e41\u0e19\u0e30\u0e19\u0e33\u0e43\u0e2b\u0e49\u0e2a\u0e48\u0e07\u0e40\u0e23\u0e37\u0e48\u0e2d\u0e07\u0e44\u0e1b\u0e17\u0e35\u0e48 Fraud review \u0e01\u0e48\u0e2d\u0e19\u0e14\u0e33\u0e40\u0e19\u0e34\u0e19\u0e01\u0e32\u0e23\u0e43\u0e14\u0e46",
+        "confidence_level": "High",
+        "cited_clauses": [
+          "1.1",
+          "2.1",
+          "2.4",
+          "2.5",
+          "3.1",
+          "4.2",
+          "4.3"
+        ]
+      },
+      "retrieved_clauses": [
+        "3.1",
+        "3.3",
+        "3.2",
+        "1.1",
+        "4.3",
+        "4.1",
+        "4.2",
+        "2.4",
+        "2.5",
+        "2.1"
+      ],
+      "guardrail_triggers": {
+        "input": [],
+        "output": []
+      },
+      "latency_ms": 36321,
+      "audit_file": "sess_1a6452b1d641.json",
+      "deterministic": {
+        "coverage_ok": true,
+        "routing_ok": true,
+        "confidence_ok": false,
+        "missing_info": {
+          "precision": 0.3333333333333333,
+          "recall": 0.25,
+          "f1": 0.28571428571428575,
+          "matched": [
+            "incident report",
+            "\u0e43\u0e1a\u0e02\u0e31\u0e1a\u0e02\u0e35\u0e48"
+          ],
+          "missed": [
+            "driving license",
+            "clear photo",
+            "police report",
+            "\u0e43\u0e1a\u0e23\u0e32\u0e22\u0e07\u0e32\u0e19",
+            "\u0e23\u0e39\u0e1b\u0e16\u0e48\u0e32\u0e22\u0e0a\u0e31\u0e14",
+            "\u0e43\u0e1a\u0e41\u0e08\u0e49\u0e07\u0e04\u0e27\u0e32\u0e21"
+          ]
+        },
+        "risk_flags": {
+          "precision": 0.4,
+          "recall": 0.5,
+          "f1": 0.4444444444444445,
+          "matched": [
+            "severe damage",
+            "\u0e40\u0e04\u0e25\u0e21\u0e0b\u0e49\u0e33",
+            "\u0e04\u0e27\u0e32\u0e21\u0e40\u0e2a\u0e35\u0e22\u0e2b\u0e32\u0e22\u0e23\u0e38\u0e19\u0e41\u0e23\u0e07"
+          ],
+          "missed": [
+            "repeated claims",
+            "weak evidence",
+            "\u0e2b\u0e25\u0e31\u0e01\u0e10\u0e32\u0e19\u0e2d\u0e48\u0e2d\u0e19"
+          ]
+        },
+        "cited_coverage": 1.0,
+        "citation_validity": 1.0
+      },
+      "judge": {
+        "factuality": 5,
+        "completeness": 4,
+        "clarity": 3,
+        "policy_alignment": 4,
+        "appropriate_uncertainty": 2,
+        "overall_comment": "All cited clauses (1.1, 2.1, 2.4, 2.5, 3.1, 4.2, 4.3) appear in the retrieved list, so factuality is clean. The response covers covered peril, missing documents, risk flags, and exclusions reasonably well. However, it fabricates a fact not in the claim description \u2014 \"\u0e1b\u0e23\u0e30\u0e27\u0e31\u0e15\u0e34\u0e01\u0e32\u0e23\u0e40\u0e04\u0e25\u0e21 4 \u0e04\u0e23\u0e31\u0e49\u0e07\u0e43\u0e19\u0e23\u0e2d\u0e1a 12 \u0e40\u0e14\u0e37\u0e2d\u0e19\" was never stated, which is a significant hallucination of case facts (even if the clause citation itself is valid) and undermines appropriate uncertainty. Confidence is marked \"High\" despite blurry photo, unknown location, and unknown driver condition \u2014 this should have been Low/Cannot determine. Reasoning is also slightly long and dense (~6+ sentences packed together). Routing to Fraud review is defensible given weak evidence, so policy alignment is largely sound.",
+        "mean": 3.6
+      }
+    },
+    {
+      "case_id": "case5_en_late_submission",
       "input": {
         "claim_id": "CLM-2026-00005",
         "customer": "C-50987",
@@ -402,23 +840,23 @@
           "Vehicle registration",
           "Photos of damage"
         ],
-        "customer_claim_history": "No prior claims"
+        "customer_claim_history": "No prior claims",
+        "response_language": "auto"
       },
       "output": {
-        "claim_summary": "Customer C-50987 reports flood damage to a 2021 Toyota Fortuner that occurred on 2026-09-11 while parked in Lat Phrao during heavy rainfall, with water reaching the engine compartment. The claim was submitted on 2026-10-26, which is 45 days after the incident, exceeding the 30-day submission deadline. No reason for the delayed submission has been provided.",
+        "claim_summary": "Customer C-50987 reports flood damage to a Toyota Fortuner 2021 on 2026-09-11, while the vehicle was parked in Lat Phrao during heavy rainfall, resulting in water ingress into the engine compartment. The claim was submitted on 2026-10-26, which is 45 days after the incident \u2014 exceeding the 30-day submission deadline. No reason for the delayed submission has been provided.",
         "coverage_assessment": "Possibly covered",
         "missing_information": [
-          "Driving license copy (required by Clause 3.1)",
-          "Incident report (required by Clause 3.1)",
-          "Valid reason for late submission beyond the 30-day limit (required by Clause 2.5)"
+          "Driving license copy (required under [Clause 3.1] but not submitted)",
+          "Incident report (required under [Clause 3.1] but not submitted)",
+          "Valid reason for late submission \u2014 claim filed 45 days after incident, exceeding the 30-day limit under [Clause 2.5]"
         ],
         "risk_flags": [
-          "Claim submitted 45 days after the incident with no explanation, exceeding the 30-day limit under Clause 2.5",
-          "Multiple required documents are missing (driving license, incident report), weakening supporting evidence",
-          "Severe engine damage reported but no incident report or third-party corroboration provided"
+          "Late submission (45 days) with no reason provided \u2014 potential exclusion applies under [Clause 2.5]",
+          "Severe engine damage reported but supporting documents are incomplete (missing incident report and driving license) \u2014 weak evidence relative to severity of damage [Clause 4.3]"
         ],
         "recommended_routing": "Manual review",
-        "reasoning": "The reported flood damage event matches a covered peril [Clause 1.1], so the claim is not excluded on the basis of the peril type. However, the claim was submitted 45 days after the incident, exceeding the 30-day limit, and no valid reason for the delay has been provided, which triggers the late submission exclusion [Clause 2.5] \u2014 though that clause allows manual review if a valid reason is subsequently provided. Required documents are incomplete: the driving license copy and incident report are both missing [Clause 3.1], making document submission insufficient for standard processing. The combination of missing documents and the unresolved late submission issue constitute conflicting and incomplete information [Clause 4.2], precluding standard processing [Clause 4.1]. No fraud patterns such as repeated claims or an inconsistent story are evident at this stage, so Fraud Review is not warranted [Clause 4.3]. Manual review is appropriate to allow the customer to provide a reason for late submission and the missing documents before a coverage determination can be finalised [Clause 4.2].",
+        "reasoning": "The reported event (flood damage while the vehicle was parked) matches the covered peril of flood under [Clause 1.1]. However, required documents are incomplete: a driving license copy and incident report are missing as mandated by [Clause 3.1], triggering manual review under [Clause 4.2]. More critically, the claim was submitted 45 days after the incident, exceeding the 30-day deadline under [Clause 2.5], and no valid reason has been offered for the delay \u2014 this may result in the claim not being covered unless a valid reason is subsequently provided. Severe engine damage is reported with only partial supporting evidence (photos and registration), which also raises a concern under [Clause 4.3]. Because documents are incomplete and a potential late-submission exclusion is unresolved, standard processing is not appropriate per [Clause 4.1]. Manual review is warranted to allow the officer to evaluate whether a valid reason for late submission exists and to collect the missing documents.",
         "confidence_level": "Medium",
         "cited_clauses": [
           "1.1",
@@ -433,34 +871,140 @@
         "3.1",
         "3.3",
         "1.1",
+        "4.2",
         "3.2",
         "2.5",
-        "2.3",
         "2.4",
+        "4.3",
         "4.1",
-        "4.2",
-        "4.3"
+        "2.1"
       ],
       "guardrail_triggers": {
         "input": [],
         "output": []
       },
-      "latency_ms": 12463,
-      "audit_file": "sess_5d95b0f06a18.json",
+      "latency_ms": 14633,
+      "audit_file": "sess_01f85bcd0823.json",
       "deterministic": {
         "coverage_ok": false,
         "routing_ok": true,
         "confidence_ok": true,
         "missing_info": {
           "precision": 1.0,
-          "recall": 1.0,
-          "f1": 1.0,
+          "recall": 0.5,
+          "f1": 0.6666666666666666,
           "matched": [
             "driving license",
             "incident report",
             "reason for late submission"
           ],
-          "missed": []
+          "missed": [
+            "\u0e43\u0e1a\u0e02\u0e31\u0e1a\u0e02\u0e35\u0e48",
+            "\u0e43\u0e1a\u0e23\u0e32\u0e22\u0e07\u0e32\u0e19",
+            "\u0e40\u0e2b\u0e15\u0e38\u0e1c\u0e25\u0e17\u0e35\u0e48\u0e41\u0e08\u0e49\u0e07\u0e25\u0e48\u0e32\u0e0a\u0e49\u0e32"
+          ]
+        },
+        "risk_flags": {
+          "precision": 0.5,
+          "recall": 0.5,
+          "f1": 0.5,
+          "matched": [
+            "late submission",
+            "exclusion"
+          ],
+          "missed": [
+            "\u0e41\u0e08\u0e49\u0e07\u0e25\u0e48\u0e32\u0e0a\u0e49\u0e32",
+            "\u0e02\u0e49\u0e2d\u0e22\u0e01\u0e40\u0e27\u0e49\u0e19"
+          ]
+        },
+        "cited_coverage": 0.6666666666666666,
+        "citation_validity": 1.0
+      },
+      "judge": {
+        "factuality": 5,
+        "completeness": 5,
+        "clarity": 4,
+        "policy_alignment": 5,
+        "appropriate_uncertainty": 4,
+        "overall_comment": "All cited clauses (1.1, 2.5, 3.1, 4.1, 4.2, 4.3) are within the retrieved set \u2014 no hallucinations. The reasoning covers the covered peril (flood), the key exclusion risk (late submission beyond 30 days with no reason), missing documents (license, incident report), and a severity/evidence risk flag, which is comprehensive for the officer. Routing to manual review with Medium confidence is well-aligned with the cited clauses given the unresolved late-submission issue and documentation gaps. Clarity is good and structured, though slightly over the ~6 sentence target and a touch wordy. Uncertainty is reasonable (Medium), though given the hard 30-day deadline breach with no justification, \"Likely not covered\" or Low confidence might have been more calibrated than \"Possibly covered / Medium.\"",
+        "mean": 4.6
+      }
+    },
+    {
+      "case_id": "case5_th_late_submission",
+      "input": {
+        "claim_id": "CLM-2026-00005-TH",
+        "customer": "C-50987",
+        "vehicle": "Toyota Fortuner \u0e1b\u0e35 2021",
+        "incident_date": "2026-09-11",
+        "claim_submitted_date": "2026-10-26",
+        "claim_description": "\u0e25\u0e39\u0e01\u0e04\u0e49\u0e32\u0e41\u0e08\u0e49\u0e07\u0e19\u0e49\u0e33\u0e17\u0e48\u0e27\u0e21\u0e23\u0e16\u0e40\u0e21\u0e37\u0e48\u0e2d\u0e27\u0e31\u0e19\u0e17\u0e35\u0e48 11 \u0e01\u0e31\u0e19\u0e22\u0e32\u0e22\u0e19 2026 \u0e15\u0e2d\u0e19\u0e1d\u0e19\u0e15\u0e01\u0e2b\u0e19\u0e31\u0e01 \u0e02\u0e13\u0e30\u0e08\u0e2d\u0e14\u0e23\u0e16\u0e2d\u0e22\u0e39\u0e48\u0e23\u0e34\u0e21\u0e16\u0e19\u0e19\u0e22\u0e48\u0e32\u0e19\u0e25\u0e32\u0e14\u0e1e\u0e23\u0e49\u0e32\u0e27 \u0e19\u0e49\u0e33\u0e40\u0e02\u0e49\u0e32\u0e16\u0e36\u0e07\u0e2b\u0e49\u0e2d\u0e07\u0e40\u0e04\u0e23\u0e37\u0e48\u0e2d\u0e07\u0e41\u0e25\u0e30\u0e2a\u0e15\u0e32\u0e23\u0e4c\u0e17\u0e44\u0e21\u0e48\u0e15\u0e34\u0e14\u0e2d\u0e35\u0e01\u0e40\u0e25\u0e22\u0e2b\u0e25\u0e31\u0e07\u0e08\u0e32\u0e01\u0e19\u0e31\u0e49\u0e19 \u0e25\u0e39\u0e01\u0e04\u0e49\u0e32\u0e44\u0e21\u0e48\u0e44\u0e14\u0e49\u0e23\u0e30\u0e1a\u0e38\u0e40\u0e2b\u0e15\u0e38\u0e1c\u0e25\u0e17\u0e35\u0e48\u0e41\u0e08\u0e49\u0e07\u0e40\u0e04\u0e25\u0e21\u0e25\u0e48\u0e32\u0e0a\u0e49\u0e32",
+        "documents_submitted": [
+          "Claim form",
+          "Vehicle registration",
+          "Photos of damage"
+        ],
+        "customer_claim_history": "\u0e44\u0e21\u0e48\u0e21\u0e35\u0e1b\u0e23\u0e30\u0e27\u0e31\u0e15\u0e34\u0e40\u0e04\u0e25\u0e21",
+        "response_language": "auto"
+      },
+      "output": {
+        "claim_summary": "\u0e25\u0e39\u0e01\u0e04\u0e49\u0e32 C-50987 \u0e41\u0e08\u0e49\u0e07\u0e40\u0e04\u0e25\u0e21\u0e01\u0e23\u0e13\u0e35\u0e19\u0e49\u0e33\u0e17\u0e48\u0e27\u0e21\u0e23\u0e16 Toyota Fortuner \u0e1b\u0e35 2021 \u0e40\u0e21\u0e37\u0e48\u0e2d\u0e27\u0e31\u0e19\u0e17\u0e35\u0e48 11 \u0e01\u0e31\u0e19\u0e22\u0e32\u0e22\u0e19 2026 \u0e02\u0e13\u0e30\u0e08\u0e2d\u0e14\u0e23\u0e16\u0e2d\u0e22\u0e39\u0e48\u0e23\u0e34\u0e21\u0e16\u0e19\u0e19\u0e22\u0e48\u0e32\u0e19\u0e25\u0e32\u0e14\u0e1e\u0e23\u0e49\u0e32\u0e27 \u0e19\u0e49\u0e33\u0e40\u0e02\u0e49\u0e32\u0e16\u0e36\u0e07\u0e2b\u0e49\u0e2d\u0e07\u0e40\u0e04\u0e23\u0e37\u0e48\u0e2d\u0e07\u0e08\u0e19\u0e23\u0e16\u0e2a\u0e15\u0e32\u0e23\u0e4c\u0e17\u0e44\u0e21\u0e48\u0e15\u0e34\u0e14 \u0e42\u0e14\u0e22\u0e25\u0e39\u0e01\u0e04\u0e49\u0e32\u0e22\u0e37\u0e48\u0e19\u0e40\u0e23\u0e37\u0e48\u0e2d\u0e07\u0e40\u0e04\u0e25\u0e21\u0e25\u0e48\u0e32\u0e0a\u0e49\u0e32 45 \u0e27\u0e31\u0e19 \u0e42\u0e14\u0e22\u0e44\u0e21\u0e48\u0e21\u0e35\u0e01\u0e32\u0e23\u0e23\u0e30\u0e1a\u0e38\u0e40\u0e2b\u0e15\u0e38\u0e1c\u0e25\u0e02\u0e2d\u0e07\u0e01\u0e32\u0e23\u0e22\u0e37\u0e48\u0e19\u0e25\u0e48\u0e32\u0e0a\u0e49\u0e32",
+        "coverage_assessment": "Possibly covered",
+        "missing_information": [
+          "\u0e43\u0e1a\u0e02\u0e31\u0e1a\u0e02\u0e35\u0e48 (Driving License) \u2014 \u0e08\u0e33\u0e40\u0e1b\u0e47\u0e19\u0e15\u0e32\u0e21 [Clause 3.1]",
+          "\u0e23\u0e32\u0e22\u0e07\u0e32\u0e19\u0e40\u0e2b\u0e15\u0e38\u0e01\u0e32\u0e23\u0e13\u0e4c (Incident Report) \u2014 \u0e08\u0e33\u0e40\u0e1b\u0e47\u0e19\u0e15\u0e32\u0e21 [Clause 3.1]",
+          "\u0e40\u0e2b\u0e15\u0e38\u0e1c\u0e25\u0e17\u0e35\u0e48\u0e22\u0e37\u0e48\u0e19\u0e40\u0e04\u0e25\u0e21\u0e25\u0e48\u0e32\u0e0a\u0e49\u0e32\u0e40\u0e01\u0e34\u0e19 30 \u0e27\u0e31\u0e19 \u2014 \u0e08\u0e33\u0e40\u0e1b\u0e47\u0e19\u0e15\u0e32\u0e21 [Clause 2.5]"
+        ],
+        "risk_flags": [
+          "\u0e01\u0e32\u0e23\u0e22\u0e37\u0e48\u0e19\u0e40\u0e04\u0e25\u0e21\u0e25\u0e48\u0e32\u0e0a\u0e49\u0e32 45 \u0e27\u0e31\u0e19 \u0e42\u0e14\u0e22\u0e44\u0e21\u0e48\u0e21\u0e35\u0e40\u0e2b\u0e15\u0e38\u0e1c\u0e25\u0e17\u0e35\u0e48\u0e23\u0e30\u0e1a\u0e38 \u0e0b\u0e36\u0e48\u0e07\u0e40\u0e01\u0e34\u0e19\u0e01\u0e33\u0e2b\u0e19\u0e14 30 \u0e27\u0e31\u0e19 \u0e15\u0e32\u0e21 [Clause 2.5] \u0e41\u0e25\u0e30\u0e2d\u0e32\u0e08\u0e17\u0e33\u0e43\u0e2b\u0e49\u0e2a\u0e34\u0e17\u0e18\u0e34\u0e4c\u0e01\u0e32\u0e23\u0e40\u0e04\u0e25\u0e21\u0e44\u0e21\u0e48\u0e44\u0e14\u0e49\u0e23\u0e31\u0e1a\u0e04\u0e27\u0e32\u0e21\u0e04\u0e38\u0e49\u0e21\u0e04\u0e23\u0e2d\u0e07",
+          "\u0e40\u0e2d\u0e01\u0e2a\u0e32\u0e23\u0e44\u0e21\u0e48\u0e04\u0e23\u0e1a\u0e16\u0e49\u0e27\u0e19\u0e15\u0e32\u0e21 [Clause 3.1] \u0e44\u0e14\u0e49\u0e41\u0e01\u0e48 \u0e43\u0e1a\u0e02\u0e31\u0e1a\u0e02\u0e35\u0e48 \u0e41\u0e25\u0e30\u0e23\u0e32\u0e22\u0e07\u0e32\u0e19\u0e40\u0e2b\u0e15\u0e38\u0e01\u0e32\u0e23\u0e13\u0e4c"
+        ],
+        "recommended_routing": "Manual review",
+        "reasoning": "\u0e40\u0e2b\u0e15\u0e38\u0e01\u0e32\u0e23\u0e13\u0e4c\u0e19\u0e49\u0e33\u0e17\u0e48\u0e27\u0e21\u0e23\u0e16\u0e15\u0e23\u0e07\u0e01\u0e31\u0e1a\u0e04\u0e27\u0e32\u0e21\u0e40\u0e2a\u0e35\u0e48\u0e22\u0e07\u0e17\u0e35\u0e48\u0e44\u0e14\u0e49\u0e23\u0e31\u0e1a\u0e04\u0e27\u0e32\u0e21\u0e04\u0e38\u0e49\u0e21\u0e04\u0e23\u0e2d\u0e07\u0e15\u0e32\u0e21 [Clause 1.1] (Flood) \u0e2d\u0e22\u0e48\u0e32\u0e07\u0e44\u0e23\u0e01\u0e47\u0e15\u0e32\u0e21 \u0e25\u0e39\u0e01\u0e04\u0e49\u0e32\u0e22\u0e37\u0e48\u0e19\u0e40\u0e04\u0e25\u0e21\u0e25\u0e48\u0e32\u0e0a\u0e49\u0e32 45 \u0e27\u0e31\u0e19 \u0e0b\u0e36\u0e48\u0e07\u0e40\u0e01\u0e34\u0e19\u0e01\u0e33\u0e2b\u0e19\u0e14 30 \u0e27\u0e31\u0e19\u0e42\u0e14\u0e22\u0e44\u0e21\u0e48\u0e21\u0e35\u0e40\u0e2b\u0e15\u0e38\u0e1c\u0e25\u0e1b\u0e23\u0e30\u0e01\u0e2d\u0e1a \u0e0b\u0e36\u0e48\u0e07\u0e2d\u0e32\u0e08\u0e40\u0e1b\u0e47\u0e19\u0e40\u0e2b\u0e15\u0e38\u0e22\u0e01\u0e40\u0e27\u0e49\u0e19\u0e04\u0e27\u0e32\u0e21\u0e04\u0e38\u0e49\u0e21\u0e04\u0e23\u0e2d\u0e07\u0e15\u0e32\u0e21 [Clause 2.5] \u0e41\u0e15\u0e48\u0e2b\u0e32\u0e01\u0e21\u0e35\u0e40\u0e2b\u0e15\u0e38\u0e1c\u0e25\u0e17\u0e35\u0e48\u0e16\u0e39\u0e01\u0e15\u0e49\u0e2d\u0e07 \u0e2a\u0e32\u0e21\u0e32\u0e23\u0e16\u0e1e\u0e34\u0e08\u0e32\u0e23\u0e13\u0e32\u0e1c\u0e48\u0e32\u0e19 Manual review \u0e44\u0e14\u0e49\u0e15\u0e32\u0e21 [Clause 2.5] \u0e40\u0e0a\u0e48\u0e19\u0e01\u0e31\u0e19 \u0e19\u0e2d\u0e01\u0e08\u0e32\u0e01\u0e19\u0e35\u0e49 \u0e40\u0e2d\u0e01\u0e2a\u0e32\u0e23\u0e17\u0e35\u0e48\u0e22\u0e37\u0e48\u0e19\u0e21\u0e32\u0e22\u0e31\u0e07\u0e44\u0e21\u0e48\u0e04\u0e23\u0e1a\u0e16\u0e49\u0e27\u0e19\u0e15\u0e32\u0e21 [Clause 3.1] \u0e40\u0e19\u0e37\u0e48\u0e2d\u0e07\u0e08\u0e32\u0e01\u0e02\u0e32\u0e14\u0e43\u0e1a\u0e02\u0e31\u0e1a\u0e02\u0e35\u0e48\u0e41\u0e25\u0e30\u0e23\u0e32\u0e22\u0e07\u0e32\u0e19\u0e40\u0e2b\u0e15\u0e38\u0e01\u0e32\u0e23\u0e13\u0e4c \u0e14\u0e49\u0e27\u0e22\u0e40\u0e2b\u0e15\u0e38\u0e17\u0e35\u0e48\u0e40\u0e2d\u0e01\u0e2a\u0e32\u0e23\u0e44\u0e21\u0e48\u0e04\u0e23\u0e1a\u0e41\u0e25\u0e30\u0e21\u0e35\u0e1b\u0e23\u0e30\u0e40\u0e14\u0e47\u0e19\u0e40\u0e23\u0e37\u0e48\u0e2d\u0e07\u0e01\u0e32\u0e23\u0e22\u0e37\u0e48\u0e19\u0e25\u0e48\u0e32\u0e0a\u0e49\u0e32\u0e17\u0e35\u0e48\u0e22\u0e31\u0e07\u0e44\u0e21\u0e48\u0e44\u0e14\u0e49\u0e23\u0e31\u0e1a\u0e01\u0e32\u0e23\u0e0a\u0e35\u0e49\u0e41\u0e08\u0e07 \u0e01\u0e32\u0e23\u0e2a\u0e48\u0e07 Manual review \u0e08\u0e36\u0e07\u0e40\u0e1b\u0e47\u0e19\u0e40\u0e2a\u0e49\u0e19\u0e17\u0e32\u0e07\u0e17\u0e35\u0e48\u0e40\u0e2b\u0e21\u0e32\u0e30\u0e2a\u0e21\u0e15\u0e32\u0e21 [Clause 4.2]",
+        "confidence_level": "Medium",
+        "cited_clauses": [
+          "1.1",
+          "2.5",
+          "3.1",
+          "4.2"
+        ]
+      },
+      "retrieved_clauses": [
+        "3.1",
+        "3.3",
+        "1.1",
+        "3.2",
+        "4.2",
+        "4.1",
+        "4.3",
+        "2.4",
+        "2.5",
+        "2.1"
+      ],
+      "guardrail_triggers": {
+        "input": [],
+        "output": []
+      },
+      "latency_ms": 21122,
+      "audit_file": "sess_cd6ccd0279f3.json",
+      "deterministic": {
+        "coverage_ok": false,
+        "routing_ok": true,
+        "confidence_ok": true,
+        "missing_info": {
+          "precision": 0.6666666666666666,
+          "recall": 0.5,
+          "f1": 0.5714285714285715,
+          "matched": [
+            "driving license",
+            "incident report",
+            "\u0e43\u0e1a\u0e02\u0e31\u0e1a\u0e02\u0e35\u0e48"
+          ],
+          "missed": [
+            "reason for late submission",
+            "\u0e43\u0e1a\u0e23\u0e32\u0e22\u0e07\u0e32\u0e19",
+            "\u0e40\u0e2b\u0e15\u0e38\u0e1c\u0e25\u0e17\u0e35\u0e48\u0e41\u0e08\u0e49\u0e07\u0e25\u0e48\u0e32\u0e0a\u0e49\u0e32"
+          ]
         },
         "risk_flags": {
           "precision": 0.0,
@@ -469,7 +1013,9 @@
           "matched": [],
           "missed": [
             "late submission",
-            "exclusion"
+            "exclusion",
+            "\u0e41\u0e08\u0e49\u0e07\u0e25\u0e48\u0e32\u0e0a\u0e49\u0e32",
+            "\u0e02\u0e49\u0e2d\u0e22\u0e01\u0e40\u0e27\u0e49\u0e19"
           ]
         },
         "cited_coverage": 0.6666666666666666,
@@ -478,23 +1024,402 @@
       "judge": {
         "factuality": 5,
         "completeness": 4,
+        "clarity": 4,
+        "policy_alignment": 4,
+        "appropriate_uncertainty": 3,
+        "overall_comment": "All cited clauses (1.1, 2.5, 3.1, 4.2) are in the retrieved list, so factuality is solid. The reasoning covers the covered peril (flood), the late-filing exclusion, missing documents, and routing \u2014 a reasonably complete picture, though it doesn't explicitly flag risk concerns like parked-on-street or potential engine-damage sub-exclusions. Writing is concise and structured within ~5 sentences. Routing to Manual review is consistent with the late filing + missing docs scenario. However, the claim description says the customer did NOT provide a reason for late filing, yet the reasoning invents a \"45 days late\" figure not present in the input \u2014 this is an unsupported factual assumption that should have warranted Low confidence rather than Medium. Appropriate uncertainty is therefore weak.",
+        "mean": 4.0
+      }
+    },
+    {
+      "case_id": "case6_en_gear_cable",
+      "input": {
+        "claim_id": "CLM-2026-00006-EN",
+        "customer": "C-60111",
+        "vehicle": "Honda City 1.5 RS 2020 (automatic transmission)",
+        "incident_date": "2026-10-25",
+        "claim_submitted_date": "2026-10-26",
+        "claim_description": "On the morning of the incident the customer was reversing the vehicle out of the driveway in gear R. After reaching the street and shifting to gear D, the gear cable snapped with a loud noise. The vehicle rolled to the side of the road, but after shifting to P it could not be shifted into any other gear. A tow truck was called to move the vehicle to the garage.",
+        "documents_submitted": [
+          "Claim form",
+          "Vehicle registration",
+          "Photos of damage"
+        ],
+        "customer_claim_history": "No claims in the past 24 months",
+        "response_language": "auto"
+      },
+      "output": {
+        "claim_summary": "On 2026-10-25, customer C-60111's Honda City 1.5 RS 2020 suffered a gear cable failure while reversing out of a driveway, rendering the vehicle unable to shift gears. The vehicle was towed to a garage. The claim was submitted the next day (1 day after the incident), and the customer has no claims in the past 24 months.",
+        "coverage_assessment": "Cannot determine",
+        "missing_information": [
+          "Driving license copy (required under Clause 3.1)",
+          "Incident report (required under Clause 3.1)",
+          "Clarification on whether the gear cable failure qualifies as an 'accidental collision' or other covered peril under Clause 1.1 \u2014 a mechanical/wear-and-tear failure may not map to any listed covered event"
+        ],
+        "risk_flags": [
+          "The described event (gear cable snap) resembles a mechanical breakdown or wear-and-tear failure rather than a covered peril listed in Clause 1.1 (accidental collision, theft, fire, flood, or third-party property damage) \u2014 coverage applicability is ambiguous",
+          "Severe damage (vehicle immobilised) reported but supporting evidence is limited \u2014 only photos of damage submitted, no incident report or independent assessment provided [Clause 4.3]"
+        ],
+        "recommended_routing": "Manual review",
+        "reasoning": "The incident involves a gear cable failure during a routine driveway manoeuvre; this does not clearly map to any covered peril under [Clause 1.1] (accidental collision, theft, fire, flood, or third-party property damage), making coverage ambiguous. It is possible the cable snapped due to an accidental collision impact or sudden mechanical event, but the description alone is insufficient to confirm this. Required documents are incomplete \u2014 a driving license copy and an incident report are missing [Clause 3.1]. Because coverage is unclear and required documents are incomplete, [Clause 4.2] directs this claim to Manual review. Additionally, a vehicle rendered fully immobile with only photos as supporting evidence is a mild flag under [Clause 4.3], though the customer's clean 24-month claim history reduces fraud concern. The claim officer should seek a mechanical inspection report and clarification on whether any external accidental force caused the cable failure.",
+        "confidence_level": "Low",
+        "cited_clauses": [
+          "1.1",
+          "3.1",
+          "4.2",
+          "4.3"
+        ]
+      },
+      "retrieved_clauses": [
+        "3.1",
+        "3.3",
+        "2.4",
+        "3.2",
+        "4.2",
+        "1.1",
+        "2.5",
+        "4.3",
+        "4.1",
+        "2.3"
+      ],
+      "guardrail_triggers": {
+        "input": [],
+        "output": []
+      },
+      "latency_ms": 15512,
+      "audit_file": "sess_bb47edbf3c8f.json",
+      "deterministic": {
+        "coverage_ok": true,
+        "routing_ok": true,
+        "confidence_ok": true,
+        "missing_info": {
+          "precision": 0.6666666666666666,
+          "recall": 0.3333333333333333,
+          "f1": 0.4444444444444444,
+          "matched": [
+            "incident report",
+            "driving license"
+          ],
+          "missed": [
+            "mechanic report",
+            "\u0e43\u0e1a\u0e23\u0e32\u0e22\u0e07\u0e32\u0e19",
+            "\u0e43\u0e1a\u0e02\u0e31\u0e1a\u0e02\u0e35\u0e48",
+            "\u0e43\u0e1a\u0e15\u0e23\u0e27\u0e08\u0e2a\u0e20\u0e32\u0e1e"
+          ]
+        },
+        "risk_flags": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "matched": [],
+          "missed": []
+        },
+        "cited_coverage": 1.0,
+        "citation_validity": 1.0
+      },
+      "judge": {
+        "factuality": 5,
+        "completeness": 3,
+        "clarity": 4,
+        "policy_alignment": 4,
+        "appropriate_uncertainty": 5,
+        "overall_comment": "All cited clauses (1.1, 3.1, 4.2, 4.3) are within the retrieved set, so factuality is clean. Uncertainty is handled well with \"Cannot determine\" and Low confidence given ambiguous facts. However, completeness is weak: the retrieved set includes multiple Exclusions clauses (2.3, 2.4, 2.5) that likely cover mechanical/wear-and-tear failures \u2014 a gear cable snap is a textbook mechanical breakdown exclusion, and the reasoning fails to address or even consider any exclusion clause. It also omits mention of other required-document clauses (3.2, 3.3). Routing to Manual review is reasonable and consistent with cited rules, though a stronger analysis might have supported denial via exclusions. Clarity is good \u2014 structured and roughly within the length limit, with only minor fluff.",
+        "mean": 4.2
+      }
+    },
+    {
+      "case_id": "case6_th_gear_cable",
+      "input": {
+        "claim_id": "CLM-2026-00006",
+        "customer": "C-60111",
+        "vehicle": "Honda City 1.5 RS 2020 \u0e40\u0e01\u0e35\u0e22\u0e23\u0e4c\u0e2d\u0e2d\u0e42\u0e15\u0e49",
+        "incident_date": "2026-10-25",
+        "claim_submitted_date": "2026-10-26",
+        "claim_description": "\u0e27\u0e31\u0e19\u0e19\u0e31\u0e49\u0e19\u0e1c\u0e21\u0e01\u0e33\u0e25\u0e31\u0e07\u0e16\u0e2d\u0e22\u0e23\u0e16\u0e2d\u0e2d\u0e01\u0e08\u0e32\u0e01\u0e1a\u0e49\u0e32\u0e19\u0e14\u0e49\u0e27\u0e22\u0e40\u0e01\u0e35\u0e22\u0e23\u0e4c R \u0e1e\u0e2d\u0e16\u0e36\u0e07\u0e16\u0e19\u0e19\u0e41\u0e25\u0e49\u0e27\u0e40\u0e1b\u0e25\u0e35\u0e48\u0e22\u0e19\u0e40\u0e1b\u0e47\u0e19\u0e40\u0e01\u0e35\u0e22\u0e23\u0e4c D \u0e17\u0e31\u0e19\u0e43\u0e14\u0e19\u0e31\u0e49\u0e19\u0e2a\u0e32\u0e22\u0e40\u0e01\u0e35\u0e22\u0e23\u0e4c\u0e02\u0e32\u0e14 \u0e40\u0e01\u0e34\u0e14\u0e40\u0e2a\u0e35\u0e22\u0e07\u0e14\u0e31\u0e07 \u0e23\u0e16\u0e22\u0e31\u0e07\u0e40\u0e04\u0e25\u0e37\u0e48\u0e2d\u0e19\u0e44\u0e1b\u0e08\u0e2d\u0e14\u0e02\u0e49\u0e32\u0e07\u0e17\u0e32\u0e07\u0e44\u0e14\u0e49 \u0e2b\u0e25\u0e31\u0e07\u0e40\u0e02\u0e49\u0e32\u0e40\u0e01\u0e35\u0e22\u0e23\u0e4c P \u0e41\u0e25\u0e49\u0e27 \u0e23\u0e16\u0e40\u0e02\u0e49\u0e32\u0e40\u0e01\u0e35\u0e22\u0e23\u0e4c\u0e2d\u0e37\u0e48\u0e19\u0e44\u0e21\u0e48\u0e44\u0e14\u0e49\u0e2d\u0e35\u0e01\u0e40\u0e25\u0e22 \u0e1c\u0e21\u0e40\u0e23\u0e35\u0e22\u0e01\u0e23\u0e16\u0e2a\u0e44\u0e25\u0e14\u0e4c\u0e21\u0e32\u0e25\u0e32\u0e01\u0e44\u0e1b\u0e2d\u0e39\u0e48",
+        "documents_submitted": [
+          "Claim form",
+          "Vehicle registration",
+          "Photos of damage"
+        ],
+        "customer_claim_history": "\u0e44\u0e21\u0e48\u0e21\u0e35\u0e1b\u0e23\u0e30\u0e27\u0e31\u0e15\u0e34\u0e40\u0e04\u0e25\u0e21\u0e43\u0e19\u0e23\u0e2d\u0e1a 24 \u0e40\u0e14\u0e37\u0e2d\u0e19",
+        "response_language": "auto"
+      },
+      "output": {
+        "claim_summary": "\u0e25\u0e39\u0e01\u0e04\u0e49\u0e32 C-60111 \u0e41\u0e08\u0e49\u0e07\u0e40\u0e04\u0e25\u0e21\u0e23\u0e16\u0e22\u0e19\u0e15\u0e4c Honda City 1.5 RS 2020 \u0e40\u0e01\u0e35\u0e22\u0e23\u0e4c\u0e2d\u0e2d\u0e42\u0e15\u0e49 \u0e42\u0e14\u0e22\u0e23\u0e30\u0e1a\u0e38\u0e27\u0e48\u0e32\u0e02\u0e13\u0e30\u0e16\u0e2d\u0e22\u0e23\u0e16\u0e2d\u0e2d\u0e01\u0e08\u0e32\u0e01\u0e1a\u0e49\u0e32\u0e19\u0e41\u0e25\u0e30\u0e40\u0e1b\u0e25\u0e35\u0e48\u0e22\u0e19\u0e40\u0e01\u0e35\u0e22\u0e23\u0e4c\u0e08\u0e32\u0e01 R \u0e40\u0e1b\u0e47\u0e19 D \u0e2a\u0e32\u0e22\u0e40\u0e01\u0e35\u0e22\u0e23\u0e4c\u0e02\u0e32\u0e14 \u0e17\u0e33\u0e43\u0e2b\u0e49\u0e23\u0e16\u0e44\u0e21\u0e48\u0e2a\u0e32\u0e21\u0e32\u0e23\u0e16\u0e40\u0e02\u0e49\u0e32\u0e40\u0e01\u0e35\u0e22\u0e23\u0e4c\u0e2d\u0e37\u0e48\u0e19\u0e44\u0e14\u0e49 \u0e40\u0e2b\u0e15\u0e38\u0e01\u0e32\u0e23\u0e13\u0e4c\u0e40\u0e01\u0e34\u0e14\u0e02\u0e36\u0e49\u0e19\u0e27\u0e31\u0e19\u0e17\u0e35\u0e48 25 \u0e15.\u0e04. 2569 \u0e41\u0e25\u0e30\u0e22\u0e37\u0e48\u0e19\u0e40\u0e04\u0e25\u0e21\u0e20\u0e32\u0e22\u0e43\u0e19 1 \u0e27\u0e31\u0e19 \u0e25\u0e39\u0e01\u0e04\u0e49\u0e32\u0e44\u0e21\u0e48\u0e21\u0e35\u0e1b\u0e23\u0e30\u0e27\u0e31\u0e15\u0e34\u0e40\u0e04\u0e25\u0e21\u0e43\u0e19 24 \u0e40\u0e14\u0e37\u0e2d\u0e19\u0e17\u0e35\u0e48\u0e1c\u0e48\u0e32\u0e19\u0e21\u0e32",
+        "coverage_assessment": "Cannot determine",
+        "missing_information": [
+          "\u0e43\u0e1a\u0e02\u0e31\u0e1a\u0e02\u0e35\u0e48\u0e02\u0e2d\u0e07\u0e1c\u0e39\u0e49\u0e02\u0e31\u0e1a\u0e02\u0e35\u0e48 (Driving License) \u2014 \u0e08\u0e33\u0e40\u0e1b\u0e47\u0e19\u0e15\u0e32\u0e21 [Clause 3.1]",
+          "\u0e23\u0e32\u0e22\u0e07\u0e32\u0e19\u0e40\u0e2b\u0e15\u0e38\u0e01\u0e32\u0e23\u0e13\u0e4c (Incident Report) \u2014 \u0e08\u0e33\u0e40\u0e1b\u0e47\u0e19\u0e15\u0e32\u0e21 [Clause 3.1]",
+          "\u0e02\u0e49\u0e2d\u0e21\u0e39\u0e25\u0e22\u0e37\u0e19\u0e22\u0e31\u0e19\u0e27\u0e48\u0e32\u0e40\u0e2b\u0e15\u0e38\u0e01\u0e32\u0e23\u0e13\u0e4c\u0e17\u0e35\u0e48\u0e40\u0e01\u0e34\u0e14\u0e02\u0e36\u0e49\u0e19\u0e40\u0e02\u0e49\u0e32\u0e02\u0e48\u0e32\u0e22 'Accidental collision' \u0e15\u0e32\u0e21 [Clause 1.1] \u0e2b\u0e23\u0e37\u0e2d\u0e40\u0e1b\u0e47\u0e19\u0e04\u0e27\u0e32\u0e21\u0e40\u0e2a\u0e35\u0e22\u0e2b\u0e32\u0e22\u0e40\u0e0a\u0e34\u0e07\u0e01\u0e25\u0e44\u0e01 (Mechanical/Wear-and-Tear) \u0e0b\u0e36\u0e48\u0e07\u0e2d\u0e32\u0e08\u0e44\u0e21\u0e48\u0e16\u0e39\u0e01\u0e04\u0e38\u0e49\u0e21\u0e04\u0e23\u0e2d\u0e07",
+          "\u0e23\u0e32\u0e22\u0e07\u0e32\u0e19\u0e01\u0e32\u0e23\u0e15\u0e23\u0e27\u0e08\u0e2a\u0e2d\u0e1a\u0e08\u0e32\u0e01\u0e0a\u0e48\u0e32\u0e07\u0e2b\u0e23\u0e37\u0e2d\u0e2d\u0e39\u0e48 \u0e40\u0e1e\u0e37\u0e48\u0e2d\u0e22\u0e37\u0e19\u0e22\u0e31\u0e19\u0e2a\u0e32\u0e40\u0e2b\u0e15\u0e38\u0e17\u0e35\u0e48\u0e41\u0e17\u0e49\u0e08\u0e23\u0e34\u0e07\u0e02\u0e2d\u0e07\u0e2a\u0e32\u0e22\u0e40\u0e01\u0e35\u0e22\u0e23\u0e4c\u0e02\u0e32\u0e14"
+        ],
+        "risk_flags": [
+          "\u0e25\u0e31\u0e01\u0e29\u0e13\u0e30\u0e04\u0e27\u0e32\u0e21\u0e40\u0e2a\u0e35\u0e22\u0e2b\u0e32\u0e22 (\u0e2a\u0e32\u0e22\u0e40\u0e01\u0e35\u0e22\u0e23\u0e4c\u0e02\u0e32\u0e14) \u0e2d\u0e32\u0e08\u0e40\u0e1b\u0e47\u0e19\u0e04\u0e27\u0e32\u0e21\u0e40\u0e2a\u0e35\u0e22\u0e2b\u0e32\u0e22\u0e40\u0e0a\u0e34\u0e07\u0e01\u0e25\u0e44\u0e01\u0e15\u0e32\u0e21\u0e01\u0e32\u0e23\u0e43\u0e0a\u0e49\u0e07\u0e32\u0e19 (Mechanical Failure / Wear-and-Tear) \u0e21\u0e32\u0e01\u0e01\u0e27\u0e48\u0e32 'Accidental Collision' \u0e15\u0e32\u0e21 [Clause 1.1] \u2014 \u0e15\u0e49\u0e2d\u0e07\u0e01\u0e32\u0e23\u0e01\u0e32\u0e23\u0e15\u0e23\u0e27\u0e08\u0e2a\u0e2d\u0e1a\u0e40\u0e1e\u0e34\u0e48\u0e21\u0e40\u0e15\u0e34\u0e21\u0e40\u0e1e\u0e37\u0e48\u0e2d\u0e41\u0e22\u0e01\u0e41\u0e22\u0e30",
+          "\u0e40\u0e2d\u0e01\u0e2a\u0e32\u0e23\u0e17\u0e35\u0e48\u0e2a\u0e48\u0e07\u0e21\u0e32\u0e44\u0e21\u0e48\u0e04\u0e23\u0e1a\u0e15\u0e32\u0e21 [Clause 3.1] \u2014 \u0e02\u0e32\u0e14\u0e43\u0e1a\u0e02\u0e31\u0e1a\u0e02\u0e35\u0e48\u0e41\u0e25\u0e30\u0e23\u0e32\u0e22\u0e07\u0e32\u0e19\u0e40\u0e2b\u0e15\u0e38\u0e01\u0e32\u0e23\u0e13\u0e4c"
+        ],
+        "recommended_routing": "Manual review",
+        "reasoning": "\u0e40\u0e2b\u0e15\u0e38\u0e01\u0e32\u0e23\u0e13\u0e4c\u0e17\u0e35\u0e48\u0e25\u0e39\u0e01\u0e04\u0e49\u0e32\u0e2d\u0e18\u0e34\u0e1a\u0e32\u0e22\u0e04\u0e37\u0e2d\u0e2a\u0e32\u0e22\u0e40\u0e01\u0e35\u0e22\u0e23\u0e4c\u0e02\u0e32\u0e14\u0e02\u0e13\u0e30\u0e40\u0e1b\u0e25\u0e35\u0e48\u0e22\u0e19\u0e40\u0e01\u0e35\u0e22\u0e23\u0e4c \u0e0b\u0e36\u0e48\u0e07\u0e22\u0e31\u0e07\u0e44\u0e21\u0e48\u0e0a\u0e31\u0e14\u0e40\u0e08\u0e19\u0e27\u0e48\u0e32\u0e40\u0e02\u0e49\u0e32\u0e02\u0e48\u0e32\u0e22 \"Accidental collision\" \u0e15\u0e32\u0e21 [Clause 1.1] \u0e2b\u0e23\u0e37\u0e2d\u0e40\u0e1b\u0e47\u0e19\u0e04\u0e27\u0e32\u0e21\u0e40\u0e2a\u0e35\u0e22\u0e2b\u0e32\u0e22\u0e40\u0e0a\u0e34\u0e07\u0e01\u0e25\u0e44\u0e01 (Mechanical Failure) \u0e17\u0e35\u0e48\u0e2d\u0e32\u0e08\u0e44\u0e21\u0e48\u0e2d\u0e22\u0e39\u0e48\u0e43\u0e19\u0e04\u0e27\u0e32\u0e21\u0e04\u0e38\u0e49\u0e21\u0e04\u0e23\u0e2d\u0e07 \u0e08\u0e36\u0e07\u0e44\u0e21\u0e48\u0e2a\u0e32\u0e21\u0e32\u0e23\u0e16\u0e23\u0e30\u0e1a\u0e38\u0e04\u0e27\u0e32\u0e21\u0e04\u0e38\u0e49\u0e21\u0e04\u0e23\u0e2d\u0e07\u0e44\u0e14\u0e49\u0e2d\u0e22\u0e48\u0e32\u0e07\u0e21\u0e31\u0e48\u0e19\u0e43\u0e08 \u0e40\u0e2d\u0e01\u0e2a\u0e32\u0e23\u0e17\u0e35\u0e48\u0e2a\u0e48\u0e07\u0e21\u0e32\u0e22\u0e31\u0e07\u0e44\u0e21\u0e48\u0e04\u0e23\u0e1a\u0e16\u0e49\u0e27\u0e19\u0e15\u0e32\u0e21 [Clause 3.1] \u0e42\u0e14\u0e22\u0e02\u0e32\u0e14\u0e43\u0e1a\u0e02\u0e31\u0e1a\u0e02\u0e35\u0e48\u0e41\u0e25\u0e30\u0e23\u0e32\u0e22\u0e07\u0e32\u0e19\u0e40\u0e2b\u0e15\u0e38\u0e01\u0e32\u0e23\u0e13\u0e4c (Incident Report) \u0e01\u0e32\u0e23\u0e22\u0e37\u0e48\u0e19\u0e40\u0e04\u0e25\u0e21\u0e20\u0e32\u0e22\u0e43\u0e19 1 \u0e27\u0e31\u0e19\u0e44\u0e21\u0e48\u0e16\u0e37\u0e2d\u0e27\u0e48\u0e32\u0e25\u0e48\u0e32\u0e0a\u0e49\u0e32 \u0e08\u0e36\u0e07\u0e44\u0e21\u0e48\u0e21\u0e35\u0e1b\u0e23\u0e30\u0e40\u0e14\u0e47\u0e19\u0e15\u0e32\u0e21 [Clause 2.5] \u0e41\u0e25\u0e30\u0e25\u0e39\u0e01\u0e04\u0e49\u0e32\u0e44\u0e21\u0e48\u0e21\u0e35\u0e1b\u0e23\u0e30\u0e27\u0e31\u0e15\u0e34\u0e40\u0e04\u0e25\u0e21\u0e0b\u0e49\u0e33\u0e43\u0e19\u0e23\u0e2d\u0e1a 24 \u0e40\u0e14\u0e37\u0e2d\u0e19 \u0e08\u0e36\u0e07\u0e22\u0e31\u0e07\u0e44\u0e21\u0e48\u0e21\u0e35\u0e2a\u0e31\u0e0d\u0e0d\u0e32\u0e13\u0e09\u0e49\u0e2d\u0e42\u0e01\u0e07\u0e15\u0e32\u0e21 [Clause 4.3] \u0e2d\u0e22\u0e48\u0e32\u0e07\u0e44\u0e23\u0e01\u0e47\u0e15\u0e32\u0e21 \u0e40\u0e19\u0e37\u0e48\u0e2d\u0e07\u0e08\u0e32\u0e01\u0e04\u0e27\u0e32\u0e21\u0e04\u0e38\u0e49\u0e21\u0e04\u0e23\u0e2d\u0e07\u0e22\u0e31\u0e07\u0e44\u0e21\u0e48\u0e0a\u0e31\u0e14\u0e40\u0e08\u0e19\u0e41\u0e25\u0e30\u0e40\u0e2d\u0e01\u0e2a\u0e32\u0e23\u0e44\u0e21\u0e48\u0e04\u0e23\u0e1a \u0e08\u0e36\u0e07\u0e04\u0e27\u0e23\u0e2a\u0e48\u0e07\u0e40\u0e23\u0e37\u0e48\u0e2d\u0e07\u0e40\u0e02\u0e49\u0e32 Manual review \u0e15\u0e32\u0e21 [Clause 4.2] \u0e1e\u0e23\u0e49\u0e2d\u0e21\u0e02\u0e2d\u0e23\u0e32\u0e22\u0e07\u0e32\u0e19\u0e08\u0e32\u0e01\u0e0a\u0e48\u0e32\u0e07\u0e40\u0e1e\u0e37\u0e48\u0e2d\u0e22\u0e37\u0e19\u0e22\u0e31\u0e19\u0e2a\u0e32\u0e40\u0e2b\u0e15\u0e38\u0e02\u0e2d\u0e07\u0e04\u0e27\u0e32\u0e21\u0e40\u0e2a\u0e35\u0e22\u0e2b\u0e32\u0e22",
+        "confidence_level": "Low",
+        "cited_clauses": [
+          "1.1",
+          "2.5",
+          "3.1",
+          "4.2",
+          "4.3"
+        ]
+      },
+      "retrieved_clauses": [
+        "3.1",
+        "3.3",
+        "1.1",
+        "3.2",
+        "4.2",
+        "4.3",
+        "4.1",
+        "2.4",
+        "2.5",
+        "2.2"
+      ],
+      "guardrail_triggers": {
+        "input": [],
+        "output": []
+      },
+      "latency_ms": 28724,
+      "audit_file": "sess_ff7c3c5789e1.json",
+      "deterministic": {
+        "coverage_ok": true,
+        "routing_ok": true,
+        "confidence_ok": true,
+        "missing_info": {
+          "precision": 0.5,
+          "recall": 0.5,
+          "f1": 0.5,
+          "matched": [
+            "incident report",
+            "driving license",
+            "\u0e43\u0e1a\u0e02\u0e31\u0e1a\u0e02\u0e35\u0e48"
+          ],
+          "missed": [
+            "mechanic report",
+            "\u0e43\u0e1a\u0e23\u0e32\u0e22\u0e07\u0e32\u0e19",
+            "\u0e43\u0e1a\u0e15\u0e23\u0e27\u0e08\u0e2a\u0e20\u0e32\u0e1e"
+          ]
+        },
+        "risk_flags": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "matched": [],
+          "missed": []
+        },
+        "cited_coverage": 1.0,
+        "citation_validity": 1.0
+      },
+      "judge": {
+        "factuality": 5,
+        "completeness": 4,
+        "clarity": 4,
+        "policy_alignment": 4,
+        "appropriate_uncertainty": 5,
+        "overall_comment": "All cited clauses (1.1, 2.5, 3.1, 4.2, 4.3) are within the retrieved list, so factuality is clean. The reasoning identifies the key issue (mechanical failure vs accidental collision), missing documents, timing, and fraud flags, though it could have more directly addressed Clause 2.4/2.2 which likely contain the mechanical-failure/wear-and-tear exclusion most relevant here \u2014 a notable gap in completeness and policy alignment. Uncertainty is handled well with \"Cannot determine\" and Low confidence given the ambiguity. Clarity is good but slightly verbose and the mention of 2.5 (likely a late-reporting exclusion) feels tangential. Overall a solid but not perfect triage.",
+        "mean": 4.4
+      }
+    },
+    {
+      "case_id": "case7_en_skirt_crack",
+      "input": {
+        "claim_id": "CLM-2026-00007-EN",
+        "customer": "C-70234",
+        "vehicle": "Toyota Yaris Ativ 2022",
+        "incident_date": "2026-10-22",
+        "claim_submitted_date": "2026-10-26",
+        "claim_description": "The customer's front skirt hit a pothole on Krungthep Kreetha road and became chipped and cracked. They want to claim for the replacement part. There was no counterparty and no injuries; the vehicle is still drivable.",
+        "documents_submitted": [
+          "Claim form",
+          "Vehicle registration",
+          "Photos of damage",
+          "Copy of driving license"
+        ],
+        "customer_claim_history": "1 claim in the past 24 months (windshield replacement in April 2025)",
+        "response_language": "auto"
+      },
+      "output": {
+        "claim_summary": "Customer C-70234 is claiming for front skirt damage (chipped and cracked) on a Toyota Yaris Ativ 2022 after hitting a pothole on Krungthep Kreetha road on 2026-10-22. There was no counterparty involved, no injuries, and the vehicle remains drivable. The claim was submitted 4 days after the incident, well within the 30-day limit.",
+        "coverage_assessment": "Possibly covered",
+        "missing_information": [
+          "Incident report (required under Clause 3.1 but not present in submitted documents)"
+        ],
+        "risk_flags": [
+          "Minor risk: Front skirt damage from a pothole is a relatively low-severity incident \u2014 photos of damage should be reviewed carefully to confirm damage pattern is consistent with a pothole impact rather than other causes"
+        ],
+        "recommended_routing": "Manual review",
+        "reasoning": "The incident of hitting a pothole and sustaining accidental damage to the front skirt qualifies as an accidental collision under [Clause 1.1]. The claim was submitted within 4 days, well within the 30-day window, so [Clause 2.5] does not apply, and no other exclusions under Section 2 appear directly applicable. However, the submitted documents (Claim form, Vehicle registration, Photos of damage, Copy of driving license) are missing the Incident report, which is a mandatory requirement for all claims under [Clause 3.1]. Because required documents are incomplete, coverage is assessed as \"Possibly covered\" rather than \"Likely covered,\" and the claim must be routed to Manual review per [Clause 4.2]. The customer's claim history (1 claim in 24 months for an unrelated windshield replacement) does not trigger any fraud patterns under [Clause 4.3]. Once the incident report is submitted and verified, the claim may be re-routed to Standard processing if all [Clause 4.1] conditions are met.",
+        "confidence_level": "Medium",
+        "cited_clauses": [
+          "1.1",
+          "2.5",
+          "3.1",
+          "4.1",
+          "4.2",
+          "4.3"
+        ]
+      },
+      "retrieved_clauses": [
+        "3.1",
+        "1.1",
+        "3.3",
+        "2.4",
+        "4.1",
+        "3.2",
+        "4.2",
+        "4.3",
+        "2.5",
+        "2.3"
+      ],
+      "guardrail_triggers": {
+        "input": [],
+        "output": []
+      },
+      "latency_ms": 11786,
+      "audit_file": "sess_89de70beea32.json",
+      "deterministic": {
+        "coverage_ok": true,
+        "routing_ok": true,
+        "confidence_ok": true,
+        "missing_info": {
+          "precision": 1.0,
+          "recall": 0.5,
+          "f1": 0.6666666666666666,
+          "matched": [
+            "incident report"
+          ],
+          "missed": [
+            "\u0e43\u0e1a\u0e23\u0e32\u0e22\u0e07\u0e32\u0e19"
+          ]
+        },
+        "risk_flags": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "matched": [],
+          "missed": []
+        },
+        "cited_coverage": 1.0,
+        "citation_validity": 1.0
+      },
+      "judge": {
+        "factuality": 5,
+        "completeness": 4,
         "clarity": 3,
         "policy_alignment": 4,
         "appropriate_uncertainty": 3,
-        "overall_comment": "All cited clauses (1.1, 2.5, 3.1, 4.1, 4.2, 4.3) are within the retrieved set \u2014 no hallucinations. Coverage of key points is solid: covered peril, late submission exclusion, missing documents, routing rationale, and fraud consideration. However, the reasoning runs ~6-7 sentences and is somewhat verbose with redundant framing (e.g., restating the late-submission issue multiple times), hurting conciseness. Policy alignment is reasonable \u2014 manual review is defensible given 2.5 allows reconsideration with a valid reason \u2014 though one could argue the lack of any stated reason should push toward denial/exclusion rather than \"Possibly covered.\" Confidence is rated Medium, but with two significant gaps (no reason for delay, missing core documents) a Low confidence or more explicit \"cannot determine coverage yet\" framing would be more appropriate; \"Possibly covered\" slightly overstates certainty on the peril side given documents are missing to verify the event.",
+        "overall_comment": "All cited clauses (1.1, 2.5, 3.1, 4.1, 4.2, 4.3) exist in the retrieved set, so factuality is clean. Completeness is good: covers peril (pothole as accidental collision), exclusion check, missing incident report, claim-history risk flag \u2014 though it doesn't explicitly consider other exclusion clauses (2.3, 2.4) that were retrieved and could be relevant (e.g., wear/tear or road-hazard exclusions). Clarity suffers slightly \u2014 the reasoning runs ~6 sentences but is dense and includes some fluff (e.g., forward-looking re-routing statement). Policy alignment is reasonable: routing to manual review due to missing documents aligns with 4.2, and \"Possibly covered\" is a defensible call. Uncertainty is only partially appropriate \u2014 classifying a pothole impact as a clear \"accidental collision\" under 1.1 without seeing the clause text is somewhat overconfident, and \"Medium\" confidence may be slightly high given the missing incident report and unverified peril classification; \"Low\" might be more suitable.",
         "mean": 3.8
+      }
+    },
+    {
+      "case_id": "case7_th_skirt_crack",
+      "input": {
+        "claim_id": "CLM-2026-00007",
+        "customer": "C-70234",
+        "vehicle": "Toyota Yaris Ativ 2022",
+        "incident_date": "2026-10-22",
+        "claim_submitted_date": "2026-10-26",
+        "claim_description": "\u0e2a\u0e40\u0e01\u0e34\u0e15\u0e2b\u0e19\u0e49\u0e32\u0e23\u0e16\u0e02\u0e2d\u0e07\u0e1c\u0e21\u0e40\u0e08\u0e2d\u0e2b\u0e25\u0e38\u0e21\u0e1a\u0e19\u0e16\u0e19\u0e19\u0e01\u0e23\u0e38\u0e07\u0e40\u0e17\u0e1e\u0e01\u0e23\u0e35\u0e11\u0e32\u0e41\u0e25\u0e49\u0e27\u0e1a\u0e34\u0e48\u0e19\u0e41\u0e25\u0e30\u0e41\u0e15\u0e01 \u0e2d\u0e22\u0e32\u0e01\u0e40\u0e04\u0e25\u0e21\u0e40\u0e1e\u0e37\u0e48\u0e2d\u0e40\u0e1b\u0e25\u0e35\u0e48\u0e22\u0e19\u0e2d\u0e30\u0e44\u0e2b\u0e25\u0e48 \u0e44\u0e21\u0e48\u0e21\u0e35\u0e04\u0e39\u0e48\u0e01\u0e23\u0e13\u0e35 \u0e44\u0e21\u0e48\u0e21\u0e35\u0e04\u0e19\u0e1a\u0e32\u0e14\u0e40\u0e08\u0e47\u0e1a \u0e23\u0e16\u0e22\u0e31\u0e07\u0e02\u0e31\u0e1a\u0e44\u0e14\u0e49\u0e1b\u0e01\u0e15\u0e34",
+        "documents_submitted": [
+          "Claim form",
+          "Vehicle registration",
+          "Photos of damage",
+          "Copy of driving license"
+        ],
+        "customer_claim_history": "\u0e21\u0e35\u0e40\u0e04\u0e25\u0e21 1 \u0e04\u0e23\u0e31\u0e49\u0e07\u0e43\u0e19\u0e23\u0e2d\u0e1a 24 \u0e40\u0e14\u0e37\u0e2d\u0e19 (\u0e01\u0e23\u0e30\u0e08\u0e01\u0e1a\u0e31\u0e07\u0e25\u0e21\u0e41\u0e15\u0e01 \u0e40\u0e14\u0e37\u0e2d\u0e19\u0e40\u0e21\u0e29\u0e32\u0e22\u0e19 2025)",
+        "response_language": "auto"
+      },
+      "output": {
+        "claim_summary": "\u0e25\u0e39\u0e01\u0e04\u0e49\u0e32 C-70234 \u0e41\u0e08\u0e49\u0e07\u0e27\u0e48\u0e32\u0e2a\u0e40\u0e01\u0e34\u0e23\u0e4c\u0e15\u0e2b\u0e19\u0e49\u0e32\u0e02\u0e2d\u0e07\u0e23\u0e16 Toyota Yaris Ativ 2022 \u0e44\u0e14\u0e49\u0e23\u0e31\u0e1a\u0e04\u0e27\u0e32\u0e21\u0e40\u0e2a\u0e35\u0e22\u0e2b\u0e32\u0e22 (\u0e1a\u0e34\u0e48\u0e19\u0e41\u0e25\u0e30\u0e41\u0e15\u0e01) \u0e08\u0e32\u0e01\u0e01\u0e32\u0e23\u0e02\u0e31\u0e1a\u0e1c\u0e48\u0e32\u0e19\u0e2b\u0e25\u0e38\u0e21\u0e1a\u0e19\u0e16\u0e19\u0e19\u0e01\u0e23\u0e38\u0e07\u0e40\u0e17\u0e1e\u0e01\u0e23\u0e35\u0e11\u0e32 \u0e40\u0e21\u0e37\u0e48\u0e2d\u0e27\u0e31\u0e19\u0e17\u0e35\u0e48 22 \u0e15\u0e38\u0e25\u0e32\u0e04\u0e21 2026 \u0e44\u0e21\u0e48\u0e21\u0e35\u0e04\u0e39\u0e48\u0e01\u0e23\u0e13\u0e35\u0e41\u0e25\u0e30\u0e44\u0e21\u0e48\u0e21\u0e35\u0e1c\u0e39\u0e49\u0e1a\u0e32\u0e14\u0e40\u0e08\u0e47\u0e1a \u0e22\u0e37\u0e48\u0e19\u0e40\u0e04\u0e25\u0e21\u0e20\u0e32\u0e22\u0e43\u0e19 4 \u0e27\u0e31\u0e19\u0e2b\u0e25\u0e31\u0e07\u0e40\u0e01\u0e34\u0e14\u0e40\u0e2b\u0e15\u0e38 \u0e41\u0e15\u0e48\u0e40\u0e2d\u0e01\u0e2a\u0e32\u0e23\u0e17\u0e35\u0e48\u0e22\u0e37\u0e48\u0e19\u0e21\u0e32\u0e22\u0e31\u0e07\u0e44\u0e21\u0e48\u0e04\u0e23\u0e1a\u0e16\u0e49\u0e27\u0e19\u0e40\u0e19\u0e37\u0e48\u0e2d\u0e07\u0e08\u0e32\u0e01\u0e02\u0e32\u0e14\u0e23\u0e32\u0e22\u0e07\u0e32\u0e19\u0e08\u0e32\u0e01\u0e17\u0e35\u0e48\u0e40\u0e01\u0e34\u0e14\u0e40\u0e2b\u0e15\u0e38 (Incident report)",
+        "coverage_assessment": "Possibly covered",
+        "missing_information": [
+          "Incident report (\u0e23\u0e32\u0e22\u0e07\u0e32\u0e19\u0e40\u0e2b\u0e15\u0e38\u0e01\u0e32\u0e23\u0e13\u0e4c\u0e08\u0e32\u0e01\u0e17\u0e35\u0e48\u0e40\u0e01\u0e34\u0e14\u0e40\u0e2b\u0e15\u0e38) \u0e0b\u0e36\u0e48\u0e07\u0e40\u0e1b\u0e47\u0e19\u0e40\u0e2d\u0e01\u0e2a\u0e32\u0e23\u0e1a\u0e31\u0e07\u0e04\u0e31\u0e1a\u0e15\u0e32\u0e21 [Clause 3.1]"
+        ],
+        "risk_flags": [
+          "\u0e04\u0e27\u0e32\u0e21\u0e40\u0e2a\u0e35\u0e22\u0e2b\u0e32\u0e22\u0e17\u0e35\u0e48\u0e23\u0e32\u0e22\u0e07\u0e32\u0e19 (\u0e2a\u0e40\u0e01\u0e34\u0e23\u0e4c\u0e15\u0e2b\u0e19\u0e49\u0e32\u0e1a\u0e34\u0e48\u0e19/\u0e41\u0e15\u0e01) \u0e21\u0e35\u0e23\u0e30\u0e14\u0e31\u0e1a\u0e04\u0e27\u0e32\u0e21\u0e23\u0e38\u0e19\u0e41\u0e23\u0e07\u0e15\u0e48\u0e33 \u0e41\u0e25\u0e30\u0e25\u0e39\u0e01\u0e04\u0e49\u0e32\u0e23\u0e30\u0e1a\u0e38\u0e27\u0e48\u0e32\u0e23\u0e16\u0e22\u0e31\u0e07\u0e02\u0e31\u0e1a\u0e44\u0e14\u0e49\u0e1b\u0e01\u0e15\u0e34 \u0e0b\u0e36\u0e48\u0e07\u0e2a\u0e2d\u0e14\u0e04\u0e25\u0e49\u0e2d\u0e07\u0e01\u0e31\u0e19\u0e14\u0e35 \u0e44\u0e21\u0e48\u0e1e\u0e1a\u0e04\u0e27\u0e32\u0e21\u0e02\u0e31\u0e14\u0e41\u0e22\u0e49\u0e07\u0e43\u0e19\u0e40\u0e23\u0e37\u0e48\u0e2d\u0e07\u0e19\u0e35\u0e49",
+          "\u0e25\u0e39\u0e01\u0e04\u0e49\u0e32\u0e21\u0e35\u0e1b\u0e23\u0e30\u0e27\u0e31\u0e15\u0e34\u0e40\u0e04\u0e25\u0e21 1 \u0e04\u0e23\u0e31\u0e49\u0e07\u0e43\u0e19\u0e23\u0e2d\u0e1a 24 \u0e40\u0e14\u0e37\u0e2d\u0e19 (\u0e01\u0e23\u0e30\u0e08\u0e01\u0e1a\u0e31\u0e07\u0e25\u0e21\u0e41\u0e15\u0e01 \u0e40\u0e21\u0e29\u0e32\u0e22\u0e19 2025) \u0e0b\u0e36\u0e48\u0e07\u0e22\u0e31\u0e07\u0e44\u0e21\u0e48\u0e16\u0e36\u0e07\u0e40\u0e01\u0e13\u0e11\u0e4c '\u0e01\u0e32\u0e23\u0e40\u0e04\u0e25\u0e21\u0e0b\u0e49\u0e33\u0e43\u0e19\u0e23\u0e30\u0e22\u0e30\u0e40\u0e27\u0e25\u0e32\u0e2a\u0e31\u0e49\u0e19' \u0e15\u0e32\u0e21 [Clause 4.3] \u0e41\u0e15\u0e48\u0e04\u0e27\u0e23\u0e1a\u0e31\u0e19\u0e17\u0e36\u0e01\u0e44\u0e27\u0e49\u0e40\u0e1e\u0e37\u0e48\u0e2d\u0e15\u0e34\u0e14\u0e15\u0e32\u0e21"
+        ],
+        "recommended_routing": "Manual review",
+        "reasoning": "\u0e40\u0e2b\u0e15\u0e38\u0e01\u0e32\u0e23\u0e13\u0e4c\u0e17\u0e35\u0e48\u0e23\u0e32\u0e22\u0e07\u0e32\u0e19 (\u0e23\u0e16\u0e0a\u0e19\u0e2b\u0e25\u0e38\u0e21\u0e1a\u0e19\u0e16\u0e19\u0e19\u0e08\u0e19\u0e0a\u0e34\u0e49\u0e19\u0e2a\u0e48\u0e27\u0e19\u0e40\u0e2a\u0e35\u0e22\u0e2b\u0e32\u0e22) \u0e40\u0e02\u0e49\u0e32\u0e02\u0e48\u0e32\u0e22\u0e40\u0e1b\u0e47\u0e19 Accidental collision \u0e0b\u0e36\u0e48\u0e07\u0e40\u0e1b\u0e47\u0e19\u0e40\u0e2b\u0e15\u0e38\u0e01\u0e32\u0e23\u0e13\u0e4c\u0e17\u0e35\u0e48\u0e44\u0e14\u0e49\u0e23\u0e31\u0e1a\u0e04\u0e27\u0e32\u0e21\u0e04\u0e38\u0e49\u0e21\u0e04\u0e23\u0e2d\u0e07 [Clause 1.1] \u0e41\u0e25\u0e30\u0e44\u0e21\u0e48\u0e1b\u0e23\u0e32\u0e01\u0e0f\u0e27\u0e48\u0e32\u0e21\u0e35\u0e02\u0e49\u0e2d\u0e22\u0e01\u0e40\u0e27\u0e49\u0e19\u0e43\u0e14\u0e43\u0e19 Section 2 \u0e17\u0e35\u0e48\u0e43\u0e0a\u0e49\u0e1a\u0e31\u0e07\u0e04\u0e31\u0e1a\u0e44\u0e14\u0e49\u0e2d\u0e22\u0e48\u0e32\u0e07\u0e0a\u0e31\u0e14\u0e40\u0e08\u0e19 \u0e01\u0e32\u0e23\u0e22\u0e37\u0e48\u0e19\u0e40\u0e04\u0e25\u0e21\u0e20\u0e32\u0e22\u0e43\u0e19 4 \u0e27\u0e31\u0e19\u0e16\u0e37\u0e2d\u0e27\u0e48\u0e32\u0e2d\u0e22\u0e39\u0e48\u0e20\u0e32\u0e22\u0e43\u0e19\u0e01\u0e23\u0e2d\u0e1a 30 \u0e27\u0e31\u0e19 \u0e08\u0e36\u0e07\u0e44\u0e21\u0e48\u0e02\u0e31\u0e14\u0e01\u0e31\u0e1a [Clause 2.5] \u0e2d\u0e22\u0e48\u0e32\u0e07\u0e44\u0e23\u0e01\u0e47\u0e15\u0e32\u0e21 \u0e40\u0e2d\u0e01\u0e2a\u0e32\u0e23\u0e17\u0e35\u0e48\u0e22\u0e37\u0e48\u0e19\u0e21\u0e32\u0e02\u0e32\u0e14 Incident report \u0e0b\u0e36\u0e48\u0e07\u0e40\u0e1b\u0e47\u0e19\u0e40\u0e2d\u0e01\u0e2a\u0e32\u0e23\u0e1a\u0e31\u0e07\u0e04\u0e31\u0e1a\u0e15\u0e32\u0e21 [Clause 3.1] \u0e17\u0e33\u0e43\u0e2b\u0e49\u0e40\u0e2d\u0e01\u0e2a\u0e32\u0e23\u0e44\u0e21\u0e48\u0e04\u0e23\u0e1a\u0e16\u0e49\u0e27\u0e19 \u0e40\u0e19\u0e37\u0e48\u0e2d\u0e07\u0e08\u0e32\u0e01\u0e40\u0e07\u0e37\u0e48\u0e2d\u0e19\u0e44\u0e02\u0e02\u0e2d\u0e07 [Clause 4.1] \u0e01\u0e33\u0e2b\u0e19\u0e14\u0e43\u0e2b\u0e49\u0e40\u0e2d\u0e01\u0e2a\u0e32\u0e23\u0e15\u0e49\u0e2d\u0e07\u0e04\u0e23\u0e1a\u0e16\u0e49\u0e27\u0e19\u0e08\u0e36\u0e07\u0e08\u0e30\u0e40\u0e02\u0e49\u0e32\u0e2a\u0e39\u0e48 Standard processing \u0e44\u0e14\u0e49 \u0e01\u0e23\u0e13\u0e35\u0e19\u0e35\u0e49\u0e08\u0e36\u0e07\u0e15\u0e49\u0e2d\u0e07\u0e16\u0e39\u0e01\u0e2a\u0e48\u0e07\u0e44\u0e1b\u0e22\u0e31\u0e07 Manual review \u0e15\u0e32\u0e21 [Clause 4.2] \u0e40\u0e1e\u0e37\u0e48\u0e2d\u0e43\u0e2b\u0e49\u0e40\u0e08\u0e49\u0e32\u0e2b\u0e19\u0e49\u0e32\u0e17\u0e35\u0e48\u0e02\u0e2d\u0e40\u0e2d\u0e01\u0e2a\u0e32\u0e23\u0e17\u0e35\u0e48\u0e02\u0e32\u0e14\u0e2b\u0e32\u0e22\u0e01\u0e48\u0e2d\u0e19\u0e14\u0e33\u0e40\u0e19\u0e34\u0e19\u0e01\u0e32\u0e23\u0e15\u0e48\u0e2d",
+        "confidence_level": "Medium",
+        "cited_clauses": [
+          "1.1",
+          "2.5",
+          "3.1",
+          "4.1",
+          "4.2",
+          "4.3"
+        ]
+      },
+      "retrieved_clauses": [
+        "3.1",
+        "1.1",
+        "3.3",
+        "4.1",
+        "4.2",
+        "3.2",
+        "4.3",
+        "2.4",
+        "2.5",
+        "2.2"
+      ],
+      "guardrail_triggers": {
+        "input": [],
+        "output": []
+      },
+      "latency_ms": 27540,
+      "audit_file": "sess_83d3bcd74f4a.json",
+      "deterministic": {
+        "coverage_ok": true,
+        "routing_ok": true,
+        "confidence_ok": true,
+        "missing_info": {
+          "precision": 1.0,
+          "recall": 0.5,
+          "f1": 0.6666666666666666,
+          "matched": [
+            "incident report"
+          ],
+          "missed": [
+            "\u0e43\u0e1a\u0e23\u0e32\u0e22\u0e07\u0e32\u0e19"
+          ]
+        },
+        "risk_flags": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "matched": [],
+          "missed": []
+        },
+        "cited_coverage": 1.0,
+        "citation_validity": 1.0
+      },
+      "judge": {
+        "factuality": 5,
+        "completeness": 4,
+        "clarity": 4,
+        "policy_alignment": 4,
+        "appropriate_uncertainty": 3,
+        "overall_comment": "All cited clauses (1.1, 2.5, 3.1, 4.1, 4.2, 4.3) are within the retrieved list, so factuality is clean. The reasoning covers peril (collision with pothole \u2192 1.1), exclusions check (2.5 timing), missing document (incident report per 3.1), and routing logic (4.1 \u2192 4.2). However, it does not explicitly check other retrieved exclusions (2.2, 2.4) before concluding \"no exclusion applies,\" which weakens completeness and policy alignment slightly. Clarity is good\u2014structured and within length. Confidence is marked Medium, which is reasonable, but asserting the event is Accidental collision without seeing scene photos / incident report is somewhat overconfident given the missing documentation; \"Cannot determine\" or Low might be more appropriate until the incident report is received. The 4-day vs 30-day framing is helpful but assumes 2.5 is specifically a notification deadline, which is plausible but not verified in the snippet.",
+        "mean": 4.0
       }
     }
   ],
   "aggregate": {
-    "n": 5,
-    "coverage_acc": 0.8,
+    "n": 14,
+    "coverage_acc": 0.8571428571428571,
     "routing_acc": 1.0,
-    "confidence_acc": 1.0,
-    "missing_info_f1": 0.8666666666666668,
-    "risk_flags_f1": 0.6742857142857143,
-    "cited_coverage": 0.7833333333333333,
+    "confidence_acc": 0.8571428571428571,
+    "missing_info_f1": 0.614817721960579,
+    "risk_flags_f1": 0.7199031127602556,
+    "cited_coverage": 0.880952380952381,
     "citation_validity": 1.0
   },
-  "judge_mean": 3.9199999999999995
+  "judge_mean": 4.042857142857143
 }

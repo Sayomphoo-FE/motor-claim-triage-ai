@@ -147,7 +147,7 @@ produced the output reduces grader bias.
 def _exec_summary(agg: AggregateScore, judge_mean: float) -> str:
     highlights: list[str] = []
     if agg.routing_acc >= 1.0:
-        highlights.append("perfect routing accuracy (5/5)")
+        highlights.append(f"perfect routing accuracy ({agg.n}/{agg.n})")
     elif agg.routing_acc >= 0.8:
         highlights.append(f"strong routing accuracy ({agg.routing_acc:.0%})")
     if agg.citation_validity >= 0.99:

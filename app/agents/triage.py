@@ -173,24 +173,48 @@ class TriageAgent:
             section_nums=[s for _, s in queries],
         )
 
-        # 3. LLM call.
+        # 3. LLM call. The forced tool-use payload must land all 8
+        # required fields in a single response. Thai responses often
+        # need ~1500 tokens just for the `reasoning` field, so we need
+        # enough headroom to finish the tool call cleanly. If Claude
+        # runs out of tokens mid-call the trailing fields (reasoning
+        # and confidence_level) silently drop. We budget 4000 and
+        # retry once on validation failure as a belt-and-suspenders.
         prompt = _render_prompt(claim, sanitized_description, chunks)
-        response = self.client.messages.create(
-            model=self.model,
-            max_tokens=1500,
-            tools=[TRIAGE_TOOL],
-            tool_choice={"type": "tool", "name": "submit_triage"},
-            messages=[{"role": "user", "content": prompt}],
-        )
-        tool_block = next(
-            b for b in response.content if getattr(b, "type", None) == "tool_use"
-        )
-        payload = (
-            tool_block.input
-            if isinstance(tool_block.input, dict)
-            else json.loads(tool_block.input)
-        )
-        raw_output = TriageOutput.model_validate(payload)
+
+        from pydantic import ValidationError
+
+        raw_output = None
+        last_error: Exception | None = None
+        last_stop_reason: str | None = None
+        for attempt in range(2):
+            response = self.client.messages.create(
+                model=self.model,
+                max_tokens=4000,
+                tools=[TRIAGE_TOOL],
+                tool_choice={"type": "tool", "name": "submit_triage"},
+                messages=[{"role": "user", "content": prompt}],
+            )
+            last_stop_reason = response.stop_reason
+            tool_block = next(
+                b for b in response.content if getattr(b, "type", None) == "tool_use"
+            )
+            payload = (
+                tool_block.input
+                if isinstance(tool_block.input, dict)
+                else json.loads(tool_block.input)
+            )
+            try:
+                raw_output = TriageOutput.model_validate(payload)
+                break
+            except ValidationError as e:
+                last_error = e
+                continue
+        if raw_output is None:
+            raise RuntimeError(
+                f"Triage tool returned invalid payload after 2 attempts "
+                f"(stop_reason={last_stop_reason}): {last_error}"
+            )
 
         # 4. Output guardrail.
         guard = verify_output(raw_output, chunks)
