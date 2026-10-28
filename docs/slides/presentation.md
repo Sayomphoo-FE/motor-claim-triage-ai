@@ -22,7 +22,7 @@ style: |
 
 # 🚗 Motor Insurance Claim Triage Assistant
 
-### AI ผู้ช่วยรับเรื่องเคลมประกันรถยนต์
+### AI ผู้ช่วยพนักงานประเมินเคสเคลมประกันรถยนต์
 
 <br>
 
@@ -31,76 +31,72 @@ style: |
 
 <br>
 
-<span class="muted">10 นาที · ภาษาไทย + EN technical terms</span>
+<span class="muted">10 นาที · scope ตรงกับ Assignment PDF — Officer-facing text triage</span>
 
 ---
 
-## 1. เรื่องเล่า — ปัญหาที่พบด้วยตนเอง
+## 1. ปัญหาที่พนักงานรับเคลมเจอทุกวัน
 
 <div class="cols">
 
-**🚗 เคสที่ 1 — สายเกียร์ขาด**
+**📋 กระบวนการเดิม**
 
-ขับถอยออกจากบ้าน เปลี่ยนเกียร์ R → D
-**สายเกียร์ขาด** · รถค้าง · เรียกสไลด์
+ลูกค้าแจ้งเคลม → พนักงาน:
 
-โทร call center → **กด 1-2-3 หลายชั้น**
-เสียเวลา 3-5 นาที กว่าจะถึงคน
+1. อ่าน claim description
+2. **เปิดเล่ม policy** หา clause ที่เกี่ยวข้อง
+3. ตรวจเอกสารที่ส่งว่าครบไหม
+4. ดูประวัติเคลมของลูกค้า
+5. ประเมินว่าจะเข้าทีมไหน
+6. สรุปเองใน note ของ CRM
 
-**🚗 เคสที่ 2 — สเกิตบิ่น**
+**🔴 ผลที่ตามมา**
 
-สเกิตหน้ารถชนหลุม · อยากเคลมเปลี่ยน
-
-โทรไปอีก → **IVR เดิม** · เมนูเยอะ
-เสี่ยงกดผิด → ต่อผิดทีม
+- **ใช้เวลา 10-30 นาที/เคส**
+- ตีความ policy ไม่เท่ากัน
+- จับฉ้อโกง / exclusion ช้า
+- เอกสารขาด → ส่งไป-กลับหลายรอบ
+- Audit trail ไม่ชัด · ตอบ regulator ยาก
 
 </div>
 
-<br>
-
-> **เครียดอยู่แล้วตอนเพิ่งเกิดเหตุ ต้องมาจัดการ IVR อีก**
-
 ---
 
-## 2. Pain → Feature → ตัววัดผล
+## 2. Pain → Feature → Metric
 
 | Pain | AI ทำยังไง | ตัววัด |
 |---|---|---|
-| **P1** เมนู IVR หลายชั้น | พูดได้เลย AI เข้าใจ | ลูกค้าถึงคำตอบใน 2 ขั้น (จากเดิม 5) |
-| **P2** กดผิด → ต่อผิดทีม | AI ถามชัดก่อน แทนที่จะเดา | mis-routing < 5% |
-| **P3** พนักงานถามซ้ำจากศูนย์ | AI รวบรวม + ส่งต่อพร้อมสรุป | AHT ↓ 30-40% |
-| **P4** แต่ละคนประเมินไม่เท่ากัน | AI ใช้กฎเดียวกันทุกเคส | triage consistency ≥ 0.75 |
-| **P5** จับฉ้อโกงช้า | AI ตรวจสัญญาณต้องสงสัย | fraud detection ↑ 15% |
-| **P6** หลายแบรนด์ · สับสน | AI ดูเลขกรมธรรม์ ต่อถูกเสมอ | brand-routing accuracy > 95% |
+| **P1** manual review นาน | AI สรุป + ประเมิน + cite clause อัตโนมัติ | AHT ↓ 30-40% |
+| **P2** ประเมินไม่เท่ากัน | prompt + guardrails เดียวกันทุกเคส | consistency ≥ 0.75 |
+| **P3** จับฉ้อโกงช้า | AI ตรวจ pattern Clause 4.3 | fraud recall ↑ 15% |
+| **P4** เอกสารขาด loop | AI ชี้ missing docs ตั้งแต่ครั้งแรก | incomplete loops ↓ 50% |
+| **P5** ไม่มี audit | ทุก decision cite + JSON audit | 100% coverage |
+| **P6** เคสง่าย/ยากปน | AI auto-route 4 ทีม | % เคส route ถูกเพิ่ม |
 
 ---
 
-## 3. ใครได้ใช้ · เส้นทางการโทร
+## 3. ใครได้ใช้ · User Journey (Officer-facing)
 
 <div class="cols">
 
 **👥 Stakeholders**
-- **ลูกค้า (คนหลัก)** · โทรเข้าตอนเครียด
-- **พนักงานรับเคลม** · รับสายต่อ มีสรุปแล้ว
-- **หัวหน้าทีม** · ดูแดชบอร์ด + เคสยาก
-- **ฝ่าย Compliance** · ตรวจบันทึก · PDPA
+- **พนักงานรับเคลม (ผู้ใช้หลัก)** · กรอกข้อมูล + รีวิว recommendation
+- **หัวหน้าทีม** · ดู audit log + spot-check
+- **Compliance** · ตรวจทุก decision cite clause ไหน
+- **ลูกค้า** · ไม่คุยกับ AI โดยตรง — ลูกค้าแจ้งเคลมตามช่องทางเดิม พนักงานป้อนข้อมูล
 
-**🎯 Decision boundary**
+**🎯 Decision boundary (PDF §4)**
 - AI = **ผู้ช่วย ไม่ใช่ผู้ตัดสิน**
 - พนักงานตัดสินใจสุดท้ายเสมอ
-- AI แนะนำตัวว่าเป็น AI ตั้งแต่เริ่ม
-- Low confidence → auto Manual review
+- Low confidence → **auto Manual review**
+- "Not covered" ต้องมี Section-2 clause cited
 
 </div>
 
 <br>
 
 ```
-[ลูกค้า] → [AI greet] → [intake Q&A] → [RAG + triage]
-                                              │
-                                              ▼
-                                   [handoff → พนักงาน]
-                                   + สรุปเคสบนจอ
+[Officer] → [Streamlit form] → [AI triage] → [Officer reviews + decides]
 ```
 
 ---
@@ -108,30 +104,36 @@ style: |
 ## 4. สถาปัตยกรรมเบื้องหลัง
 
 ```
-                    ┌───────────────────┐
-    ลูกค้า ────────▶│ Streamlit UI       │
-                    │ Form (reviewer)    │
-                    └──────┬────────────┘
-                           │ ClaimInput (Pydantic)
-                           ▼
-                    ┌───────────────────┐
-                    │ 3-layer guardrails │
-                    │ in / mid / out     │
-                    └──────┬────────────┘
-                           ▼
-                    ┌───────────────────┐
-                    │ Claim Triage Agent │
-                    │ Claude Sonnet 4.6  │
-                    │ + forced tool-use  │
-                    └──┬────────┬──────┘
-                       │        │
-            ┌──────────▼┐  ┌───▼──────────┐
-            │ Qdrant RAG │  │ Audit log    │
-            │ 13 clauses │  │ (JSON/sess)  │
-            └───────────┘  └──────────────┘
+┌────────────────────────────────────────────────┐
+│  Streamlit Form UI  /  CLI  (officer-facing)    │
+└──────────────┬─────────────────────────────────┘
+               │ ClaimInput (Pydantic)
+               ▼
+┌────────────────────────────────────────────────┐
+│  Guardrail — Input (PII mask + injection flag)  │
+└──────────────┬─────────────────────────────────┘
+               ▼
+┌────────────────────────────────────────────────┐
+│  RAG retriever                                  │
+│  Qdrant · BGE-small-en · 4 section-sub-queries  │
+└──────────────┬─────────────────────────────────┘
+               ▼
+┌────────────────────────────────────────────────┐
+│  Claim Triage Agent · Claude Sonnet 4.6         │
+│  forced tool-use = `submit_triage` schema       │
+└──────────────┬─────────────────────────────────┘
+               ▼
+┌────────────────────────────────────────────────┐
+│  Guardrail — Output                             │
+│  verify cites · "Not covered" needs exclusion   │
+└──────────────┬─────────────────────────────────┘
+               ▼
+┌────────────────────────────────────────────────┐
+│  TriageOutput + Audit JSON (per session)        │
+└────────────────────────────────────────────────┘
 ```
 
-**กฎทอง:** ใช้ AI เฉพาะงานที่ตัดสินใจตายตัวไม่ได้ · ส่วนที่กฎชัด = ใช้กฎ
+**กฎทอง:** ใช้ AI เฉพาะงานที่ตัดสินใจตายตัวไม่ได้ · ส่วนที่กฎชัด (เช่น ตรวจ cite) = ใช้กฎ
 
 ---
 
@@ -139,16 +141,16 @@ style: |
 
 | งาน | เลือก | ทำไม |
 |---|---|---|
-| สมอง AI (reasoning) | **Claude Sonnet 4.6** | เก่ง reasoning + Thai + 100% tool-use adherence |
+| สมอง AI (reasoning) | **Claude Sonnet 4.6** | เก่ง reasoning + tool-use adherence สูง + ภาษาไทยดี |
 | กรรมการประเมิน | **Claude Opus 4.7** | คนละ model family ลด self-grading bias |
-| Embeddings | `bge-small-en-v1.5` 384d | ขนาดเล็ก (33 MB) เพียงพอสำหรับ 13 clauses |
+| Embeddings | `bge-small-en-v1.5` 384d | ขนาดเล็ก (33 MB) · เพียงพอสำหรับ 13 clauses |
 | Vector store | **Qdrant** | metadata filter per-section · docker-friendly |
-| Structured output | tool-use + Pydantic | shape guarantee · enum validation |
-| Vector dim swap-path | multilingual-e5-large | Phase 2 Thai: swap env var เดียว |
+| Structured output | tool-use + Pydantic | shape guarantee · enum validation ชัวร์ |
+| Audit observability | JSON append-only per session | ไม่พึ่ง SaaS · ตรวจย้อนตรง |
 
 <br>
 
-**ไม่ใช้ LLM กับทุกอย่าง — ส่วนที่ rules ชัด → rules เร็ว + ประหยัด**
+**ไม่ใช้ LLM กับทุกอย่าง** — Guardrail output verify cite = `set membership check` ด้วย rule-based ประหยัดและไม่มั่ว
 
 ---
 
@@ -158,29 +160,29 @@ style: |
 
 **📚 RAG (grounding)**
 
-1. Policy ตัดเป็น clause-level chunks
+1. Policy ตัดเป็น **clause-level chunks** (ตาม `### Clause X.Y`)
 2. เก็บ metadata: `section_num`, `clause_id`
-3. **4 sub-queries ต่อ claim** — หนึ่งต่อ section
-4. top-k=5 ต่อ query → dedupe + rank by score
-5. Prompt ใส่ chunk ทั้งหมด → "single source of truth"
+3. **4 sub-queries ต่อ claim** — section-filtered
+4. top-k=5 ต่อ query → dedupe + merge
+5. Prompt ใส่ chunks ทั้งหมด → "single source of truth"
 
 **🛡 Guardrails (3 ชั้น)**
 
 1. **Input:** mask PII (phone/ID/plate/email) + flag prompt injection
-2. **Mid:** schema validation + enum enforcement
+2. **Mid:** Pydantic schema + Anthropic tool_choice ลงเล็ม
 3. **Output:**
    - ลบ clause ที่ cite แต่ไม่ได้ retrieve
-   - "Not covered" ที่ไม่ใช้ Section-2 → downgrade เป็น Cannot determine
-   - Low confidence → ห้ามไป Standard
+   - "Not covered" ไม่มี Section-2 → downgrade `Cannot determine`
+   - Low confidence → ห้าม Standard processing
 
 </div>
 
 ---
 
-## 7. Demo — Case 2: Illegal Street Racing
+## 7. Live Demo — Case 2: Illegal Street Racing
 
 **Input:**
-> ลูกค้าชนแบริเออร์ขณะร่วมแข่งผิดกฎหมายบนถนน Rama 9 ตอนตี 2 ตำรวจมาถึงที่เกิดเหตุ ลูกค้าให้ปากคำว่ากำลังแข่ง
+> The customer crashed into a concrete barrier while participating in an illegal street race on Rama 9 road around 02:00 AM. Police attended the scene. The customer's statement confirmed they were racing. Front of the car severely damaged.
 
 <br>
 
@@ -191,12 +193,12 @@ style: |
 | Coverage | 🔴 **Not covered** |
 | Routing | 🟣 **Rejection review** |
 | Confidence | **High** |
-| Cited clauses | `[1.1, 2.2, 3.1, 4.1]` ← all verified in retrieved context |
+| Cited clauses | `[1.1, 2.2, 3.1, 4.1]` ← ✅ all in retrieved context |
 | Reasoning | "...damage from illegal racing is excluded [Clause 2.2]..." |
 
 <br>
 
-**Audit log:** `data/audit_logs/sess_abc.json` — model version, clauses, latency, guard triggers
+**Audit log:** `data/audit_logs/sess_abc.json` — model version · clauses · latency · guard triggers
 
 ---
 
@@ -216,7 +218,7 @@ style: |
 <br>
 
 **1 miss =** Case 5 late submission 45 วัน — documented weak spot
-Need `days_to_submit > 30` deterministic prompt rule ใน iteration ต่อไป
+ควรเพิ่ม deterministic prompt rule: `days_to_submit > 30 AND no valid reason → Cannot determine`
 
 ---
 
@@ -227,23 +229,23 @@ Need `days_to_submit > 30` deterministic prompt rule ใน iteration ต่อ�
 **🔴 ความเสี่ยงหนัก**
 
 - AI มั่ว coverage ไม่มีจริง
-- PII รั่ว
+- PII รั่วเข้า log
 - Prompt injection
 
 **🟢 วิธีกัน (บน prototype นี้)**
 
-- **Cite ทุกข้อสรุป** + ตรวจกลับว่ามีจริง
-- Pattern-mask PII ก่อน LLM เห็น
-- Injection filter + "ignore previous" patterns
+- **Cite ทุกข้อสรุป** + output guardrail ตรวจกลับว่ามีจริง
+- Pattern-mask PII ก่อน LLM เห็น + hash customer ใน audit
+- Injection filter + forced tool-use ล็อก shape output
 - Low confidence → auto Manual review
 - Audit log append-only ต่อ session
-- Pydantic structured output = ไม่มี free prose ที่ควบคุมไม่ได้
+- Pydantic + enum = ไม่มี free prose ที่คุมไม่ได้
 
 </div>
 
 <br>
 
-**ตอบ regulator ได้:** ทุก decision มี audit JSON · cite clauses · model version · latency · guard triggers
+**ตอบ regulator ได้:** ทุก decision มี audit JSON · cite clauses · model version · latency · guard triggers · **100% citation validity verifiable**
 
 ---
 
@@ -251,25 +253,26 @@ Need `days_to_submit > 30` deterministic prompt rule ใน iteration ต่อ�
 
 <div class="cols">
 
-**Phase 1 — MVP (ส่งแล้ว)**
+**Phase 1 — MVP (ส่งแล้ว · บน `develop`)**
 - Text-based triage · RAG · guardrails
 - 5 PDF cases · LLM-Judge · audit log
-- Streamlit UI + CLI
+- Streamlit Form UI + CLI
+- Solution Design + eval + limitations docs
 
-**Phase 2 — Voice (branch `extensions`)**
-- Streamlit mic + Whisper STT
-- Edge-TTS neural voices (TH + EN)
-- Multi-turn Call UX + Supervisor pattern
-- Bilingual RAG + 14 cases
+**Phase 2 — Beyond PDF (บน `extensions`)**
+- Multi-agent SupervisorAgent + conversation state
+- Voice intake prototype (Whisper + Edge-TTS)
+- Bilingual TH/EN · multilingual embeddings
+- 14 bilingual test cases · call transcript log
 
-**Phase 3+ — Production (roadmap)**
+**Phase 3+ — Production roadmap**
 - Twilio real telephony
-- MCP SharePoint (live policy updates)
-- Vision model สำหรับรูปความเสียหาย
-- Fine-tuned Thai STT + fraud model
+- Vision model (รูปความเสียหาย)
+- Fine-tuned fraud model + MCP SharePoint
+- A/B test เทียบ manual triage baseline
 
 </div>
 
 <br>
 
-> **AI ตัวนี้ไม่ใช่แค่ประหยัดเวลา — มันคือการบอกลูกค้าในวันที่เขาเครียดที่สุดว่า "เราพร้อมช่วย" โดยไม่ต้องกด 1-2-3 อีก**
+> **AI ตัวนี้ทำให้พนักงานประเมินเคสได้เร็ว · สม่ำเสมอ · ตรวจย้อนได้ — ตรงกับ PDF scope ครบทุกข้อ · ไม่แตะ out-of-scope**

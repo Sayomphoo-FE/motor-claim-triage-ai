@@ -19,7 +19,7 @@ or had to work around, is listed.
 | SSO / RBAC on the UI | Prototype UX only | Reverse-proxy Streamlit behind SSO (e.g. OIDC) |
 | Load testing & auto-scaling | Not meaningful for a 5-case eval | Add k6 scripts + autoscaled container platform |
 
-The solution-design document (`ai-insurance-claim-voice-triage-assistant.md`)
+The solution-design document (`ai-insurance-claim-triage-assistant.md`)
 treats the Voice/MCP/Multi-agent pieces as roadmap items (§12.2 - §12.4);
 this prototype intentionally delivers the §12.1 MVP.
 

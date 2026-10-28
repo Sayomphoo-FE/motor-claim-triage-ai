@@ -7,7 +7,7 @@
 >
 > This repository is the deliverable for the AI Engineer technical
 > assignment — see [`docs/implementation_plan.md`](docs/implementation_plan.md)
-> for the 3-day build plan, [`ai-insurance-claim-voice-triage-assistant.md`](ai-insurance-claim-voice-triage-assistant.md)
+> for the 3-day build plan, [`ai-insurance-claim-triage-assistant.md`](ai-insurance-claim-triage-assistant.md)
 > for the full solution design.
 
 ## 🧭 Branch guide
@@ -162,7 +162,7 @@ in [`docs/eval_report.md`](docs/eval_report.md) and
 
 | Path | What it is |
 |---|---|
-| `ai-insurance-claim-voice-triage-assistant.md` | Full solution design (Part 1 deliverable, Thai) |
+| `ai-insurance-claim-triage-assistant.md` | Full solution design (Part 1 deliverable, Thai) |
 | `docs/implementation_plan.md` | 3-day build plan + rubric mapping |
 | `docs/eval_report.md` | Per-case evaluation + LLM-Judge scores |
 | `docs/limitations.md` | Known trade-offs and scope exclusions |
@@ -254,7 +254,7 @@ assignment PDF §9:
 
 | Rubric | Where to look |
 |---|---|
-| Business Understanding | `ai-insurance-claim-voice-triage-assistant.md` §1-2 |
+| Business Understanding | `ai-insurance-claim-triage-assistant.md` §1-2 |
 | AI Solution Design | same doc §3-7 + `docs/implementation_plan.md` §2-5 |
 | Implementation Quality | `app/`, `make ui`, `make demo` |
 | Evaluation & Testing | `docs/eval_report.md`, `make eval` |
