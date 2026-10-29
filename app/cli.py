@@ -51,23 +51,36 @@ def run_case(case_path: Path) -> TriageOutput:
     with console.status("[dim]Retrieving policy + calling Claude Sonnet...[/dim]"):
         result = agent.run(claim)
 
-    console.print(
-        f"[dim]Retrieved {len(result.retrieved)} policy chunks: "
-        f"{', '.join(c.clause_id for c in result.retrieved)}[/dim]"
-    )
-    if result.input_guard.pii_triggers:
-        console.print(
-            f"[yellow]Input guard masked PII: "
-            f"{', '.join(set(t.split(':')[0] for t in result.input_guard.pii_triggers))}[/yellow]"
-        )
-    if result.output_guard_triggers:
-        console.print(
-            f"[yellow]Output guard triggered: {', '.join(result.output_guard_triggers)}[/yellow]"
-        )
-    console.print(f"[dim]Latency: {result.latency_ms} ms  "
-                  f"Audit: data/audit_logs/{result.audit.session_id}.json[/dim]\n")
+    _render_trace(result)
+    console.print()
     _render_output(result.output)
     return result.output
+
+
+def _render_trace(result) -> None:
+    """Visual timeline of the pipeline stages, mirrors the Streamlit UI."""
+    console.rule(
+        f"[bold]Pipeline execution trace[/bold] · "
+        f"total [cyan]{result.latency_ms} ms[/cyan]"
+    )
+    max_ms = max((s.duration_ms for s in result.trace), default=1) or 1
+    tbl = Table(show_header=False, box=None, pad_edge=False)
+    tbl.add_column(justify="right", style="dim", width=2)
+    tbl.add_column(width=4)
+    tbl.add_column(style="bold")
+    tbl.add_column(justify="right", style="cyan", width=10)
+    tbl.add_column()
+    for step in result.trace:
+        bar_len = max(1, int(step.duration_ms / max_ms * 24))
+        color = {"ok": "green", "warn": "yellow", "info": "blue"}.get(step.status, "white")
+        tbl.add_row(
+            str(step.index),
+            step.icon,
+            step.name,
+            f"{step.duration_ms:>5} ms",
+            f"[{color}]{'█' * bar_len}[/{color}] [dim]{step.details[:60]}[/dim]",
+        )
+    console.print(tbl)
 
 
 def main() -> int:

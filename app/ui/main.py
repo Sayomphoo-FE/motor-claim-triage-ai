@@ -87,8 +87,69 @@ def _badge(label: str, value: str, color: str) -> str:
     )
 
 
+def _render_pipeline_trace(result: TriageResult) -> None:
+    """Visual timeline of the pipeline stages the agent went through,
+    so a reviewer can see — in order and with timings — what happened
+    between pressing "Run triage" and the recommendation appearing."""
+    if not result.trace:
+        return
+
+    status_colors = {
+        "ok":   {"bar": "#10b981", "bg": "#064e3b", "label": "OK"},
+        "warn": {"bar": "#f59e0b", "bg": "#78350f", "label": "FIRED"},
+        "info": {"bar": "#60a5fa", "bg": "#1e3a8a", "label": "INFO"},
+    }
+    max_ms = max((s.duration_ms for s in result.trace), default=1) or 1
+
+    st.markdown("### 🔄 Pipeline execution trace")
+    st.caption(
+        f"7-stage flow from form submit to recommendation · total "
+        f"**{result.latency_ms} ms**. Each bar shows how long that stage "
+        "took relative to the slowest one."
+    )
+
+    for step in result.trace:
+        colors = status_colors.get(step.status, status_colors["ok"])
+        bar_width = max(3, int(step.duration_ms / max_ms * 100))
+        st.markdown(
+            f"""<div style="margin:8px 0;padding:12px 14px;background:#1e293b;
+                          border-left:4px solid {colors['bar']};
+                          border-radius:8px;font-size:0.92rem;">
+              <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
+                <span style="font-size:1.4rem">{step.icon}</span>
+                <span style="font-weight:600;color:#f1f5f9">
+                  Step {step.index}. {step.name}
+                </span>
+                <span style="margin-left:auto;color:#94a3b8;font-family:monospace">
+                  {step.duration_ms:>5} ms
+                </span>
+                <span style="background:{colors['bg']};color:{colors['bar']};
+                             padding:2px 8px;border-radius:10px;font-size:0.72rem;
+                             font-weight:600;letter-spacing:0.5px">
+                  {colors['label']}
+                </span>
+              </div>
+              <div style="color:#cbd5e1;font-size:0.86rem;margin-bottom:6px">
+                {step.details}
+              </div>
+              <div style="height:4px;background:#0f172a;border-radius:2px;overflow:hidden">
+                <div style="width:{bar_width}%;height:100%;background:{colors['bar']}"></div>
+              </div>
+            </div>""",
+            unsafe_allow_html=True,
+        )
+
+    st.caption(
+        "🧹 Input Guardrail → 🔎 Query Gen → 📚 Qdrant Retrieve → ✏️ Prompt Build → "
+        "🤖 Claude Sonnet → ✅ Output Guardrail → 📝 Audit Write"
+    )
+
+
 def _render_result(result: TriageResult) -> None:
     o = result.output
+
+    _render_pipeline_trace(result)
+    st.divider()
 
     cols = st.columns(3)
     with cols[0]:
