@@ -17,7 +17,8 @@ from __future__ import annotations
 import json
 import os
 import time
-from dataclasses import dataclass
+from collections.abc import Callable
+from dataclasses import dataclass, field
 from pathlib import Path
 
 from anthropic import Anthropic
@@ -104,6 +105,21 @@ TRIAGE_TOOL = {
 
 
 @dataclass
+class TraceStep:
+    """One instrumented step of the triage pipeline. Collected during
+    `TriageAgent.run` and surfaced on `TriageResult.trace` so the UI
+    can show reviewers *what happened in what order and how long each
+    piece took*."""
+
+    index: int
+    icon: str
+    name: str
+    duration_ms: int
+    details: str  # one-liner summary suitable for a step card
+    status: str = "ok"  # "ok" | "warn" | "info"
+
+
+@dataclass
 class TriageResult:
     output: TriageOutput
     retrieved: list[RetrievedChunk]
@@ -111,6 +127,7 @@ class TriageResult:
     output_guard_triggers: list[str]
     audit: AuditRecord
     latency_ms: int
+    trace: list[TraceStep] = field(default_factory=list)
 
 
 def _generate_queries(claim_description: str, customer_history: str, documents: str) -> list[tuple[str, str | None]]:
@@ -154,30 +171,101 @@ class TriageAgent:
         self.model = model
         self.persist_audit = persist_audit
 
-    def run(self, claim: ClaimInput) -> TriageResult:
-        """Run the full guarded triage pipeline."""
+    def run(
+        self,
+        claim: ClaimInput,
+        on_step: Callable[["TraceStep"], None] | None = None,
+    ) -> TriageResult:
+        """Run the full guarded triage pipeline.
+
+        A `TraceStep` is appended for each named stage so the UI can
+        show a reviewer-friendly timeline. Timing comes from
+        `time.perf_counter()` deltas between checkpoints.
+
+        If `on_step` is supplied, it is invoked synchronously after
+        every stage completes. The UI uses this to push live updates
+        to a floating trace panel so the reviewer can watch the
+        pipeline advance in real time rather than waiting for the
+        whole call to finish.
+        """
+        trace: list[TraceStep] = []
         t0 = time.perf_counter()
+        last = t0
+
+        def _tick() -> int:
+            nonlocal last
+            now = time.perf_counter()
+            ms = int((now - last) * 1000)
+            last = now
+            return ms
+
+        def _emit(step: TraceStep) -> None:
+            trace.append(step)
+            if on_step is not None:
+                try:
+                    on_step(step)
+                except Exception:  # noqa: BLE001 — UI callbacks must never kill the run
+                    pass
 
         # 1. Input guardrail — sanitize free-text fields.
         input_guard = sanitize_text(claim.claim_description)
         sanitized_description = input_guard.sanitized
+        _emit(TraceStep(
+            index=1,
+            icon="🧹",
+            name="Input Guardrail",
+            duration_ms=_tick(),
+            details=(
+                f"PII masked: {len(input_guard.pii_triggers)} · "
+                f"Injection flags: {len(input_guard.injection_triggers)}"
+            ),
+            status="warn" if (input_guard.pii_triggers or input_guard.injection_triggers) else "ok",
+        ))
 
-        # 2. Retrieval using sanitized text.
+        # 2. RAG query generation.
         docs = ", ".join(claim.documents_submitted) or "none"
         history = claim.customer_claim_history or "none"
         queries = _generate_queries(sanitized_description, history, docs)
+        _emit(TraceStep(
+            index=2,
+            icon="🔎",
+            name="RAG Query Generation",
+            duration_ms=_tick(),
+            details=f"Built {len(queries)} section-filtered sub-queries (sections 1-4)",
+            status="info",
+        ))
+
+        # 3. Vector retrieval.
         chunks = retrieve_multi(
             [q for q, _ in queries],
             top_k_per_query=3,
             section_nums=[s for _, s in queries],
         )
+        clause_ids = ", ".join(c.clause_id for c in chunks)
+        _emit(TraceStep(
+            index=3,
+            icon="📚",
+            name="Vector Retrieval",
+            duration_ms=_tick(),
+            details=(
+                f"Qdrant top-3 × 4 queries → {len(chunks)} unique chunks "
+                f"[{clause_ids}]"
+            ),
+        ))
 
-        # 3. LLM call. The forced tool-use payload must land all 8
-        # required fields in a single response. Budget 4000 tokens so
-        # a long `reasoning` field can't truncate the trailing enum
-        # fields (confidence_level, cited_clauses) off the end of the
-        # tool call — an observed Claude quirk when max_tokens was 1500.
+        # 4. Prompt build.
         prompt = _render_prompt(claim, sanitized_description, chunks)
+        _emit(TraceStep(
+            index=4,
+            icon="✏️",
+            name="Prompt Build",
+            duration_ms=_tick(),
+            details=f"Rendered prompt with {len(chunks)} clauses · {len(prompt):,} chars",
+            status="info",
+        ))
+
+        # 5. LLM call. 4000-token budget so a long Thai `reasoning`
+        # cannot truncate trailing enum fields off the tool call.
         response = self.client.messages.create(
             model=self.model,
             max_tokens=4000,
@@ -194,13 +282,37 @@ class TriageAgent:
             else json.loads(tool_block.input)
         )
         raw_output = TriageOutput.model_validate(payload)
+        usage = getattr(response, "usage", None)
+        in_tok = getattr(usage, "input_tokens", "?")
+        out_tok = getattr(usage, "output_tokens", "?")
+        _emit(TraceStep(
+            index=5,
+            icon="🤖",
+            name=f"Claude Sonnet ({self.model})",
+            duration_ms=_tick(),
+            details=(
+                f"Forced tool-use · stop_reason={response.stop_reason} · "
+                f"in={in_tok} / out={out_tok} tokens"
+            ),
+        ))
 
-        # 4. Output guardrail.
+        # 6. Output guardrail.
         guard = verify_output(raw_output, chunks)
+        _emit(TraceStep(
+            index=6,
+            icon="✅",
+            name="Output Guardrail",
+            duration_ms=_tick(),
+            details=(
+                "Verified citations + safety invariants · "
+                f"triggers: {len(guard.triggers)}"
+            ),
+            status="warn" if guard.triggers else "ok",
+        ))
 
-        latency_ms = int((time.perf_counter() - t0) * 1000)
+        total_ms = int((time.perf_counter() - t0) * 1000)
 
-        # 5. Build audit record.
+        # 7. Build + write audit record.
         audit = AuditRecord(claim_id=claim.claim_id)
         audit.set_customer(claim.customer)
         audit.model_versions = {"triage": self.model}
@@ -217,10 +329,18 @@ class TriageAgent:
         audit.routing_decision = guard.output.recommended_routing
         audit.coverage_assessment = guard.output.coverage_assessment
         audit.confidence_level = guard.output.confidence_level
-        audit.latency_ms = latency_ms
+        audit.latency_ms = total_ms
 
         if self.persist_audit:
             write_audit(audit)
+        _emit(TraceStep(
+            index=7,
+            icon="📝",
+            name="Audit Write",
+            duration_ms=_tick(),
+            details=f"JSON written → data/audit_logs/{audit.session_id}.json",
+            status="info",
+        ))
 
         return TriageResult(
             output=guard.output,
@@ -228,5 +348,6 @@ class TriageAgent:
             input_guard=input_guard,
             output_guard_triggers=guard.triggers,
             audit=audit,
-            latency_ms=latency_ms,
+            latency_ms=total_ms,
+            trace=trace,
         )
