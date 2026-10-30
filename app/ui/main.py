@@ -80,10 +80,21 @@ def _init_form_state(data: dict | None) -> None:
 
 
 def _badge(label: str, value: str, color: str) -> str:
+    """One pill, sized to its content, on its own line.
+
+    Wrapping the span in a block-level div with inline-block inside
+    prevents the pill from stretching to column width AND prevents
+    the label+value from wrapping onto a second line (e.g.
+    'Possibly covered' used to break mid-pill when squeezed into a
+    1/3 st.columns slot).
+    """
     return (
-        f'<span style="background:{color};color:white;padding:4px 10px;'
-        f'border-radius:12px;font-size:0.85rem;font-weight:600">'
+        f'<div style="margin:0 0 10px 0;">'
+        f'<span style="display:inline-block;background:{color};color:white;'
+        f'padding:6px 14px;border-radius:14px;font-size:0.9rem;'
+        f'font-weight:600;white-space:nowrap;">'
         f'{label}: {value}</span>'
+        f'</div>'
     )
 
 
@@ -233,22 +244,15 @@ def _render_result(result: TriageResult) -> None:
     _render_pipeline_trace(result)
     st.divider()
 
-    cols = st.columns(3)
-    with cols[0]:
-        st.markdown(
-            _badge("Coverage", o.coverage_assessment, COVERAGE_COLORS[o.coverage_assessment]),
-            unsafe_allow_html=True,
-        )
-    with cols[1]:
-        st.markdown(
-            _badge("Routing", o.recommended_routing, ROUTING_COLORS[o.recommended_routing]),
-            unsafe_allow_html=True,
-        )
-    with cols[2]:
-        st.markdown(
-            _badge("Confidence", o.confidence_level, "#1565c0"),
-            unsafe_allow_html=True,
-        )
+    # Stacked vertical pills — each on its own line, auto-fit to text
+    # width, no wrap. Replaces the earlier 3-column layout that squeezed
+    # long values like "Possibly covered" onto a second line.
+    st.markdown(
+        _badge("Coverage", o.coverage_assessment, COVERAGE_COLORS[o.coverage_assessment])
+        + _badge("Routing", o.recommended_routing, ROUTING_COLORS[o.recommended_routing])
+        + _badge("Confidence", o.confidence_level, "#1565c0"),
+        unsafe_allow_html=True,
+    )
 
     st.markdown("### Claim summary")
     st.info(o.claim_summary)
