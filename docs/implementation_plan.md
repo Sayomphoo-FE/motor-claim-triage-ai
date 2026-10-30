@@ -2,7 +2,7 @@
 
 > **Scope:** AI Engineer assignment — Motor Insurance Claim Triage Assistant
 > **Duration:** 3 calendar days (~20 ชม. working time)
-> **Based on:** [Assignment PDF] + [ai-insurance-claim-triage-assistant.md](../ai-insurance-claim-triage-assistant.md)
+> **Based on:** [Assignment PDF] + [ai-insurance-claim-triage-assistant.md](./ai-insurance-claim-triage-assistant.md)
 > **Branch:** `develop`
 > **Last updated:** 2026-10-27
 
