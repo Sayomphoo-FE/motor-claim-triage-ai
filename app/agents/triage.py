@@ -17,6 +17,7 @@ from __future__ import annotations
 import json
 import os
 import time
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -170,12 +171,22 @@ class TriageAgent:
         self.model = model
         self.persist_audit = persist_audit
 
-    def run(self, claim: ClaimInput) -> TriageResult:
+    def run(
+        self,
+        claim: ClaimInput,
+        on_step: Callable[["TraceStep"], None] | None = None,
+    ) -> TriageResult:
         """Run the full guarded triage pipeline.
 
         A `TraceStep` is appended for each named stage so the UI can
         show a reviewer-friendly timeline. Timing comes from
         `time.perf_counter()` deltas between checkpoints.
+
+        If `on_step` is supplied, it is invoked synchronously after
+        every stage completes. The UI uses this to push live updates
+        to a floating trace panel so the reviewer can watch the
+        pipeline advance in real time rather than waiting for the
+        whole call to finish.
         """
         trace: list[TraceStep] = []
         t0 = time.perf_counter()
@@ -188,10 +199,18 @@ class TriageAgent:
             last = now
             return ms
 
+        def _emit(step: TraceStep) -> None:
+            trace.append(step)
+            if on_step is not None:
+                try:
+                    on_step(step)
+                except Exception:  # noqa: BLE001 — UI callbacks must never kill the run
+                    pass
+
         # 1. Input guardrail — sanitize free-text fields.
         input_guard = sanitize_text(claim.claim_description)
         sanitized_description = input_guard.sanitized
-        trace.append(TraceStep(
+        _emit(TraceStep(
             index=1,
             icon="🧹",
             name="Input Guardrail",
@@ -207,7 +226,7 @@ class TriageAgent:
         docs = ", ".join(claim.documents_submitted) or "none"
         history = claim.customer_claim_history or "none"
         queries = _generate_queries(sanitized_description, history, docs)
-        trace.append(TraceStep(
+        _emit(TraceStep(
             index=2,
             icon="🔎",
             name="RAG Query Generation",
@@ -223,7 +242,7 @@ class TriageAgent:
             section_nums=[s for _, s in queries],
         )
         clause_ids = ", ".join(c.clause_id for c in chunks)
-        trace.append(TraceStep(
+        _emit(TraceStep(
             index=3,
             icon="📚",
             name="Vector Retrieval",
@@ -236,7 +255,7 @@ class TriageAgent:
 
         # 4. Prompt build.
         prompt = _render_prompt(claim, sanitized_description, chunks)
-        trace.append(TraceStep(
+        _emit(TraceStep(
             index=4,
             icon="✏️",
             name="Prompt Build",
@@ -266,7 +285,7 @@ class TriageAgent:
         usage = getattr(response, "usage", None)
         in_tok = getattr(usage, "input_tokens", "?")
         out_tok = getattr(usage, "output_tokens", "?")
-        trace.append(TraceStep(
+        _emit(TraceStep(
             index=5,
             icon="🤖",
             name=f"Claude Sonnet ({self.model})",
@@ -279,7 +298,7 @@ class TriageAgent:
 
         # 6. Output guardrail.
         guard = verify_output(raw_output, chunks)
-        trace.append(TraceStep(
+        _emit(TraceStep(
             index=6,
             icon="✅",
             name="Output Guardrail",
@@ -314,7 +333,7 @@ class TriageAgent:
 
         if self.persist_audit:
             write_audit(audit)
-        trace.append(TraceStep(
+        _emit(TraceStep(
             index=7,
             icon="📝",
             name="Audit Write",

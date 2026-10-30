@@ -87,62 +87,144 @@ def _badge(label: str, value: str, color: str) -> str:
     )
 
 
+# ---------------------------------------------------------------------
+# Floating realtime pipeline trace
+# ---------------------------------------------------------------------
+#
+# The whole pipeline is 7 named stages (see TriageAgent._emit). We
+# pre-list all 7 up-front and let completed steps hydrate the panel as
+# the agent's `on_step` callback fires. This gives a reviewer a proper
+# "progress bar" feel instead of only seeing results after the fact.
+#
+# Positioning: inject raw HTML with `position: fixed; bottom; right;`.
+# Streamlit renders Python-produced markdown into an iframe-free flow
+# container, so fixed positioning on an inner <div> escapes layout and
+# anchors to the viewport without disturbing the rest of the page.
+
+PIPELINE_STAGES = [
+    ("🧹", "Input Guardrail"),
+    ("🔎", "RAG Query Generation"),
+    ("📚", "Vector Retrieval"),
+    ("✏️", "Prompt Build"),
+    ("🤖", "Claude Sonnet"),
+    ("✅", "Output Guardrail"),
+    ("📝", "Audit Write"),
+]
+
+_STATUS_STYLE = {
+    "ok":      {"bar": "#10b981", "pill_bg": "#064e3b", "pill_fg": "#6ee7b7", "label": "OK"},
+    "warn":    {"bar": "#f59e0b", "pill_bg": "#78350f", "pill_fg": "#fcd34d", "label": "FIRED"},
+    "info":    {"bar": "#60a5fa", "pill_bg": "#1e3a8a", "pill_fg": "#93c5fd", "label": "INFO"},
+    "running": {"bar": "#f472b6", "pill_bg": "#831843", "pill_fg": "#fbcfe8", "label": "RUNNING"},
+    "pending": {"bar": "#334155", "pill_bg": "#1e293b", "pill_fg": "#64748b", "label": "PENDING"},
+}
+
+
+def _inline_trace_html(completed: list, running: bool) -> str:
+    """Produce the inline HTML for the pipeline trace panel.
+
+    `completed` is a list of `TraceStep` the agent has already emitted;
+    we render each of the pre-known 7 stages either as its completed
+    state, as the currently-running stage (pulse), or as a greyed-out
+    pending stage. Rendered as a normal inline block — the slot where
+    it lives dictates its position, so the caller places it at the
+    bottom of the page.
+    """
+    cards: list[str] = []
+    total_ms = sum(s.duration_ms for s in completed) or 1
+    max_ms = max((s.duration_ms for s in completed), default=1) or 1
+    next_idx = len(completed) + 1  # 1-based
+
+    for i, (icon, name) in enumerate(PIPELINE_STAGES, start=1):
+        done = next((s for s in completed if s.index == i), None)
+        if done is not None:
+            style = _STATUS_STYLE.get(done.status, _STATUS_STYLE["ok"])
+            bar_width = max(3, int(done.duration_ms / max_ms * 100))
+            details = done.details
+            time_label = f"{done.duration_ms:>5} ms"
+            animation = ""
+        elif running and i == next_idx:
+            style = _STATUS_STYLE["running"]
+            bar_width = 100
+            details = "⏳ running…"
+            time_label = ""
+            animation = "animation: pulse 1.4s ease-in-out infinite;"
+        else:
+            style = _STATUS_STYLE["pending"]
+            bar_width = 10
+            details = "awaiting earlier stages"
+            time_label = ""
+            animation = ""
+
+        cards.append(f"""
+        <div style="margin:8px 0;padding:12px 14px;background:#0b1220;
+                    border-left:4px solid {style['bar']};border-radius:8px;
+                    font-size:0.88rem;{animation}">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
+            <span style="font-size:1.3rem">{icon}</span>
+            <span style="font-weight:600;color:#f1f5f9;flex:1">
+              Step {i}. {name}
+            </span>
+            <span style="color:#94a3b8;font-family:monospace;font-size:0.82rem">
+              {time_label}
+            </span>
+            <span style="background:{style['pill_bg']};color:{style['pill_fg']};
+                         padding:2px 10px;border-radius:12px;font-size:0.68rem;
+                         font-weight:600;letter-spacing:0.5px">
+              {style['label']}
+            </span>
+          </div>
+          <div style="color:#cbd5e1;font-size:0.82rem;margin-bottom:6px">
+            {details}
+          </div>
+          <div style="height:4px;background:#1e293b;border-radius:2px;overflow:hidden">
+            <div style="width:{bar_width}%;height:100%;background:{style['bar']}"></div>
+          </div>
+        </div>""")
+
+    done_count = len(completed)
+    status_header = (
+        f"🔄 Pipeline execution · <b>running</b> · step {done_count}/{len(PIPELINE_STAGES)}"
+        if running
+        else f"✅ Pipeline execution · <b>complete</b> · total {total_ms:,} ms"
+    )
+    footer_caption = (
+        "🧹 Input Guardrail → 🔎 Query Gen → 📚 Qdrant Retrieve → "
+        "✏️ Prompt Build → 🤖 Claude Sonnet → ✅ Output Guardrail → "
+        "📝 Audit Write"
+    )
+
+    html = f"""
+    <style>
+      @keyframes pulse {{
+        0%, 100% {{ opacity: 1; }}
+        50% {{ opacity: 0.55; }}
+      }}
+    </style>
+    <div style="margin-top:28px;padding:18px 20px;background:#0f172a;
+                border:1px solid #334155;border-radius:14px;
+                font-family:'Helvetica Neue',sans-serif">
+      <div style="color:#f1f5f9;font-weight:600;margin-bottom:4px;font-size:1.05rem">
+        {status_header}
+      </div>
+      <div style="color:#64748b;font-size:0.78rem;margin-bottom:14px">
+        {footer_caption}
+      </div>
+      {''.join(cards)}
+    </div>"""
+    # Streamlit's markdown parser treats any line indented 4+ spaces as
+    # a code block even inside `unsafe_allow_html=True`, which would
+    # dump our literal HTML to the page. Strip the per-line indentation
+    # before returning so every line starts flush-left.
+    return "\n".join(line.strip() for line in html.splitlines() if line.strip())
+
+
 def _render_pipeline_trace(result: TriageResult) -> None:
-    """Visual timeline of the pipeline stages the agent went through,
-    so a reviewer can see — in order and with timings — what happened
-    between pressing "Run triage" and the recommendation appearing."""
-    if not result.trace:
-        return
-
-    status_colors = {
-        "ok":   {"bar": "#10b981", "bg": "#064e3b", "label": "OK"},
-        "warn": {"bar": "#f59e0b", "bg": "#78350f", "label": "FIRED"},
-        "info": {"bar": "#60a5fa", "bg": "#1e3a8a", "label": "INFO"},
-    }
-    max_ms = max((s.duration_ms for s in result.trace), default=1) or 1
-
-    st.markdown("### 🔄 Pipeline execution trace")
-    st.caption(
-        f"7-stage flow from form submit to recommendation · total "
-        f"**{result.latency_ms} ms**. Each bar shows how long that stage "
-        "took relative to the slowest one."
-    )
-
-    for step in result.trace:
-        colors = status_colors.get(step.status, status_colors["ok"])
-        bar_width = max(3, int(step.duration_ms / max_ms * 100))
-        st.markdown(
-            f"""<div style="margin:8px 0;padding:12px 14px;background:#1e293b;
-                          border-left:4px solid {colors['bar']};
-                          border-radius:8px;font-size:0.92rem;">
-              <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
-                <span style="font-size:1.4rem">{step.icon}</span>
-                <span style="font-weight:600;color:#f1f5f9">
-                  Step {step.index}. {step.name}
-                </span>
-                <span style="margin-left:auto;color:#94a3b8;font-family:monospace">
-                  {step.duration_ms:>5} ms
-                </span>
-                <span style="background:{colors['bg']};color:{colors['bar']};
-                             padding:2px 8px;border-radius:10px;font-size:0.72rem;
-                             font-weight:600;letter-spacing:0.5px">
-                  {colors['label']}
-                </span>
-              </div>
-              <div style="color:#cbd5e1;font-size:0.86rem;margin-bottom:6px">
-                {step.details}
-              </div>
-              <div style="height:4px;background:#0f172a;border-radius:2px;overflow:hidden">
-                <div style="width:{bar_width}%;height:100%;background:{colors['bar']}"></div>
-              </div>
-            </div>""",
-            unsafe_allow_html=True,
-        )
-
-    st.caption(
-        "🧹 Input Guardrail → 🔎 Query Gen → 📚 Qdrant Retrieve → ✏️ Prompt Build → "
-        "🤖 Claude Sonnet → ✅ Output Guardrail → 📝 Audit Write"
-    )
+    """No-op in the main result area — the pipeline trace is rendered
+    by the Run-triage handler into its own slot at the bottom of the
+    page. The agent's `trace` is still available on
+    `TriageResult.trace` for anyone who needs it outside the UI."""
+    return
 
 
 def _render_result(result: TriageResult) -> None:
@@ -308,10 +390,31 @@ def main() -> None:
                 st.error(f"Invalid claim input: {e}")
                 return
 
+            # Reserve two slots in DOM order so the triage result cards
+            # sit above the pipeline trace panel. Both slots can still
+            # be filled from code that runs *after* this point — the
+            # callback-driven updates during agent.run() will target the
+            # already-reserved trace slot.
+            result_container = st.container()
+            trace_slot = st.empty()
+
+            trace_slot.html(_inline_trace_html([], running=True))
+            completed: list = []
+
+            def _on_step(step) -> None:
+                completed.append(step)
+                trace_slot.html(_inline_trace_html(completed, running=True))
+
             with st.spinner("Retrieving policy and calling Claude Sonnet..."):
                 agent = TriageAgent()
-                result = agent.run(claim)
-            _render_result(result)
+                result = agent.run(claim, on_step=_on_step)
+
+            # Final trace — mark the panel complete; it stays visible
+            trace_slot.html(_inline_trace_html(result.trace, running=False))
+            # Fill the result container last so the badges, summary, and
+            # cards render into the slot ABOVE the trace panel.
+            with result_container:
+                _render_result(result)
         else:
             st.info(
                 "Load a sample from the sidebar or fill in the form on the left, "
