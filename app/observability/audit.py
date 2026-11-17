@@ -42,6 +42,7 @@ class AuditRecord:
     coverage_assessment: str = ""
     confidence_level: str = ""
     latency_ms: int = 0
+    token_usage: dict[str, Any] = field(default_factory=dict)
 
     def set_customer(self, customer: str) -> None:
         self.customer_hash = _hash(customer)

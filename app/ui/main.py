@@ -23,6 +23,8 @@ from datetime import date  # noqa: E402
 import streamlit as st  # noqa: E402
 from dotenv import load_dotenv  # noqa: E402
 
+from pydantic import ValidationError
+
 from app.agents.triage import TRIAGE_MODEL, TriageAgent, TriageResult
 from app.schemas import ClaimInput
 
@@ -390,8 +392,13 @@ def main() -> None:
                     ],
                     customer_claim_history=st.session_state["customer_claim_history"],
                 )
+            except ValidationError as e:
+                for err in e.errors():
+                    loc = " → ".join(str(x) for x in err["loc"])
+                    st.error(f"**{loc}:** {err['msg']}")
+                return
             except Exception as e:
-                st.error(f"Invalid claim input: {e}")
+                st.error(f"Unexpected error preparing claim: {e}")
                 return
 
             # Reserve two slots in DOM order so the triage result cards

@@ -13,7 +13,7 @@ from __future__ import annotations
 from datetime import date
 from typing import Literal
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, model_validator
 
 CoverageAssessment = Literal[
     "Likely covered",
@@ -50,6 +50,24 @@ class ClaimInput(BaseModel):
         description="Historical claim count or behavior (e.g. '1 claim in past 24 months')",
     )
 
+    @field_validator("claim_id")
+    @classmethod
+    def _validate_claim_id(cls, v: str) -> str:
+        v = v.strip()
+        if not v:
+            raise ValueError("Claim ID cannot be empty")
+        return v
+
+    @field_validator("claim_description")
+    @classmethod
+    def _validate_description(cls, v: str) -> str:
+        v = v.strip()
+        if len(v) < 10:
+            raise ValueError("Claim description must be at least 10 characters")
+        if len(v) > 5000:
+            raise ValueError("Claim description must be under 5,000 characters")
+        return v
+
     @field_validator("documents_submitted", mode="before")
     @classmethod
     def _normalise_docs(cls, v: object) -> list[str]:
@@ -58,6 +76,18 @@ class ClaimInput(BaseModel):
         if isinstance(v, str):
             return [item.strip() for item in v.split(",") if item.strip()]
         return list(v)  # type: ignore[arg-type]
+
+    @model_validator(mode="after")
+    def _validate_dates(self) -> "ClaimInput":
+        from datetime import date as _date
+        today = _date.today()
+        if self.incident_date > today:
+            raise ValueError("Incident date cannot be in the future")
+        if self.claim_submitted_date > today:
+            raise ValueError("Claim submitted date cannot be in the future")
+        if self.claim_submitted_date < self.incident_date:
+            raise ValueError("Claim submitted date cannot be before incident date")
+        return self
 
     def days_to_submit(self) -> int:
         """Days elapsed between incident and claim submission."""

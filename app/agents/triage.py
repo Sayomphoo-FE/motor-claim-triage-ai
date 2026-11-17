@@ -148,7 +148,10 @@ def _format_chunks(chunks: list[RetrievedChunk]) -> str:
 
 
 def _render_prompt(
-    claim: ClaimInput, sanitized_description: str, chunks: list[RetrievedChunk]
+    claim: ClaimInput,
+    sanitized_description: str,
+    sanitized_history: str,
+    chunks: list[RetrievedChunk],
 ) -> str:
     template = PROMPT_PATH.read_text(encoding="utf-8")
     return template.format(
@@ -160,7 +163,7 @@ def _render_prompt(
         claim_submitted_date=claim.claim_submitted_date.isoformat(),
         days_to_submit=claim.days_to_submit(),
         documents_submitted=", ".join(claim.documents_submitted) or "(none provided)",
-        customer_claim_history=claim.customer_claim_history or "(none provided)",
+        customer_claim_history=sanitized_history or "(none provided)",
         claim_description=sanitized_description,
     )
 
@@ -207,9 +210,18 @@ class TriageAgent:
                 except Exception:  # noqa: BLE001 — UI callbacks must never kill the run
                     pass
 
-        # 1. Input guardrail — sanitize free-text fields.
-        input_guard = sanitize_text(claim.claim_description)
-        sanitized_description = input_guard.sanitized
+        # 1. Input guardrail — sanitize all free-text fields.
+        desc_guard = sanitize_text(claim.claim_description)
+        hist_guard = sanitize_text(claim.customer_claim_history)
+        sanitized_description = desc_guard.sanitized
+        sanitized_history = hist_guard.sanitized
+        input_guard = InputGuardResult(
+            sanitized=sanitized_description,
+            pii_triggers=desc_guard.pii_triggers + hist_guard.pii_triggers,
+            injection_triggers=sorted(
+                set(desc_guard.injection_triggers) | set(hist_guard.injection_triggers)
+            ),
+        )
         _emit(TraceStep(
             index=1,
             icon="🧹",
@@ -224,7 +236,7 @@ class TriageAgent:
 
         # 2. RAG query generation.
         docs = ", ".join(claim.documents_submitted) or "none"
-        history = claim.customer_claim_history or "none"
+        history = sanitized_history or "none"
         queries = _generate_queries(sanitized_description, history, docs)
         _emit(TraceStep(
             index=2,
@@ -254,7 +266,7 @@ class TriageAgent:
         ))
 
         # 4. Prompt build.
-        prompt = _render_prompt(claim, sanitized_description, chunks)
+        prompt = _render_prompt(claim, sanitized_description, sanitized_history, chunks)
         _emit(TraceStep(
             index=4,
             icon="✏️",
@@ -330,6 +342,7 @@ class TriageAgent:
         audit.coverage_assessment = guard.output.coverage_assessment
         audit.confidence_level = guard.output.confidence_level
         audit.latency_ms = total_ms
+        audit.token_usage = {"input_tokens": in_tok, "output_tokens": out_tok}
 
         if self.persist_audit:
             write_audit(audit)
