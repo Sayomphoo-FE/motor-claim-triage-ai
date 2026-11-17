@@ -25,6 +25,7 @@ from dotenv import load_dotenv  # noqa: E402
 
 from pydantic import ValidationError
 
+from app.agents.photo import analyze_damage_photos
 from app.agents.triage import TRIAGE_MODEL, TriageAgent, TriageResult
 from app.schemas import ClaimInput
 
@@ -324,6 +325,7 @@ def main() -> None:
         )
         if st.button("Load into form", use_container_width=True) and choice != "(none)":
             _init_form_state(samples[choice])
+            st.session_state.pop("photo_analysis", None)
             st.rerun()
 
         st.divider()
@@ -363,6 +365,35 @@ def main() -> None:
             height=100,
             value=st.session_state.get("documents_submitted", ""),
         )
+
+        st.markdown("**📸 Damage photos** _(optional)_")
+        uploaded_photos = st.file_uploader(
+            "photos",
+            type=["jpg", "jpeg", "png"],
+            accept_multiple_files=True,
+            label_visibility="collapsed",
+            key="damage_photos",
+        )
+        if uploaded_photos:
+            ph_col1, ph_col2 = st.columns([3, 1])
+            with ph_col1:
+                analyze_clicked = st.button(
+                    "🔍 Analyze damage photos",
+                    use_container_width=True,
+                    key="analyze_photos_btn",
+                )
+            with ph_col2:
+                st.caption(f"{len(uploaded_photos)} photo(s)")
+            if analyze_clicked:
+                with st.spinner("Analyzing photos with Claude vision..."):
+                    images = [(f.read(), f.type or "image/jpeg") for f in uploaded_photos]
+                    st.session_state["photo_analysis"] = analyze_damage_photos(images)
+            if st.session_state.get("photo_analysis"):
+                st.info(f"**Photo analysis:** {st.session_state['photo_analysis']}")
+                st.caption("ผลนี้จะถูกรวมเข้า triage context อัตโนมัติ")
+        else:
+            st.session_state.pop("photo_analysis", None)
+
         st.text_input(
             "Customer claim history",
             key="customer_claim_history",
@@ -418,7 +449,11 @@ def main() -> None:
 
             with st.spinner("Retrieving policy and calling Claude Sonnet..."):
                 agent = TriageAgent()
-                result = agent.run(claim, on_step=_on_step)
+                result = agent.run(
+                    claim,
+                    on_step=_on_step,
+                    photo_description=st.session_state.get("photo_analysis", ""),
+                )
 
             # Final trace — mark the panel complete; it stays visible
             trace_slot.html(_inline_trace_html(result.trace, running=False))

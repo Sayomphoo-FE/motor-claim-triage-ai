@@ -34,6 +34,7 @@ Customer claim history: {customer_claim_history}
 
 Description:
 {claim_description}
+{photo_description_block}
 </claim_case>
 
 <task>

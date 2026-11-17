@@ -152,8 +152,14 @@ def _render_prompt(
     sanitized_description: str,
     sanitized_history: str,
     chunks: list[RetrievedChunk],
+    photo_description: str = "",
 ) -> str:
     template = PROMPT_PATH.read_text(encoding="utf-8")
+    photo_block = (
+        f"Damage photo analysis:\n{photo_description}"
+        if photo_description
+        else ""
+    )
     return template.format(
         policy_chunks=_format_chunks(chunks),
         claim_id=claim.claim_id,
@@ -165,6 +171,7 @@ def _render_prompt(
         documents_submitted=", ".join(claim.documents_submitted) or "(none provided)",
         customer_claim_history=sanitized_history or "(none provided)",
         claim_description=sanitized_description,
+        photo_description_block=photo_block,
     )
 
 
@@ -178,6 +185,7 @@ class TriageAgent:
         self,
         claim: ClaimInput,
         on_step: Callable[["TraceStep"], None] | None = None,
+        photo_description: str = "",
     ) -> TriageResult:
         """Run the full guarded triage pipeline.
 
@@ -266,13 +274,16 @@ class TriageAgent:
         ))
 
         # 4. Prompt build.
-        prompt = _render_prompt(claim, sanitized_description, sanitized_history, chunks)
+        prompt = _render_prompt(
+            claim, sanitized_description, sanitized_history, chunks, photo_description
+        )
+        photo_note = " · photo analysis included" if photo_description else ""
         _emit(TraceStep(
             index=4,
             icon="✏️",
             name="Prompt Build",
             duration_ms=_tick(),
-            details=f"Rendered prompt with {len(chunks)} clauses · {len(prompt):,} chars",
+            details=f"Rendered prompt with {len(chunks)} clauses · {len(prompt):,} chars{photo_note}",
             status="info",
         ))
 
