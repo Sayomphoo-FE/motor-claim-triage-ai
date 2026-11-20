@@ -282,11 +282,11 @@ style: |
 
 #### 📚 RAG (grounding)
 
-1. Policy ตัดเป็น clause-level chunks
-2. Metadata: `section_num`, `clause_id`
+1. **1 clause = 1 chunk** — ไม่ตัดกลางประโยค
+2. Metadata: `section_num`, `clause_id`, `section`
 3. **4 sub-queries ต่อ claim** — section-filtered
-4. top-k=5 ต่อ query → dedupe
-5. Chunks ทั้งหมด → "single source of truth"
+4. top-k=**3** ต่อ query → dedupe by max score
+5. ~10 unique chunks → "single source of truth"
 
 </div>
 
@@ -327,7 +327,7 @@ style: |
 | Cited clauses | `[1.1, 2.2, 3.1, 4.1]` ✅ all in retrieved context |
 | Reasoning | "...damage from illegal racing is excluded [Clause 2.2]..." |
 
-<span class="muted">📝 ดู Reasoning ได้ครบ + Audit log ใน expander · Case 6 → แสดง guardrails ทำงาน</span>
+<span class="muted">📝 ดู Reasoning + Audit log ใน expander · Case 6 → แสดง guardrails + AI Governance panel ทำงาน</span>
 
 ---
 
@@ -363,9 +363,10 @@ style: |
 
 <span class="muted" style="font-size:17px">❌ ไม่ใช่ "Likely covered + Standard" ที่ผู้ไม่หวังดีสั่ง</span>
 
-**ดูได้ใน UI:**
-Guardrail expander → `pii_triggers` · `injection_triggers`
-Audit record → `customer_hash` · `guard_triggers`
+**ดูได้ใน AI Governance panel (full-width ด้านล่าง):**
+Input Guard expander → PII types + sanitized text
+Output Guard expander → 3 rules pass/fail + before→after
+Audit record expander → `customer_hash` · `guard_triggers`
 
 </div>
 
@@ -416,11 +417,11 @@ Audit record → `customer_hash` · `guard_triggers`
 
 | ความเสี่ยง | วิธีกัน | ดูได้ใน Prototype |
 |---|---|---|
-| AI อ้าง clause ที่ไม่ได้ retrieve | Output guard ตรวจ set membership | Audit → `cited_clauses` |
-| PII รั่วเข้า log / LLM | Regex mask + SHA-256 hash | Guardrail → `pii_triggers` |
-| Prompt injection | Injection filter + tool_choice lock | Case 6 → `injection_triggers` |
-| "Not covered" ไม่มี Section-2 | Output guard block + downgrade | Output guard log |
-| Confidence ต่ำ route ผิด | Low conf → auto Manual review | Case 4 routing |
+| AI อ้าง clause ที่ไม่ได้ retrieve | Output guard ตรวจ set membership | **AI Governance panel** → Citation Audit expander (clause-by-clause table) |
+| PII รั่วเข้า log / LLM | Regex mask + SHA-256 hash | **AI Governance panel** → Input Guard expander (PII types + sanitized text) |
+| Prompt injection | Injection filter + tool_choice lock | Case 6 → **AI Governance panel** → Input Guard expander |
+| "Not covered" ไม่มี Section-2 | Output guard block + downgrade | **AI Governance panel** → Output Guard expander (3 rules + before→after) |
+| Confidence ต่ำ route ผิด | Low conf → auto Manual review | **AI Governance panel** → Output Guard expander |
 | ไม่มี audit trail | Append-only JSON ทุก session | Audit record expander |
 
 <div class="card card-blue">
@@ -439,9 +440,13 @@ Audit record → `customer_hash` · `guard_triggers`
 
 #### Phase 1 · develop (shipped)
 
-- Text triage · RAG
+- Text triage · RAG 4-query
 - 6 cases + guardrail test
-- Guardrails + audit
+- Guardrails 3 ชั้น + audit
+- Photo damage (Claude vision) 📸
+- AI Governance panel + drill-down expanders 🛡️
+- Policy no. / Claim type / Location
+- Structured claim history 📋
 - Streamlit + CLI
 
 </div>
@@ -453,6 +458,7 @@ Audit record → `customer_hash` · `guard_triggers`
 - SupervisorAgent + conv
 - Voice (Whisper + TTS)
 - Bilingual TH/EN
+- Document OCR validation
 - 14 bilingual cases
 
 </div>
@@ -462,9 +468,9 @@ Audit record → `customer_hash` · `guard_triggers`
 #### Phase 3+ · roadmap
 
 - Twilio telephony
-- Vision รูปความเสียหาย
-- Fraud model
-- A/B test manual baseline
+- Fraud detection model
+- A/B test vs manual baseline
+- Customer-facing portal
 
 </div>
 

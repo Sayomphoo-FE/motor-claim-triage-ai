@@ -1,8 +1,8 @@
 # คู่มือ Slide Round 2 — อธิบายสิ่งที่เพิ่มและแก้ไข
 
-> สำหรับ presenter ใช้เตรียมตัวก่อน present วันพฤหัส
-> สิ่งที่เปลี่ยนมี 3 จุด: **เพิ่ม Slide 4**, **เพิ่ม Slide 9**, **แก้ Slide 11**
-> Slide อื่นๆ ไม่มีการเปลี่ยนแปลง
+> สำหรับ presenter ใช้เตรียมตัวก่อน present
+> สิ่งที่เปลี่ยนมี 4 จุด: **เพิ่ม Slide 4**, **เพิ่ม Slide 9**, **แก้ Slide 11**, **แก้ Slide 12**
+> UI prototype ก็เปลี่ยน: AI Governance panel ย้ายมา full-width พร้อม drill-down expanders + Structured claim history
 
 ---
 
@@ -21,7 +21,7 @@
 | **9** | **Demo — Case 6: Guardrails จริง** | **ใหม่** |
 | 10 | Evaluation | เดิม (เลขเลื่อน) |
 | **11** | **Risk & Governance** | **แก้ไข** |
-| 12 | Roadmap | เดิม (เลขเลื่อน) |
+| **12** | **Roadmap** | **แก้ไข** |
 
 ---
 
@@ -141,12 +141,17 @@ Case 6 คือ case ที่ออกแบบมาเพื่อโจม�
 ### วิธี Demo ระหว่าง Present
 
 1. Load Case 6 ใน UI (sidebar → เลือก case6_guardrail_triggers → Load into form)
-2. ชี้ที่ claim description: "ตรงนี้มี PII จริงและ injection อยู่"
-3. กด **Run triage**
-4. ระหว่าง trace panel กำลัง run: "ดูที่ Step 1 — Input Guardrail กำลังทำงาน"
-5. พอ complete: เปิด **Guardrail expander** → แสดง `pii: ["PHONE", "EMAIL", "ID"]` และ `injection: [...]`
-6. เปิด **Audit record** → ชี้ที่ `customer_hash` บอกว่าเก็บเป็น hash ไม่เก็บค่าจริง
-7. ชี้ที่ routing result: "Manual review — ไม่ใช่ Standard ที่ผู้โจมตีสั่ง"
+2. ชี้ที่ **Documents & Photos section** (checklist ใหม่):
+   - แต่ละ checkbox คือ doc type ที่ระบบรองรับ — case นี้มีบางตัว tick ไว้แล้วตาม sample
+   - บอกว่า "ในระบบจริง Officer กรอบตรงนี้ ต่อไปจะใช้ OCR ตรวจแทน"
+3. ชี้ที่ claim description: "ตรงนี้มี PII จริงและ injection อยู่"
+4. กด **▶ Run triage**
+5. ระหว่าง trace panel กำลัง run: "ดูที่ Step 1 — Input Guardrail กำลังทำงาน"
+6. พอ complete: เลื่อนลงมาดู **AI Governance panel** (full-width ด้านล่างสุด)
+7. เปิด **Input Guard expander** → ชี้ PII types ที่ถูก mask + sanitized text ที่ส่งให้ Claude จริง
+8. เปิด **Output Guard expander** → ชี้ 3 rules: "ทุก rule ผ่าน injection ไม่ผ่าน Claude"
+9. เปิด **Audit record** → ชี้ที่ `customer_hash` บอกว่าเก็บเป็น hash ไม่เก็บค่าจริง
+10. ชี้ที่ routing result: "Manual review — ไม่ใช่ Standard ที่ผู้โจมตีสั่ง"
 
 ### จะพูดอะไรตอนถึง slide นี้?
 
@@ -185,11 +190,11 @@ Column ที่ 3 ทำหน้าที่นี้: เป็น "แผน
 
 **Column "ดูได้ใน Prototype" ของแต่ละ row:**
 
-1. **Audit → `cited_clauses`** — เปิด Audit record expander → field `cited_clauses` แสดง clause ID ที่ AI อ้าง ทุกตัวต้องมีอยู่ใน retrieved context เท่านั้น
-2. **Guardrail → `pii_triggers`** — เปิด Guardrail expander → `pii` field แสดงประเภท PII ที่ถูก mask
-3. **Case 6 → `injection_triggers`** — รัน Case 6 → Guardrail expander → `injection` field
-4. **Output guard log** — ถ้า Not covered ถูก downgrade จะเห็นใน output_guard_triggers ใน Guardrail expander
-5. **Case 4 routing** — รัน Case 4 (fraud risk) → routing เป็น Fraud review (ไม่ใช่ Standard แม้จะไม่มี police report)
+1. **AI Governance panel → Citation Audit expander** — ตารางทุก clause ที่ Claude อ้าง พร้อม score + verified/stripped status
+2. **AI Governance panel → Input Guard expander** — PII types ที่ถูก mask + sanitized text ที่ส่งให้ Claude จริง
+3. **Case 6 → AI Governance panel → Input Guard expander** — injection patterns ที่ flag + เปรียบ routing vs ที่ผู้โจมตีสั่ง
+4. **AI Governance panel → Output Guard expander** — 3 rules pass/fail + before→after comparison ถ้า rule fired
+5. **AI Governance panel → Output Guard expander** — Rule 3 (Low conf routing): pass/fired status
 6. **Audit record expander** — เปิดดูได้จาก expander ในทุก case
 
 ### จะพูดอะไรตอนถึง slide นี้?
@@ -202,13 +207,34 @@ Column ที่ 3 ทำหน้าที่นี้: เป็น "แผน
 
 ---
 
+## Slide 12 (แก้ไข) — Roadmap Phase 1
+
+### เปลี่ยนอะไร?
+
+เพิ่ม 2 รายการใน Phase 1 (shipped):
+- **AI Governance panel + drill-down expanders 🛡️** — เปลี่ยนจาก "AI Governance panel" เพื่อระบุว่ามี expander detail ด้วย
+- **Structured claim history 📋** — ตอบ feedback "input ยังไม่ครบ" โดยตรง
+
+### จะพูดอะไรตอนถึง slide นี้?
+
+> "Phase 1 ที่ ship แล้วตอบ feedback ทั้ง 2 ข้อหลักโดยตรง:
+> Input quality: ตอนนี้มี structured fields ครบ ตั้งแต่ claim type, location, จนถึง claim history แบบ structured
+> AI Governance visibility: panel ย้ายมา full-width พร้อม drill-down ทุก section
+> Phase 2–3 ต่อยอดด้านภาษาและ scale ต่อไป"
+
+---
+
 ## สรุปสิ่งที่ต้องเตรียมก่อน Present
 
-### ทำ 1 ครั้งก่อนวันพฤหัส
+### ทำ 1 ครั้งก่อน Present
 
 - [ ] Export `presentation.md` → PDF ใหม่ด้วย Marp (`npx @marp-team/marp-cli presentation.md -o presentation.pdf`)
 - [ ] รัน `make ui` และเปิด browser ทิ้งไว้ให้พร้อม
 - [ ] ทดลอง demo Case 2 → Case 6 ตามลำดับ จับเวลาให้อยู่ใน 7 นาที
+- [ ] Load Case 1 แล้วดู Documents & Photos section ว่า checklist render ถูกต้อง
+- [ ] Load Case 4 (fraud) ดูว่า Customer claim history แสดง "Has prior claims · 4 claims · 12 months · flags: Short interval + Fraud suspicion" ถูกต้อง
+- [ ] รัน Case 6 → เลื่อนลงมาดู AI Governance panel ด้านล่าง → เปิด Input Guard expander และ Output Guard expander ทดสอบก่อน
+- [ ] ลองอัพโหลดรูปใน case ที่มีรูป → กด Analyze photos → ดูว่าปุ่ม Run triage unlock หลัง analyze เสร็จ
 
 ### Script การ present (แนะนำ)
 

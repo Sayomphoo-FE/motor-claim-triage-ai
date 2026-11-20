@@ -10,10 +10,13 @@ explainability and evaluation.
 """
 from __future__ import annotations
 
+import re
 from datetime import date
 from typing import Literal
 
-from pydantic import BaseModel, Field, field_validator, model_validator
+from pydantic import BaseModel, Field, computed_field, field_validator, model_validator
+
+CLAIM_ID_RE = re.compile(r"^[A-Z0-9][A-Z0-9\-_]{1,24}$")
 
 CoverageAssessment = Literal[
     "Likely covered",
@@ -32,30 +35,76 @@ RoutingDecision = Literal[
 ConfidenceLevel = Literal["High", "Medium", "Low"]
 
 
+CLAIM_TYPES = [
+    "Third-party damage",
+    "Own damage",
+    "Theft",
+    "Natural disaster",
+    "Other",
+]
+
+HISTORY_CLAIM_TYPES = [
+    "Windshield",
+    "Accident / collision",
+    "Theft",
+    "Natural disaster",
+    "Other",
+]
+
+HISTORY_FLAGS = [
+    "Short interval between claims",
+    "Fraud suspicion",
+]
+
+HISTORY_PERIODS = ["12 months", "24 months", "36 months"]
+
+
 class ClaimInput(BaseModel):
     """Input case following assignment PDF §5.2."""
 
     claim_id: str = Field(..., description="Unique claim case identifier")
+    policy_number: str = Field("", description="Insurance policy number (e.g. POL-2026-14201)")
+    claim_type: str = Field("", description="Type of claim event")
     customer: str = Field(..., description="Customer name or anonymized customer ID")
     vehicle: str = Field(..., description="Vehicle model or category")
     incident_date: date = Field(..., description="Date when the incident occurred")
+    incident_location: str = Field("", description="Location where the incident occurred")
     claim_submitted_date: date = Field(..., description="Date when claim was submitted")
     claim_description: str = Field(..., description="Free-text description of the incident")
     documents_submitted: list[str] = Field(
         default_factory=list,
         description="List of documents the customer has submitted",
     )
-    customer_claim_history: str = Field(
-        "",
-        description="Historical claim count or behavior (e.g. '1 claim in past 24 months')",
-    )
+    prior_claims_count: int = Field(0, ge=0, le=10, description="Number of prior claims (0–10; ≥3 displayed as 3+)")
+    prior_claims_period: str = Field("24 months", description="Lookback window for prior claims")
+    prior_claim_types: list[str] = Field(default_factory=list, description="Types of prior claims submitted")
+    history_flags: list[str] = Field(default_factory=list, description="Risk signals from claims history")
+
+    @computed_field
+    @property
+    def customer_claim_history(self) -> str:
+        """Formatted summary sent to Claude — derived from structured history fields."""
+        if self.prior_claims_count == 0:
+            return "No prior claims"
+        count_str = "3+" if self.prior_claims_count >= 3 else str(self.prior_claims_count)
+        parts = [f"{count_str} claim(s) in past {self.prior_claims_period}"]
+        if self.prior_claim_types:
+            parts.append(f"types: {', '.join(self.prior_claim_types)}")
+        if self.history_flags:
+            parts.append("; ".join(self.history_flags))
+        return ". ".join(parts)
 
     @field_validator("claim_id")
     @classmethod
     def _validate_claim_id(cls, v: str) -> str:
-        v = v.strip()
+        v = v.strip().upper()
         if not v:
             raise ValueError("Claim ID cannot be empty")
+        if not CLAIM_ID_RE.match(v):
+            raise ValueError(
+                "Claim ID must be 2–25 characters, letters/numbers/hyphens only "
+                "(e.g. CLM-2026-00001)"
+            )
         return v
 
     @field_validator("claim_description")

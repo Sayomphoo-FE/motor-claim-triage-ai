@@ -25,9 +25,12 @@ assume any clause not shown here.
 
 <claim_case>
 Claim ID: {claim_id}
+Policy number: {policy_number}
+Claim type: {claim_type}
 Customer: {customer}
 Vehicle: {vehicle}
 Incident date: {incident_date}
+Incident location: {incident_location}
 Claim submitted: {claim_submitted_date} (days to submit: {days_to_submit})
 Documents submitted: {documents_submitted}
 Customer claim history: {customer_claim_history}

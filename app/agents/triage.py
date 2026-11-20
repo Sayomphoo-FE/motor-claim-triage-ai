@@ -122,6 +122,7 @@ class TraceStep:
 @dataclass
 class TriageResult:
     output: TriageOutput
+    raw_output: TriageOutput          # Claude's output BEFORE the output guardrail
     retrieved: list[RetrievedChunk]
     input_guard: InputGuardResult
     output_guard_triggers: list[str]
@@ -163,9 +164,12 @@ def _render_prompt(
     return template.format(
         policy_chunks=_format_chunks(chunks),
         claim_id=claim.claim_id,
+        policy_number=claim.policy_number or "(not provided)",
+        claim_type=claim.claim_type or "(not specified)",
         customer=claim.customer,
         vehicle=claim.vehicle,
         incident_date=claim.incident_date.isoformat(),
+        incident_location=claim.incident_location or "(not provided)",
         claim_submitted_date=claim.claim_submitted_date.isoformat(),
         days_to_submit=claim.days_to_submit(),
         documents_submitted=", ".join(claim.documents_submitted) or "(none provided)",
@@ -186,6 +190,8 @@ class TriageAgent:
         claim: ClaimInput,
         on_step: Callable[["TraceStep"], None] | None = None,
         photo_description: str = "",
+        on_prompt_ready: Callable[[list, str], None] | None = None,
+        on_token: Callable[[str], None] | None = None,
     ) -> TriageResult:
         """Run the full guarded triage pipeline.
 
@@ -286,16 +292,41 @@ class TriageAgent:
             details=f"Rendered prompt with {len(chunks)} clauses · {len(prompt):,} chars{photo_note}",
             status="info",
         ))
+        if on_prompt_ready is not None:
+            try:
+                on_prompt_ready(chunks, prompt)
+            except Exception:  # noqa: BLE001
+                pass
 
-        # 5. LLM call. 4000-token budget so a long Thai `reasoning`
-        # cannot truncate trailing enum fields off the tool call.
-        response = self.client.messages.create(
-            model=self.model,
-            max_tokens=4000,
-            tools=[TRIAGE_TOOL],
-            tool_choice={"type": "tool", "name": "submit_triage"},
-            messages=[{"role": "user", "content": prompt}],
-        )
+        # 5. LLM call — streaming so the UI can show tokens in real time.
+        # 4000-token budget so a long Thai `reasoning` cannot truncate
+        # trailing enum fields off the tool call.
+        raw_input_json = ""
+        try:
+            with self.client.messages.stream(
+                model=self.model,
+                max_tokens=4000,
+                tools=[TRIAGE_TOOL],
+                tool_choice={"type": "tool", "name": "submit_triage"},
+                messages=[{"role": "user", "content": prompt}],
+            ) as stream:
+                for event in stream:
+                    # tool_choice forces an input_json_delta stream
+                    try:
+                        if getattr(event, "type", None) == "content_block_delta":
+                            partial = getattr(event.delta, "partial_json", None)
+                            if partial:
+                                raw_input_json += partial
+                                if on_token is not None:
+                                    on_token(raw_input_json)
+                    except Exception:  # noqa: BLE001
+                        pass
+                response = stream.get_final_message()
+        except Exception as exc:
+            raise RuntimeError(
+                f"Claude API call failed — check ANTHROPIC_API_KEY and network. "
+                f"({type(exc).__name__}: {exc})"
+            ) from exc
         tool_block = next(
             b for b in response.content if getattr(b, "type", None) == "tool_use"
         )
@@ -368,6 +399,7 @@ class TriageAgent:
 
         return TriageResult(
             output=guard.output,
+            raw_output=raw_output,
             retrieved=chunks,
             input_guard=input_guard,
             output_guard_triggers=guard.triggers,

@@ -54,13 +54,19 @@ def retrieve(
                 FieldCondition(key="section_num", match=MatchValue(value=section_num))
             ]
         )
-    hits = _client().query_points(
-        collection_name=collection,
-        query=vector,
-        limit=top_k,
-        query_filter=qfilter,
-        with_payload=True,
-    ).points
+    try:
+        hits = _client().query_points(
+            collection_name=collection,
+            query=vector,
+            limit=top_k,
+            query_filter=qfilter,
+            with_payload=True,
+        ).points
+    except Exception as exc:
+        raise RuntimeError(
+            f"Vector search failed — is Qdrant running at {DEFAULT_QDRANT_URL}? "
+            f"({type(exc).__name__}: {exc})"
+        ) from exc
     return [
         RetrievedChunk(
             clause_id=hit.payload["clause_id"],
